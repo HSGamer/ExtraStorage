@@ -2,7 +2,7 @@ name: ExtraStorage
 version: '${project.version}'
 main: me.hsgamer.extrastorage.ExtraStorage
 api-version: 1.16
-authors: [ HyronicTeam ]
+authors: [ HSGamer, HyronicTeam ]
 softdepend:
   - HeadDatabase
   - Vault
