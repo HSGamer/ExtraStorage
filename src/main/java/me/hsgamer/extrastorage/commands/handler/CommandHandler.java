@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.handler;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.commands.abstraction.AbstractCommand;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.configs.Message;
@@ -9,7 +8,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public final class CommandHandler
-        extends AbstractCommand<ExtraStorage> {
+        extends AbstractCommand {
 
     @Override
     public boolean check(CommandSender sender, Command cmd, String label, String[] args) {

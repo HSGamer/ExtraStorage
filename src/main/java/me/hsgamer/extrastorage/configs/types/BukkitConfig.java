@@ -2,7 +2,6 @@ package me.hsgamer.extrastorage.configs.types;
 
 import lombok.Getter;
 import me.hsgamer.extrastorage.configs.abstraction.AbstractConfig;
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,8 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public abstract class BukkitConfig<T extends HyronicPlugin>
-        extends AbstractConfig<T> {
+public abstract class BukkitConfig extends AbstractConfig {
 
     @Getter
     protected FileConfiguration config;

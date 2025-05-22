@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.data.item;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Worth;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class WorthManager
-        extends BukkitConfig<ExtraStorage> {
+        extends BukkitConfig {
 
     private Map<String, Worth> cache;
 

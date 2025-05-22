@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
@@ -20,7 +19,7 @@ import java.util.Optional;
 
 @Command(value = "subtract", usage = "/{label} subtract <material-key> <amount> [player]", permission = Constants.ADMIN_SUBTRACT_PERMISSION, minArgs = 2)
 public final class SubtractCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final Setting setting;
     private final String QUANTITY_REGEX, ITEM_REGEX, PLAYER_REGEX;

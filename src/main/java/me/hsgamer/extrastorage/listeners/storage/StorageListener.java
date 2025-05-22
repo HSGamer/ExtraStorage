@@ -52,7 +52,7 @@ public abstract class StorageListener
     @Override
     protected void register() {
         super.register();
-        instance.getPlugMan().registerEvent(EntityPickupItemEvent.class, this, getPickupPriority(), (listener, event) -> {
+        instance.getServer().getPluginManager().registerEvent(EntityPickupItemEvent.class, this, getPickupPriority(), (listener, event) -> {
             if (event instanceof EntityPickupItemEvent) {
                 EntityPickupItemEvent pickupEvent = (EntityPickupItemEvent) event;
                 onEntityPickupItem(pickupEvent);

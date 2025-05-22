@@ -25,7 +25,7 @@ public final class CoinsEngineHook
 
     @Override
     public boolean isHooked() {
-        return instance.isHooked("CoinsEngine");
+        return instance.getServer().getPluginManager().isPluginEnabled("CoinsEngine");
     }
 
     @Override

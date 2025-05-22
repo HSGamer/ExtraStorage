@@ -14,7 +14,7 @@ public abstract class BaseListener
     }
 
     protected void register() {
-        instance.getPlugMan().registerEvents(this, instance);
+        instance.getServer().getPluginManager().registerEvents(this, instance);
     }
 
 }

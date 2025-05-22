@@ -2,7 +2,6 @@ package me.hsgamer.extrastorage.configs;
 
 import lombok.Getter;
 import me.hsgamer.extrastorage.Debug;
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.hooks.economy.*;
 import me.hsgamer.extrastorage.util.Digital;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Getter
 public final class Setting
-        extends BukkitConfig<ExtraStorage> {
+        extends BukkitConfig {
 
     private boolean checkForUpdates;
 

@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
 
 @Command(value = "extrastorage", permission = Constants.PLAYER_OPEN_PERMISSION, target = CommandTarget.ONLY_PLAYER)
 public final class PlayerCommands
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     public PlayerCommands() {
         this.add(new HelpCmd());

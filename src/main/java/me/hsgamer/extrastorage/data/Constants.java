@@ -21,6 +21,7 @@ public final class Constants {
     public static final String ADMIN_RESET_PERMISSION = PREFIX + ".command.admin.reset";
     public static final String ADMIN_WHITELIST_PERMISSION = PREFIX + ".command.admin.whitelist";
     public static final String ADMIN_RELOAD_PERMISSION = PREFIX + ".command.admin.reload";
+
     private Constants() {
     }
 

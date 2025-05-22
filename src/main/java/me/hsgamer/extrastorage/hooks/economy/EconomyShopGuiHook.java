@@ -27,7 +27,7 @@ public final class EconomyShopGuiHook
         econ = (rsp != null) ? rsp.getProvider() : null;
 
         if (this.isHooked()) {
-            isPaid = instance.isHooked("EconomyShopGUI-Premium");
+            isPaid = instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium");
             instance.getLogger().info("Using EconomyShopGUI (" + (isPaid ? "paid" : "free") + " version) as economy provider.");
             instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "EconomyShopGUI"));
         } else
@@ -36,7 +36,7 @@ public final class EconomyShopGuiHook
 
     @Override
     public boolean isHooked() {
-        return (instance.isHooked("EconomyShopGUI") || instance.isHooked("EconomyShopGUI-Premium"));
+        return (instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI") || instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium"));
     }
 
     @Override

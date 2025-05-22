@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
@@ -19,7 +18,7 @@ import java.util.Optional;
 
 @Command(value = "reset", usage = "/{label} reset <material-key|*> [player]", permission = Constants.ADMIN_RESET_PERMISSION, minArgs = 1)
 public final class ResetCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final Setting setting;
     private final String ITEM_REGEX, PLAYER_REGEX;

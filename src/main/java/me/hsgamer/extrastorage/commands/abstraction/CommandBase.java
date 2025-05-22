@@ -1,16 +1,16 @@
 package me.hsgamer.extrastorage.commands.abstraction;
 
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
+import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.command.CommandSender;
 
-abstract class CommandBase<T extends HyronicPlugin> {
+abstract class CommandBase {
 
-    protected final T instance;
+    protected final ExtraStorage instance;
     protected final String VERSION_REGEX, LABEL_REGEX, USAGE_REGEX, VALUE_REGEX;
 
     CommandBase() {
-        this.instance = (T) HyronicPlugin.getInstance();
+        this.instance = ExtraStorage.getInstance();
 
         this.VERSION_REGEX = Utils.getRegex("ver(sion)?");
         this.LABEL_REGEX = Utils.getRegex("label");

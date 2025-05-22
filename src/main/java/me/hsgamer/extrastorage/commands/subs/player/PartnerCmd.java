@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.player;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -22,7 +21,7 @@ import java.util.Collection;
 
 @Command(value = "partner", permission = Constants.PLAYER_PARTNER_PERMISSION, target = CommandTarget.ONLY_PLAYER)
 public final class PartnerCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final UserManager manager;
 

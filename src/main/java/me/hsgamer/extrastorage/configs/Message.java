@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.configs;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.util.Utils;
 
@@ -8,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Message
-        extends BukkitConfig<ExtraStorage> {
+        extends BukkitConfig {
 
     public static final Map<String, String> messages = new HashMap<>();
     public static String PREFIX;

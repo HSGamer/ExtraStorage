@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.commands.abstraction.CommandContext;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Command(value = "esadmin", permission = Constants.ADMIN_HELP_PERMISSION)
 public final class AdminCommands
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     public AdminCommands() {
         this.add(new OpenCmd());

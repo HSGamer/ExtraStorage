@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -17,7 +16,7 @@ import org.bukkit.entity.Player;
 
 @Command(value = "space", usage = "/{label} space <amount> [player|*]", permission = Constants.ADMIN_SPACE_PERMISSION, minArgs = 1)
 public final class SpaceCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final UserManager manager;
 

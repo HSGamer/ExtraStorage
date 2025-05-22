@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.player;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.commands.abstraction.CommandContext;
@@ -13,7 +12,7 @@ import org.bukkit.entity.Player;
 
 @Command(value = "toggle", permission = Constants.PLAYER_TOGGLE_PERMISSION, target = CommandTarget.ONLY_PLAYER)
 public final class ToggleCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     @Override
     public void execute(CommandContext context) {

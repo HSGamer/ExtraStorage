@@ -20,7 +20,6 @@ import me.hsgamer.extrastorage.listeners.storage.RoseStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.UltimateStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.VanillaPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.WildStackerPickupListener;
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
 import me.hsgamer.extrastorage.tasks.AutoUpdateTask;
 import me.hsgamer.extrastorage.util.Utils;
 import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
@@ -30,6 +29,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,8 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 
-public final class ExtraStorage
-        extends HyronicPlugin {
+public final class ExtraStorage extends JavaPlugin {
 
     @Getter
     private static ExtraStorage instance;
@@ -71,17 +70,17 @@ public final class ExtraStorage
     private ESPlaceholder placeholder;
 
     @Override
-    public void load() {
+    public void onLoad() {
         instance = this;
         this.firstLoad = (!this.getDataFolder().exists());
     }
 
     @Override
-    public void enable() {
+    public void onEnable() {
         if (firstLoad) {
-            logger.warning("It seems this is the first time this plugin is run on your server.");
-            logger.warning("Please take a look at the 'Whitelist' option in the config.yml file before the player data is loaded.");
-            logger.warning("Once the player data was loaded, you should use '/esadmin whitelist' command to apply changes to your players' filter (do not configure it manually).");
+            getLogger().warning("It seems this is the first time this plugin is run on your server.");
+            getLogger().warning("Please take a look at the 'Whitelist' option in the config.yml file before the player data is loaded.");
+            getLogger().warning("Once the player data was loaded, you should use '/esadmin whitelist' command to apply changes to your players' filter (do not configure it manually).");
         }
 
         this.metrics = new Metrics(this, 18779);
@@ -96,17 +95,17 @@ public final class ExtraStorage
         this.registerCommands();
         this.registerEvents();
 
-        if (this.isHooked("PlaceholderAPI")) {
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholder = new ESPlaceholder(this);
             if (placeholder.register())
-                logger.info("Hooked into " + plugMan.getPlugin("PlaceholderAPI").getDescription().getFullName());
+                getLogger().info("Hooked into PlaceholderAPI");
         }
 
         this.autoUpdateTask = new AutoUpdateTask(this, setting.getAutoUpdateTime());
     }
 
     @Override
-    public void disable() {
+    public void onDisable() {
         if ((placeholder != null) && placeholder.isRegistered()) placeholder.unregister();
         Bukkit.getScheduler().cancelTasks(this);
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
@@ -116,7 +115,7 @@ public final class ExtraStorage
             User user = userManager.getUser(player);
             if (user != null) user.save();
             else
-                logger.severe("Failed to save data of the player " + player.getUniqueId() + " (" + player.getName() + ").");
+                getLogger().severe("Failed to save data of the player " + player.getUniqueId() + " (" + player.getName() + ").");
         });
     }
 
@@ -147,9 +146,10 @@ public final class ExtraStorage
         new PlayerListener(this);
         new InventoryListener(this);
 
-        if (this.isHooked("WildStacker")) new WildStackerPickupListener(this);
-        else if (this.isHooked("UltimateStacker")) new UltimateStackerPickupListener(this);
-        else if (this.isHooked("RoseStacker")) new RoseStackerPickupListener(this);
+        if (getServer().getPluginManager().isPluginEnabled("WildStacker")) new WildStackerPickupListener(this);
+        else if (getServer().getPluginManager().isPluginEnabled("UltimateStacker"))
+            new UltimateStackerPickupListener(this);
+        else if (getServer().getPluginManager().isPluginEnabled("RoseStacker")) new RoseStackerPickupListener(this);
         else new VanillaPickupListener(this);
     }
 
@@ -172,9 +172,9 @@ public final class ExtraStorage
         }
         try {
             databaseClient = new JavaSqlClient(databaseSetting);
-            logger.info("Established " + setting.getDBDatabase() + " connection.");
+            getLogger().info("Established " + setting.getDBDatabase() + " connection.");
         } catch (Exception error) {
-            logger.log(Level.SEVERE, "Failed to establish " + setting.getDBDatabase() + " connection! Please contact the author for help!", error);
+            getLogger().log(Level.SEVERE, "Failed to establish " + setting.getDBDatabase() + " connection! Please contact the author for help!", error);
             return;
         }
 
@@ -189,7 +189,7 @@ public final class ExtraStorage
         ) {
             query = reader.lines().reduce("", (acc, line) -> acc + line + "\n");
         } catch (IOException error) {
-            logger.log(Level.SEVERE, "Failed to read database setup file!", error);
+            getLogger().log(Level.SEVERE, "Failed to read database setup file!", error);
             return;
         }
         query = query.replaceAll(Utils.getRegex("table"), setting.getDBTable());
@@ -197,10 +197,10 @@ public final class ExtraStorage
         try (Connection conn = databaseClient.getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(query);
         } catch (SQLException error) {
-            logger.log(Level.SEVERE, "Failed to execute query from file!", error);
+            getLogger().log(Level.SEVERE, "Failed to execute query from file!", error);
             return;
         }
 
-        logger.info("Database setup completed!");
+        getLogger().info("Database setup completed!");
     }
 }

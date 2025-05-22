@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.commands.abstraction.CommandContext;
 import me.hsgamer.extrastorage.commands.abstraction.CommandListener;
@@ -10,7 +9,7 @@ import me.hsgamer.extrastorage.gui.WhitelistGui;
 
 @Command(value = "whitelist", permission = Constants.ADMIN_WHITELIST_PERMISSION, target = CommandTarget.ONLY_PLAYER)
 public final class WhitelistCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     @Override
     public void execute(CommandContext context) {

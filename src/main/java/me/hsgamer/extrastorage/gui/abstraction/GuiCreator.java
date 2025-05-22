@@ -1,10 +1,10 @@
 package me.hsgamer.extrastorage.gui.abstraction;
 
 import lombok.Getter;
+import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.events.GuiClickEvent;
 import me.hsgamer.extrastorage.gui.icon.Icon;
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
 import me.hsgamer.extrastorage.util.Digital;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class GuiCreator<T extends HyronicPlugin>
+public abstract class GuiCreator
         extends GuiConfig
         implements InventoryHolder, GuiAction {
 
-    protected final T instance;
+    protected final ExtraStorage instance;
     @Getter
     protected final Player player;
     private final Pattern SLOT_PATTERN;
@@ -31,7 +31,7 @@ public abstract class GuiCreator<T extends HyronicPlugin>
     public GuiCreator(String fileName, Player player) {
         super(fileName);
 
-        this.instance = (T) HyronicPlugin.getInstance();
+        this.instance = ExtraStorage.getInstance();
         this.SLOT_PATTERN = Pattern.compile("(?<start>\\d+)-(?<end>\\d+)");
 
         this.player = player;

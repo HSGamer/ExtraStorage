@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @Command(value = "addrnd", usage = "/{label} addrnd <material-key|*> [player]", permission = Constants.ADMIN_ADD_PERMISSION, minArgs = 1)
 public final class AddRndCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final UserManager manager;
 

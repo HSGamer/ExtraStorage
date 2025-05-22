@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.player;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @Command(value = "withdraw", usage = "/{label} withdraw <material-key> [amount]", permission = Constants.PLAYER_WITHDRAW_PERMISSION, target = CommandTarget.ONLY_PLAYER, minArgs = 1)
 public final class WithdrawCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     private final Setting setting;
 

@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.gui.base;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
@@ -21,7 +20,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class ESGui
-        extends GuiCreator<ExtraStorage> {
+        extends GuiCreator {
 
     protected Player player;
     protected User user;

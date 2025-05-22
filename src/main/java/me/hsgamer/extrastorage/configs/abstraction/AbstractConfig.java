@@ -1,7 +1,7 @@
 package me.hsgamer.extrastorage.configs.abstraction;
 
 import lombok.Getter;
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
+import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -9,17 +9,16 @@ import java.io.File;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractConfig<T extends HyronicPlugin>
-        implements Config {
+public abstract class AbstractConfig implements Config {
 
-    protected final T instance;
+    protected final ExtraStorage instance;
     protected final Logger logger;
     @Getter
     private final String fileName;
     protected File file;
 
     public AbstractConfig(String fileName) {
-        this.instance = (T) HyronicPlugin.getInstance();
+        this.instance = ExtraStorage.getInstance();
         this.logger = this.instance.getLogger();
         this.fileName = fileName;
         this.file = new File(this.instance.getDataFolder(), fileName);

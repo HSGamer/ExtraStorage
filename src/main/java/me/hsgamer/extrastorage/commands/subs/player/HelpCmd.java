@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.player;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.commands.abstraction.CommandContext;
 import me.hsgamer.extrastorage.commands.abstraction.CommandListener;
@@ -9,7 +8,7 @@ import me.hsgamer.extrastorage.data.Constants;
 
 @Command(value = {"help", "?"}, permission = Constants.PLAYER_HELP_PERMISSION)
 public final class HelpCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     @Override
     public void execute(CommandContext context) {

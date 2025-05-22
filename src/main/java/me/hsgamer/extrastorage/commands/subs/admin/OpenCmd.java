@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
 import me.hsgamer.extrastorage.commands.abstraction.CommandContext;
@@ -15,7 +14,7 @@ import org.bukkit.entity.Player;
 
 @Command(value = "open", permission = Constants.ADMIN_OPEN_PERMISSION, target = CommandTarget.ONLY_PLAYER, minArgs = 1)
 public final class OpenCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     @Override
     public void execute(CommandContext context) {

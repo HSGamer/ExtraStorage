@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.abstraction;
 
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
@@ -8,22 +7,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class CommandListener<T extends HyronicPlugin>
-        extends CommandBase<T>
+public abstract class CommandListener
+        extends CommandBase
         implements TabCompleter {
 
-    private final List<CommandListener<T>> listeners;
+    private final List<CommandListener> listeners;
 
     public CommandListener() {
         this.listeners = new ArrayList<>();
     }
 
-    protected void add(CommandListener<T> listener) {
+    protected void add(CommandListener listener) {
         if (!listener.getClass().isAnnotationPresent(Command.class)) return;
         listeners.add(listener);
     }
 
-    public CommandListener<T> getCommand(String command) {
+    public CommandListener getCommand(String command) {
         return listeners.stream()
                 .filter(lis -> Arrays.stream(lis.getClass().getAnnotation(Command.class).value()).anyMatch(command::equalsIgnoreCase))
                 .findFirst()

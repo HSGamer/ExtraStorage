@@ -9,8 +9,8 @@ import com.mojang.authlib.properties.Property;
 import lombok.Getter;
 import lombok.NonNull;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.plugin.HyronicPlugin;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -46,7 +46,7 @@ public final class ItemBuilder {
 
     public static final class Builder {
 
-        private final HyronicPlugin instance;
+        private final ExtraStorage instance;
         private final Pattern HDB_PATTERN;
         private String model;
         private User user;
@@ -58,7 +58,7 @@ public final class ItemBuilder {
         private Consumer<ItemMeta> meta;
 
         public Builder(ItemStack item) {
-            this.instance = HyronicPlugin.getInstance();
+            this.instance = ExtraStorage.getInstance();
             this.material = item.getType();
             this.amount = item.getAmount();
             this.data = item.getData().getData();
@@ -68,7 +68,7 @@ public final class ItemBuilder {
         }
 
         public Builder() {
-            this.instance = HyronicPlugin.getInstance();
+            this.instance = ExtraStorage.getInstance();
             this.amount = 1;
             this.data = 0;
             this.meta = (meta) -> {
@@ -135,7 +135,7 @@ public final class ItemBuilder {
                 Matcher matcher = HDB_PATTERN.matcher(texture);
                 String encoded;
                 if (matcher.find()) {
-                    if (!instance.isHooked("HeadDatabase")) break head;
+                    if (!instance.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) break head;
                     String ID = matcher.group("value");
                     HeadDatabaseAPI api = new HeadDatabaseAPI();
                     encoded = api.getBase64(api.getItemHead(ID));

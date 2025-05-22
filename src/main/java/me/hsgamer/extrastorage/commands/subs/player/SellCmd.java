@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.subs.player;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -18,7 +17,7 @@ import java.util.Optional;
 
 @Command(value = "sell", permission = Constants.PLAYER_SELL_PERMISSION, target = CommandTarget.ONLY_PLAYER)
 public final class SellCmd
-        extends CommandListener<ExtraStorage> {
+        extends CommandListener {
 
     @Override
     public void execute(CommandContext context) {
