@@ -1,6 +1,6 @@
 name: ExtraStorage
 version: '${project.version}'
-main: dev.hyronic.exstorage.ExtraStorage
+main: me.hsgamer.extrastorage.ExtraStorage
 api-version: 1.16
 authors: [ HyronicTeam ]
 softdepend:
