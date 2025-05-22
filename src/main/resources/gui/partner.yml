@@ -1,0 +1,129 @@
+Settings:
+  #The title of GUI:
+  Title: '         &0sᴛᴏʀᴀɢᴇ ᴘᴀʀᴛɴᴇʀ'
+  #Rows on GUI:
+  # * The value can only be from 1 to 6.
+  Rows: 6
+
+  #Default sort type:
+  # * Available: NAME and TIME.
+  DefaultSort: NAME
+
+  #Plays a sound when the player interacts on GUI:
+  #Empty the string (like below) will disable this feature.
+  #Sound: ''
+  Sound: 'ui_button_click'
+
+#This icon represents the player's partners:
+RepresentItem:
+  Material: 'PLAYER_HEAD'
+  Amount: 1 #May not need to configure.
+  Data: 0 #May not need to configure.
+  CustomModelData: 0 #Can only be used on the server version 1.14+. May not need to configure.
+  #Using 'Texture' option if you want to display the head texture (requires Material is PLAYER_HEAD):
+  #Texture: '<value>' #Can be found at: https://minecraft-heads.com/ (Value field).
+  #Texture: 'hdb-<id>' #Using for HeadDatabase plugin.
+  #Texture: '%partner%' #Displaying the partner's skull.
+  Texture: '%partner%'
+  #Name: ''
+  Name: '&fPartner: &6{partner}' #May not need to configure.
+  #Lore: []
+  Lore: #May not need to configure.
+  - ''
+  - '&7+ Timestamp: &f{time}'
+  - ''
+  - '&8[&6ᴄʟɪᴄᴋ&8] &7Remove this partner'
+  - '&7from your list.'
+  #List of positions for this icon:
+  Slots: [11-17, 20-26, 29-35]
+
+# * Please do not delete any items in this section.
+# * If you don't want to display these items on GUI, just set their slot to -1.
+ControlItems:
+  #This item is used to display the user's partner information list:
+  About:
+    #For those who prefer to use custom models from ItemsAdder (or Oraxen),
+    #use this option to specify a model.
+    #Format: 'Oraxen:<id>' or 'IA:<namespaceId>'
+    # * If this option is used, it means that: Material and Data cannot be used.
+    # * Remember to remove the 'CustomModelData' option first.
+    # * Leave it blank will disable this feature.
+    Model: '' #May not need to configure.
+    Material: 'PAPER'
+    Name: '#dcdde1ʏᴏᴜʀ ᴘᴀʀᴛɴᴇʀs ʟɪsᴛ'
+    Lore: #May not need to configure.
+    - ''
+    - '&7+ Total partners: &a{total_partners}'
+    - ''
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] &7Cleanup your list.'
+    Slot: 50
+  #Back to previous page:
+  PreviousPage:
+    Material: 'ARROW'
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slot: 48
+  #Go to next page:
+  NextPage:
+    Material: 'ARROW'
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slot: 52
+
+
+  #Switching button between GUIs:
+  SwitchGui:
+    Material: 'CHEST_MINECART'
+    Name: '#dcdde1sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ'
+    Lore:
+    - ''
+    - '&2→ &aPartners'
+    - '&8 ● &7Filter'
+    - '&8 ● &7Storage'
+    - '&8 ● &7Selling'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ sᴛᴏʀᴀɢᴇ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ'
+    Slot: 49
+
+  #Sorting items by partner name:
+  SortByName:
+    Material: 'BOOK'
+    Name: '&fSorting Partners'
+    Lore:
+    - ''
+    - '&2→ &aParter''s name'
+    - '&8 ● &7Timestamp'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ'
+    Slot: 51
+  #Sorting items by timestamp:
+  SortByTime:
+    Material: 'BOOK'
+    Name: '&fSorting Partners'
+    Lore:
+    - ''
+    - '&8 ● &7Parter''s name'
+    - '&2→ &aTimestamp'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ'
+    Slot: 51
+
+#These are decorative items, which will make your GUI more beautiful!
+#You can add/delete items in this section.
+# * You can only add "commands" in this section.
+DecorateItems:
+  border:
+    Material: 'BLACK_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [0-10, 18, 19, 27, 28, 36, 37, 45, 46-48, 52-54]
+  divider:
+    Material: 'GRAY_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [38-44]

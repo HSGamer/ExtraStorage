@@ -1,0 +1,110 @@
+PREFIX: '&8[&eᴇxᴛʀᴀ&bsᴛᴏʀᴀɢᴇ&8] &8→ &r'
+
+STATUS:
+  enabled: '&aᴇɴᴀʙʟᴇ'
+  disabled: '&cᴅɪsᴀʙʟᴇ'
+  unknown: '&4ᴜɴᴋɴᴏᴡɴ'
+  filtered: '&aꜰɪʟᴛᴇʀᴇᴅ'
+  unfiltered: '&cᴜɴꜰɪʟᴛᴇʀᴇᴅ'
+
+HELP:
+  header: '&8&l------=====[ &8[&eᴇxᴛʀᴀ&bsᴛᴏʀᴀɢᴇ&8] v{version} &8&l]=====------'
+  footer: '&8&l------------------------------------------'
+  Player:
+    help: '&8 > &c/{label} <help|?> &f: &7Show this help page.'
+    open: '&8 > &c/{label} [partner] &f: &7Open your/partner''s storage.'
+    toggle: '&8 > &c/{label} toggle &f: &7Change the storage usage status.'
+    filter: '&8 > &c/{label} filter &f: &7Open your filter.'
+    partner: '&8 > &c/{label} partner [add|remove|clear] [player] &f: &7Manage your partners.'
+    sell: '&8 > &c/{label} sell [<material-key> [amount]] &f: &7Sell your items.'
+    withdraw: '&8 > &c/{label} withdraw <material-key> [amount] &f: &7Withdraw your items.'
+  Admin:
+    help: '&8 > &c/{label} [help|?] &f: &7Show this help page.'
+    open: '&8 > &c/{label} open <player> &f: &7Open another player''s storage.'
+    space: '&8 > &c/{label} space <amount> [player|*] &f: &7Change the storage space.'
+    addspace: '&8 > &c/{label} addspace <amount> [player|*] &f: &7Increase the storage space.'
+    add: '&8 > &c/{label} add <material-key> <amount> [player] &f: &7Add item quantity.'
+    subtract: '&8 > &c/{label} subtract <material-key> <amount> [player] &f: &7Subtract item quantity.'
+    set: '&8 > &c/{label} set <material-key> <amount> [player] &f: &7Set item quantity.'
+    reset: '&8 > &c/{label} reset <material-key|*> [player] &f: &7Reset item quantity.'
+    whitelist: '&8 > &c/{label} whitelist &f: &7Edit the Whitelist option.'
+    reload: '&8 > &c/{label} reload &f: &7Reload the configuration.'
+
+SUCCESS:
+  config-reload: '{prefix}&aSuccessfully reloaded configs!'
+  space-changed: '{prefix}&7The storage space has been changed to &e{space}&7.'
+  space-increased: '{prefix}&7The storage space has been increased by &e{space}&7.'
+  storage-usage-toggled: '{prefix}&7You just changed the storage usage status to &r{status}&7.'
+  filter-cleaned-up: '{prefix}&7You just cleaned up your filter.'
+  withdrew-item: '{prefix}&aYou have withdrawn &ex{quantity} {item} &afrom the storage.'
+  moved-items-to-storage: '{prefix}&aYou moved &ex{quantity} {item} &ato the storage.'
+
+  made-partner: '{prefix}&6You have just made &b{player} &6as your partner.'
+  being-partner: '{prefix}&2You are now a partner of &b{player}&2. Using the command &e/{label} {player} &2to open their storage.'
+  removed-partner: '{prefix}&7You have just removed &b{player} &7from your partner list.'
+  no-longer-partner: '{prefix}&7You are no longer a partner of &b{player}&7.'
+  cleanup-partners-list: '{prefix}&7You have just cleaned up your partners list.'
+
+  item-sold: '{prefix}&aYou sold &ex{amount} &r{item} &afor &2${price}&a.'
+  item-added-to-whitelist: '{prefix}&7You added &r{item} &7to whitelist.'
+  item-removed-from-whitelist: '{prefix}&7You removed &r{item} &7from whitelist.'
+
+  Add:
+    self: '{prefix}&7You added &ex{quantity} {item} &7to your storage.'
+    sender: '{prefix}&7You added &ex{quantity} {item} &7to &b{player}''s &7storage.'
+    target: '{prefix}&7You have been added &ex{quantity} {item} &7to your storage by &b{player}&7.'
+  Subtract:
+    self: '{prefix}&7You subtracted &ex{quantity} {item} &7from your storage.'
+    sender: '{prefix}&7You subtracted &ex{quantity} {item} &7from &b{player}''s &7storage.'
+    target: '{prefix}&7You have been subtracted &ex{quantity} {item} &7from your storage by &b{player}&7.'
+  Set:
+    self: '{prefix}&7You set &r{item} &7to &ex{quantity} &7in your storage.'
+    sender: '{prefix}&7You set &r{item} &7to &ex{quantity} &7in &b{player}''s &7storage.'
+    target: '{prefix}&7You have been set &r{item} &7to &ex{quantity} &7in your storage by &b{player}&7.'
+  Reset:
+    self: '{prefix}&7You reset &r{item} &7in your storage.'
+    all: '{prefix}&7Reset quantity of all items in your storage.'
+    all-sender: '{prefix}&7You reset quantity of all items in &b{player}''s &7storage.'
+    sender: '{prefix}&7You reset &r{item} &7in &b{player}''s &7storage.'
+    target: '{prefix}&7You have been reset &r{item} &7in your storage by &b{player}&7.'
+
+WARN:
+  confirm-cleanup: '{prefix}&6Click again to confirm your cleanup!'
+
+  #This message will be sent to the player when they mined a block.
+  Stored:
+    #Using ActionBar to send:
+    # * Leave it blank to disable this feature.
+    ActionBar: '&f+{amount} &r{item} &7| &e/storage &ato open storage.'
+
+  #This message will be sent when the player's storage is full:
+  # * Sent using ActionBar, not using Title.
+  # * Leave it blank to disable this feature.
+  StorageIsFull: '&cYour storage is full!'
+
+FAIL:
+  no-permission: '{prefix}&cYou don''t have permission to do that!'
+  missing-args: '{prefix}&cMissing arguments! Usage: &e{usage}&c.'
+  only-players: '{prefix}&cOnly players can use this command!'
+  only-console: '{prefix}&cThis command can only be run by console!'
+  not-number: '{prefix}&cThe value &e{value} &cis not a valid number!'
+  must-enter-player: '{prefix}&cPlease enter the player''s name you would like to do this!'
+  player-not-found: '{prefix}&cCould not find the player you have entered!'
+  not-yourself: '{prefix}&cYou cannot do that yourself!'
+
+  max-space-not-used: '{prefix}&cYou cannot do this because the storage space is not used.'
+  space-exceeded: '{prefix}&cCould not increase the storage space because the limit will be exceeded!'
+  item-blacklisted: '{prefix}&cThe blacklisted item cannot be added to the filter!'
+  player-not-partner: '{prefix}&cYou are not the partner of &e{player}&c!'
+  inventory-is-full: '{prefix}&cYour inventory is full!'
+  storage-is-full: '{prefix}&cCould not add items to storage because it is full!'
+  not-enough-item: '{prefix}&cYou (or your partner) don''t have enough &r{item} &cto do that!'
+  not-enough-item-in-inventory: '{prefix}&cYou don''t have enough &r{item} &cin your inventory!'
+  item-not-filtered: '{prefix}&cYou cannot transfer items that are not in the filter to the storage!'
+  already-partner: '{prefix}&cThat player is already your partner!'
+  not-partner: '{prefix}&cThat player is not your partner!'
+  partners-list-empty: '{prefix}&cYour partners list is empty!'
+  item-not-in-storage: '{prefix}&cThat item cannot be found in &e{player}''s &cstorage!'
+  cannot-be-sold: '{prefix}&cYou cannot sell this item!'
+  invalid-item: '{prefix}&cThis item is invalid!'
+  item-already-whitelisted: '{prefix}&cThat item is already in the whitelist!'

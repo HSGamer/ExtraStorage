@@ -1,0 +1,132 @@
+# !============================! #
+#   + MADE BY: [HyronicTeam] +   #
+# !============================! #
+
+# !!! DO NOT TOUCH THIS !!!
+ConfigVersion: 3.4.0
+
+#If enabled, a notification and the download link will be printed on console
+#whenever an update is available.
+CheckForUpdates: true
+
+# If enabled, the plugin will show some debug information in the console.
+# Use this option only when you need to report a bug.
+Debug: false
+
+Database:
+  #Type of database:
+  # * Please select the type before official use.
+  # * There are two types: SQLite and MySQL.
+  Type: 'SQLite'
+  # * For SQLite, it will be the file name.
+  # * For MySQL, it will be the database name.
+  Database: 'database'
+  Table: 'exstorage_data'
+  Host: '127.0.0.1'
+  Port: 3306
+  Username: 'root'
+  Password: ''
+
+#Date format:
+DateFormat: 'MM/dd/yyyy HH:mm:ss'
+
+#Only store items in the storage when the player's inventory is full?
+# * Note: This option will not work with PickupToStorage.
+OnlyStoreWhenInvFull: false
+
+#Time (in seconds) automatically updates the player data:
+# * Cannot be disabled, default/minimum is 10 seconds.
+AutoUpdateTime: 10
+#Do you want to restart AutoUpdateTask if the above time is changed ?
+#If false, AutoUpdateTask will continue to run for the rest of the time until it finishes.
+RestartOnChange: true
+
+#Use the log to record player actions.
+Log:
+  #Enable logging sales?
+  Sales: false
+  #Enable item transfer logging?
+  Transfer: false
+  #Enable item withdrawal logging?
+  Withdraw: false
+
+#The economy provider that used for selling the item:
+Economy:
+  # * Available: Vault, PlayerPoints, TokenManager, UltraEconomy, CoinsEngine.
+  #You can also use one of these marketplaces: ShopGUIPlus and EconomyShopGUI (free or paid version). It will override
+  #the default price listed in worth.yml, so you don't need to configure that file.
+  Provider: 'Vault'
+  #Additionally, when using UltraEconomy or CoinsEngine you may use a different currency, use this option to select
+  #your currency:
+  #Leave it blank to use the default currency.
+  Currency: ''
+
+#Limited the player's storage space:
+#Set to -1 to disable this feature.
+# * The player that has the permission 'exstorage.storage.unlimited' will not be limited the storage space.
+# * Using: /esadmin space <amount> [player] to change the storage space.
+# * Using: /esadmin addspace <amount> [player] to increase the storage space.
+MaxSpace: 100000
+#Blocking the player from mining the block if their storage is full ?
+# * This option only work if 'MaxSpace' is greater than 0.
+BlockedMining: true
+
+#Enabling this option will automatically store items in the player's storage after mining blocks.
+AutoStoreItem: true
+#Allow players to pick up items on the ground to their storage ?
+PickupToStorage: true
+#Plays a sound when players pick item up:
+#PickupSound: ''
+PickupSound: 'entity_item_pickup'
+
+#List of worlds name that players cannot use this feature:
+#BlacklistWorlds: []
+BlacklistWorlds:
+- 'example_world'
+
+#List of materials will not allow players to add them to their storage:
+#Blacklist: []
+# * NOTE: Brackets [] are optional, <> are required.
+Blacklist:
+#- '<material>[:<data>]'
+- 'BEDROCK' #Or can be 'bedrock:0'
+
+#List of materials will be automatically added to the player's storage on their first join:
+#Please make sure you use the correct name of the material based on the server version you are using.
+# * You can still edit this option using in-game command '/esadmin whitelist'.
+#!!! THIS OPTION ONLY APPLY ONCE TO PLAYERS JOINING THE SERVER FOR THE FIRST TIME !!!
+Whitelist:
+#- '<material>[:<data>]'
+- 'STONE' #Will be automatically changed to 'STONE:0', and it is <material-key> you should remember.
+- 'COBBLESTONE'
+- 'COAL_BLOCK'
+- 'LAPIS_BLOCK'
+- 'REDSTONE_BLOCK'
+- 'IRON_BLOCK'
+- 'GOLD_BLOCK'
+- 'DIAMOND_BLOCK'
+- 'EMERALD_BLOCK'
+- 'COAL'
+- 'REDSTONE'
+- 'IRON_ORE'
+- 'GOLD_ORE'
+- 'DIAMOND'
+- 'EMERALD'
+#- 'IA:iasurvival:banana' #Use the item from ItemsAdder.
+#- 'ORAXEN:amethyst' #Use the item from Oraxen.
+#- 'NEXO:banana' #Use the item from Nexo.
+
+#Format the name for items that are in the player's storage:
+#FormatName: {}
+FormatName:
+  #<material-key>: '<name>'
+  COBBLESTONE:0: '&7Cobblestone'
+  COAL_BLOCK:0: '&8Coal Block'
+  LAPIS_BLOCK:0: '&9Lapis Block'
+  REDSTONE_BLOCK:0: '&cRedstone Block'
+  IRON_BLOCK:0: '&fIron Block'
+  GOLD_BLOCK:0: '&eGold Block'
+  DIAMOND_BLOCK:0: '&bDiamond Block'
+  EMERALD_BLOCK:0: '&aEmerald Block'
+  #IA:iasurvival:banana: '&eBanana'
+  #ORAXEN:amethyst: '&dAmethyst'

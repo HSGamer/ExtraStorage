@@ -1,0 +1,99 @@
+name: ExtraStorage
+version: '${project.version}'
+main: dev.hyronic.exstorage.ExtraStorage
+api-version: 1.16
+authors: [ HyronicTeam ]
+softdepend:
+  - HeadDatabase
+  - Vault
+  - PlaceholderAPI
+  - ItemsAdder
+  - Oraxen
+  - ShopGUIPlus
+  - EconomyShopGUI
+  - EconomyShopGUI-Premium
+  - PlayerPoints
+  - TokenManager
+  - UltraEconomy
+  - CoinsEngine
+  - WildStacker
+  - UltimateStacker
+  - RoseStacker
+  - CommandSpy
+  - Nexo
+
+commands:
+  extrastorage:
+    description: 'Commands for players.'
+    aliases: [ exstorage, storage, es, kho ]
+  esadmin:
+    description: 'Commands for administrators.'
+    aliases: [ ]
+
+permissions:
+  exstorage.*:
+    default: op
+    description: 'Allows the player to access everything of the plugin.'
+  exstorage.storage.unlimited:
+    default: op
+    description: 'Allows the player to have unlimited storage space.'
+  exstorage.command.*:
+    default: false
+    description: 'Allows the player to use all commands.'
+    children:
+      exstorage.command.player.*:
+        default: false
+        description: 'Allows the player to use all player commands.'
+        children:
+          exstorage.command.player.help:
+            default: true
+            description: 'Allows the player to use help page command'
+          exstorage.command.player.open:
+            default: true
+            description: 'Allows the player to open their (partner) storage.'
+          exstorage.command.player.toggle:
+            default: op
+            description: 'Allows the player to change their storage usage status.'
+          exstorage.command.player.filter:
+            default: op
+            description: 'Allows the player to use their filter.'
+          exstorage.command.player.partner:
+            default: op
+            description: 'Allows the player to manage their partners.'
+          exstorage.command.player.sell:
+            default: op
+            description: 'Allows the player to sell their items quickly.'
+          exstorage.command.player.withdraw:
+            default: op
+            description: 'Allows the player to withdraw items by using the command.'
+      exstorage.command.admin.*:
+        default: false
+        description: 'Allows the player to use all admin commands.'
+        children:
+          exstorage.command.admin.help:
+            default: op
+            description: 'Allows the player to view the admin help page.'
+          exstorage.command.admin.open:
+            default: op
+            description: 'Allows the player to open the storage of another player.'
+          exstorage.command.admin.space:
+            default: op
+            description: 'Allows the player to increase (or change) the storage space.'
+          exstorage.command.admin.add:
+            default: op
+            description: 'Allows the player to add item quantity to the storage.'
+          exstorage.command.admin.subtract:
+            default: op
+            description: 'Allows the player to subtract item quantity to the storage.'
+          exstorage.command.admin.set:
+            default: op
+            description: 'Allows the player to set their item quantity in the storage.'
+          exstorage.command.admin.reset:
+            default: op
+            description: 'Allows the player to reset item quantity.'
+          exstorage.command.admin.whitelist:
+            default: op
+            description: 'Allows the player to change the Whitelist option.'
+          exstorage.command.admin.reload:
+            default: op
+            description: 'Allows the player to reload the configuration.'

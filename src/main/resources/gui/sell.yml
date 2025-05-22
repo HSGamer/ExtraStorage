@@ -1,0 +1,171 @@
+Settings:
+  #The title of GUI:
+  Title: '           &0sᴇʟʟɪɴɢ ɪᴛᴇᴍs'
+  #Rows on GUI:
+  # * The value can only be from 1 to 6.
+  Rows: 6
+
+  #Default sort type:
+  # * Available: MATERIAL, NAME, QUANTITY and UNFILTERED.
+  DefaultSort: MATERIAL
+
+  #Plays a sound when the player interacts on GUI:
+  #Empty the string (like below) will disable this feature.
+  #Sound: ''
+  Sound: 'ui_button_click'
+
+#This icon represents items that are in the storage.
+RepresentItem:
+  #Empty the string (like below) will use the configured items name.
+  Name: ''
+  #Lore: []
+  Lore:
+  - ''
+  - '&7+ Status: &r{status}'
+  - '&7+ You have: &e{quantity}'
+  - ''
+  - '&3* Price: &b${price}'
+  - '&3* Amount: &bx{amount}'
+  - ''
+  - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7Sell one.'
+  - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7Sell stack.'
+  - '&8[&6s.ᴄʟɪᴄᴋ&8] &7Sell all.'
+  #List of positions for this icon:
+  Slots: [11-17, 20-26, 29-35]
+
+# * Please do not delete any items in this section.
+# * If you don't want to display these items on GUI, just set their slot to -1.
+ControlItems:
+  #This item is used to display the user's storage information:
+  About:
+    #For those who prefer to use custom models from ItemsAdder (or Oraxen),
+    #use this option to specify a model.
+    #Format: 'Oraxen:<id>' or 'IA:<namespaceId>'
+    # * If this option is used, it means that: Material and Data cannot be used.
+    # * Remember to remove the 'CustomModelData' option first.
+    # * Leave it blank will disable this feature.
+    Model: '' #May not need to configure.
+    Material: 'PAPER'
+    Amount: 1 #May not need to configure.
+    Data: 0 #May not need to configure.
+    #Using 'Texture' option if you want to display the head texture (requires Material is PLAYER_HEAD):
+    #Texture: '<value>' #Can be found at: https://minecraft-heads.com/ (Value field).
+    #Texture: 'hdb-<id>' #Using for HeadDatabase plugin.
+    Texture: '%player%'
+    CustomModelData: 0 #Can only be used on the server version 1.14+. May not need to configure.
+    Name: '#dcdde1ᴘʟᴀʏᴇʀ sᴛᴏʀᴀɢᴇ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ' #May not need to configure.
+    Lore: #May not need to configure.
+    - ''
+    - '&7+ Owner: &b{player}'
+    - ''
+    - '&7+ Status: &r{status}'
+    - ''
+    - '&7+ Space: &e{space}'
+    - ''
+    - '&7+ Used space: &f{used_space} &7/ &c{used_percent}'
+    - ''
+    - '&7+ Free space: &f{free_space} &7/ &c{free_percent}'
+    Slot: 50
+  #Back to previous page:
+  PreviousPage:
+    Material: 'ARROW'
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slot: 48
+  #Go to next page:
+  NextPage:
+    Material: 'ARROW'
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slot: 52
+
+
+  #Switching button between GUIs:
+  SwitchGui:
+    Material: 'CHEST_MINECART'
+    Name: '#dcdde1sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ'
+    Lore:
+    - ''
+    - '&8 ● &7Partners'
+    - '&8 ● &7Filter'
+    - '&8 ● &7Storage'
+    - '&2→ &aSelling'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ sᴛᴏʀᴀɢᴇ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ'
+    Slot: 49
+
+  #Sorting items by material:
+  SortByMaterial:
+    Material: 'BOOK'
+    Name: '#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ'
+    Lore:
+    - ''
+    - '&2→ &aBy material'
+    - '&8 ● &7By name'
+    - '&8 ● &7By quantity'
+    - '&8 ● &7By unfiltered'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ'
+    Slot: 51
+  #Sorting items by name:
+  SortByName:
+    Material: 'BOOK'
+    Name: '#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ'
+    Lore:
+    - ''
+    - '&8 ● &7By material'
+    - '&2→ &aBy name'
+    - '&8 ● &7By quantity'
+    - '&8 ● &7By unfiltered'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ'
+    Slot: 51
+  #Sorting items by quantity:
+  SortByQuantity:
+    Material: 'BOOK'
+    Name: '#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ'
+    Lore:
+    - ''
+    - '&8 ● &7By material'
+    - '&8 ● &7By name'
+    - '&2→ &aBy quantity'
+    - '&8 ● &7By unfiltered'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    - '&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ'
+    Slot: 51
+  #Sorting unfiltered items first:
+  SortByUnfilter:
+    Material: 'BOOK'
+    Name: '#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ'
+    Lore:
+    - ''
+    - '&8 ● &7By material'
+    - '&8 ● &7By name'
+    - '&8 ● &7By quantity'
+    - '&2→ &aBy unfiltered'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
+    - '&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ'
+    Slot: 51
+
+#These are decorative items, which will make your GUI more beautiful!
+#You can add/delete items in this section.
+# * You can only add "commands" in this section.
+DecorateItems:
+  border:
+    Material: 'BLACK_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [0-10, 18, 19, 27, 28, 36, 37, 45, 46-48, 52-54]
+  divider:
+    Material: 'GRAY_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [38-44]

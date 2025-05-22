@@ -1,0 +1,68 @@
+Settings:
+  #The title of GUI:
+  Title: '         &0ᴡʜɪᴛᴇʟɪꜱᴛ ꜰɪʟᴛᴇʀ'
+  #Rows on GUI:
+  # * The value can only be from 1 to 6.
+  Rows: 6
+
+  #Plays a sound when the player interacts on GUI:
+  #Empty the string (like below) will disable this feature.
+  #Sound: ''
+  Sound: 'ui_button_click'
+
+#This icon represents items are whitelisted.
+RepresentItem:
+  Name: ''
+  #Lore: []
+  Lore:
+  - ''
+  - '&c* By removing this item, it'
+  - '&cwill no longer be picked up'
+  - '&cto the player''s storage.'
+  - ''
+  - '&8[&6Click&8] &7Remove this item.'
+  #List of positions for this icon:
+  Slots: [11-17, 20-26, 29-35]
+
+# * Please do not delete any items in this section.
+# * If you don't want to display these items on GUI, just set their slot to -1.
+ControlItems:
+  #Back to previous page:
+  PreviousPage:
+    Material: 'ARROW'
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slots: [49]
+  #Go to next page:
+  NextPage:
+    Material: 'ARROW'
+    CustomModelData: 0
+    Name: '&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ'
+    Lore:
+    - '&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}'
+    Slots: [51]
+
+  #Sorting items by name:
+  SortByName:
+    Material: 'BOOK'
+    Name: '#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ'
+    Lore:
+    - ''
+    - '&2→ &aSort by name'
+    - ''
+    - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7Sorting A - Z'
+    - '&8[&6R-Click&8] &7Sorting Z - A'
+    Slot: 50
+
+#These are decorative items, which will make your GUI more beautiful!
+#You can add/delete items in this section.
+DecorateItems:
+  border:
+    Material: 'BLACK_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [0-10, 18, 19, 27, 28, 36, 37, 45-49, 51-54]
+  divider:
+    Material: 'GRAY_STAINED_GLASS_PANE'
+    Name: ' '
+    Slots: [38-44]
