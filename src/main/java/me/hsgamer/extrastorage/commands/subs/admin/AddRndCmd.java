@@ -50,7 +50,7 @@ public final class AddRndCmd
             Storage storage = manager.getUser(player).getStorage();
 
             if (args0.equals("*")) {
-                String[] keys = storage.getItems().keySet().toArray(String[]::new);
+                String[] keys = storage.getItems().keySet().toArray(new String[0]);
                 int total = this.addQuantity(storage, keys);
                 if (total < 1) {
                     context.sendMessage(ChatColor.RED + "Failed to add random quantity to your storage! May be your storage is full or something goes wrong!");
@@ -96,7 +96,7 @@ public final class AddRndCmd
         Storage storage = user.getStorage();
 
         if (args0.equals("*")) {
-            String[] keys = storage.getItems().keySet().toArray(String[]::new);
+            String[] keys = storage.getItems().keySet().toArray(new String[0]);
             int total = this.addQuantity(storage, keys);
             if (total < 1) {
                 context.sendMessage(ChatColor.RED + "Failed to add random quantity to your storage! May be the storage is full or something goes wrong!");
