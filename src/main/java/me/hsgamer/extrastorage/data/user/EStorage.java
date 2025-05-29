@@ -41,6 +41,7 @@ public final class EStorage
 
         if (items != null) items.entrySet().forEach(entry -> {
             String key = ItemUtil.normalizeMaterialKey(entry.getKey());
+            if (key == null || key.trim().isEmpty()) return;
             int quantity = entry.getValue().getAsInt();
 
             Item esItem = new ESItem(key, true, quantity);
@@ -49,19 +50,12 @@ public final class EStorage
 
         if (unused != null) unused.entrySet().forEach(entry -> {
             String key = ItemUtil.normalizeMaterialKey(entry.getKey());
+            if (key == null || key.trim().isEmpty()) return;
             int quantity = entry.getValue().getAsInt();
 
             Item esItem = new ESItem(key, false, quantity);
             this.items.put(key, esItem);
         });
-
-        // TODO: Temporary fix for missing items
-        for (String key : instance.getSetting().getWhitelist()) {
-            key = ItemUtil.normalizeMaterialKey(key);
-            if (this.items.containsKey(key)) continue;
-            Item esItem = new ESItem(key, true, 0);
-            this.items.put(key, esItem);
-        }
     }
 
     // Sử dụng hàm này cho việc tạo mới dữ liệu:
@@ -74,6 +68,7 @@ public final class EStorage
 
         for (String key : instance.getSetting().getWhitelist()) {
             key = ItemUtil.normalizeMaterialKey(key);
+            if (key == null || key.trim().isEmpty()) continue;
             Item esItem = new ESItem(key, true, 0);
             items.put(key, esItem);
         }
