@@ -5,6 +5,7 @@ public final class Constants {
     public static final String INVALID = "__INVALID__";
     private static final String PREFIX = "exstorage";
     public static final String STORAGE_UNLIMITED_PERMISSION = PREFIX + ".storage.unlimited";
+    public static final String STORAGE_PICKUP_PERMISSION = PREFIX + ".storage.pickup";
     public static final String PLAYER_HELP_PERMISSION = PREFIX + ".command.player.help";
     public static final String PLAYER_OPEN_PERMISSION = PREFIX + ".command.player.open";
     public static final String PLAYER_TOGGLE_PERMISSION = PREFIX + ".command.player.toggle";

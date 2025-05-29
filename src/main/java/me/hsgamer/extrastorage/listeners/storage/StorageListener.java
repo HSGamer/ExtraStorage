@@ -5,6 +5,7 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
+import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.listeners.BaseListener;
 import me.hsgamer.extrastorage.util.ActionBar;
@@ -151,8 +152,9 @@ public abstract class StorageListener
 
         User user = instance.getUserManager().getUser(player);
         if (user == null) return;
-        Storage storage = user.getStorage();
+        if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
 
+        Storage storage = user.getStorage();
         if (storage.isMaxSpace() || (!storage.canStore(item))) return;
 
         this.onPickup(event, player, storage, entity, item);

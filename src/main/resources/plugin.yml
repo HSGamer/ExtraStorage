@@ -37,6 +37,9 @@ permissions:
   exstorage.storage.unlimited:
     default: op
     description: 'Allows the player to have unlimited storage space.'
+  exstorage.storage.pickup:
+    default: true
+    description: 'Allows the player to pick up items to their storage.'
   exstorage.command.*:
     default: false
     description: 'Allows the player to use all commands.'
