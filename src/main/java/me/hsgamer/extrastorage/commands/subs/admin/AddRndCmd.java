@@ -51,7 +51,7 @@ public final class AddRndCmd
 
             if (args0.equals("*")) {
                 String[] keys = storage.getItems().keySet().toArray(new String[0]);
-                int total = this.addQuantity(storage, keys);
+                long total = this.addQuantity(storage, keys);
                 if (total < 1) {
                     context.sendMessage(ChatColor.RED + "Failed to add random quantity to your storage! May be your storage is full or something goes wrong!");
                     return;
@@ -68,7 +68,7 @@ public final class AddRndCmd
                 return;
             }
 
-            int amount = Digital.random(MIN, MAX);
+            long amount = Digital.random(MIN, MAX);
             long freeSpace = storage.getFreeSpace();
 
             if (freeSpace != -1) {
@@ -76,7 +76,7 @@ public final class AddRndCmd
                     context.sendMessage(Message.getMessage("FAIL.storage-is-full"));
                     return;
                 }
-                if (amount > freeSpace) amount = (int) freeSpace;
+                if (amount > freeSpace) amount = freeSpace;
             }
             storage.add(args0, amount);
 
@@ -97,7 +97,7 @@ public final class AddRndCmd
 
         if (args0.equals("*")) {
             String[] keys = storage.getItems().keySet().toArray(new String[0]);
-            int total = this.addQuantity(storage, keys);
+            long total = this.addQuantity(storage, keys);
             if (total < 1) {
                 context.sendMessage(ChatColor.RED + "Failed to add random quantity to your storage! May be the storage is full or something goes wrong!");
                 return;
@@ -120,7 +120,7 @@ public final class AddRndCmd
             return;
         }
 
-        int amount = Digital.random(MIN, MAX);
+        long amount = Digital.random(MIN, MAX);
         long freeSpace = storage.getFreeSpace();
 
         if (freeSpace != -1) {
@@ -128,7 +128,7 @@ public final class AddRndCmd
                 context.sendMessage(Message.getMessage("FAIL.storage-is-full"));
                 return;
             }
-            if (amount > freeSpace) amount = (int) freeSpace;
+            if (amount > freeSpace) amount = freeSpace;
         }
         storage.add(args0, amount);
 
@@ -143,20 +143,20 @@ public final class AddRndCmd
         else user.save();
     }
 
-    private int addQuantity(Storage storage, String... keys) {
+    private long addQuantity(Storage storage, String... keys) {
         if ((keys == null) || (keys.length < 1)) return -1;
 
-        int count = 0;
+        long count = 0;
         for (String key : keys) {
             Optional<Item> optional = storage.getItem(key);
             if (!optional.isPresent()) continue;
 
-            int amount = Digital.random(MIN, MAX);
+            long amount = Digital.random(MIN, MAX);
             long freeSpace = storage.getFreeSpace();
 
             if (freeSpace != -1) {
                 if (freeSpace < 1) break;
-                if (amount > freeSpace) amount = (int) freeSpace;
+                if (amount > freeSpace) amount = freeSpace;
             }
 
             storage.add(key, amount);

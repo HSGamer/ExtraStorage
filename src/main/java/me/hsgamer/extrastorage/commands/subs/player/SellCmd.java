@@ -37,7 +37,7 @@ public final class SellCmd
         }
 
         Item item = optional.get();
-        int quantity = item.getQuantity();
+        int quantity = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (quantity < 1) {
             context.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(key, true)));
             return;
@@ -51,7 +51,8 @@ public final class SellCmd
                             context.sendMessage(Message.getMessage("FAIL.cannot-be-sold"));
                             return;
                         }
-                        storage.subtract(key, quantity);
+                        int sellAmount = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
+                        storage.subtract(key, (long) sellAmount);
                         context.sendMessage(Message.getMessage("SUCCESS.item-sold")
                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(quantity))
                                 .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(key, true))

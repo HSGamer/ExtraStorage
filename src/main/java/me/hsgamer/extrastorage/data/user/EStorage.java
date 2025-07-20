@@ -42,7 +42,7 @@ public final class EStorage
         if (items != null) items.entrySet().forEach(entry -> {
             String key = ItemUtil.normalizeMaterialKey(entry.getKey());
             if (key == null || key.trim().isEmpty()) return;
-            int quantity = entry.getValue().getAsInt();
+            long quantity = entry.getValue().getAsLong();
 
             Item esItem = new ESItem(key, true, quantity);
             this.items.put(key, esItem);
@@ -51,7 +51,7 @@ public final class EStorage
         if (unused != null) unused.entrySet().forEach(entry -> {
             String key = ItemUtil.normalizeMaterialKey(entry.getKey());
             if (key == null || key.trim().isEmpty()) return;
-            int quantity = entry.getValue().getAsInt();
+            long quantity = entry.getValue().getAsLong();
 
             Item esItem = new ESItem(key, false, quantity);
             this.items.put(key, esItem);
@@ -69,7 +69,7 @@ public final class EStorage
         for (String key : instance.getSetting().getWhitelist()) {
             key = ItemUtil.normalizeMaterialKey(key);
             if (key == null || key.trim().isEmpty()) continue;
-            Item esItem = new ESItem(key, true, 0);
+            Item esItem = new ESItem(key, true, 0L);
             items.put(key, esItem);
         }
     }
@@ -171,7 +171,7 @@ public final class EStorage
     @Override
     public void addNewItem(Object key) {
         String validKey = ItemUtil.toMaterialKey(key);
-        items.putIfAbsent(validKey, new ESItem(validKey, true, 0));
+        items.putIfAbsent(validKey, new ESItem(validKey, true, 0L));
     }
 
     @Override
@@ -183,13 +183,13 @@ public final class EStorage
     }
 
     @Override
-    public void add(Object key, int quantity) {
+    public void add(Object key, long quantity) {
         String validKey = ItemUtil.toMaterialKey(key);
         items.get(validKey).add(quantity);
     }
 
     @Override
-    public void subtract(Object key, int quantity) {
+    public void subtract(Object key, long quantity) {
         String validKey = ItemUtil.toMaterialKey(key);
         Item item = items.get(validKey);
         item.subtract(quantity);
@@ -202,7 +202,7 @@ public final class EStorage
      */
 
     @Override
-    public void set(Object key, int quantity) {
+    public void set(Object key, long quantity) {
         String validKey = ItemUtil.toMaterialKey(key);
         Item item = items.get(validKey);
         item.set(quantity);

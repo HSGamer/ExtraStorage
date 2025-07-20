@@ -41,7 +41,7 @@ public final class WithdrawCmd
         }
         Item item = optional.get();
 
-        int current = item.getQuantity();
+        int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (current < 1) {
             context.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(args0, true)));
             return;
@@ -78,7 +78,8 @@ public final class WithdrawCmd
         }
         iStack.setAmount(free);
 
-        storage.subtract(args0, free);
+        int withdrawAmount = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
+        storage.subtract(args0, (long) withdrawAmount);
         ItemUtil.giveItem(player, iStack);
 
         context.sendMessage(Message.getMessage("SUCCESS.withdrew-item")

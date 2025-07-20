@@ -57,17 +57,17 @@ public final class SubtractCmd
                 return;
             }
 
-            int current = optional.get().getQuantity();
+            int current = (int) Math.min(optional.get().getQuantity(), Integer.MAX_VALUE);
             if (current < 1) {
                 context.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, setting.getNameFormatted(args0, true)));
                 return;
             }
 
-            amount = Digital.getBetween(1, current, amount);
-            storage.subtract(args0, amount);
+            int subtractAmount = (int) Math.min(current, Integer.MAX_VALUE);
+            storage.subtract(args0, (long) subtractAmount);
 
             context.sendMessage(Message.getMessage("SUCCESS.Subtract.self")
-                    .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
+                    .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                     .replaceAll(ITEM_REGEX, setting.getNameFormatted(args0, true)));
             return;
         }
@@ -87,21 +87,21 @@ public final class SubtractCmd
             return;
         }
 
-        int current = optional.get().getQuantity();
+        int current = (int) Math.min(optional.get().getQuantity(), Integer.MAX_VALUE);
         if (current < 1) {
             context.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, setting.getNameFormatted(args0, true)));
             return;
         }
 
-        amount = Digital.getBetween(1, current, amount);
-        storage.subtract(args0, amount);
+        int subtractAmount = (int) Math.min(current, Integer.MAX_VALUE);
+        storage.subtract(args0, (long) subtractAmount);
 
         context.sendMessage(Message.getMessage("SUCCESS.Subtract.sender")
-                .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
+                .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(args0, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
         if (player.isOnline()) player.getPlayer().sendMessage(Message.getMessage("SUCCESS.Subtract.target")
-                .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
+                .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(args0, true))
                 .replaceAll(PLAYER_REGEX, context.getName()));
         else user.save();
