@@ -1,22 +1,16 @@
 package me.hsgamer.extrastorage.data.user;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.fetcher.UUIDFetcher;
+import me.hsgamer.extrastorage.fetcher.TextureFetcher;
 import me.hsgamer.extrastorage.util.Utils;
-import me.hsgamer.hscore.web.UserAgent;
-import me.hsgamer.hscore.web.WebUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public final class ESUser
         implements User {
@@ -69,38 +62,9 @@ public final class ESUser
 
         instance.getUserManager().insert(this);
 
-        UUIDFetcher.getUUID(player.getName(), realUUID -> {
-            if (realUUID == null) return;
-
-            try {
-                HttpURLConnection connection = WebUtils.createHttpConnection("https://sessionserver.mojang.com/session/minecraft/profile/" + realUUID);
-                connection.setRequestMethod("GET");
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
-                UserAgent.CHROME.assignToConnection(connection);
-
-                String response;
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    response = reader.lines().collect(Collectors.joining("\n"));
-                }
-
-                if (response.isEmpty()) return;
-
-                JsonObject json = new JsonParser().parse(response).getAsJsonObject();
-                String value = json.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
-
-                json = new JsonParser().parse(new String(Base64.getDecoder().decode(value))).getAsJsonObject();
-                String textures = json.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-
-                byte[] texture = ("{\"textures\":{\"SKIN\":{\"url\":\"" + textures + "\"}}}").getBytes();
-                this.texture = new String(Base64.getEncoder().encode(texture));
-            } catch (IllegalStateException error) {
-                instance.getLogger().log(Level.SEVERE, "Invalid json format! Please contact the author for help!", error);
-            } catch (Exception error) {
-                instance.getLogger().log(Level.SEVERE, "An error has occurred! Please contact the author for help!", error);
-            }
+        TextureFetcher.getTextureUrl(player.getName(), textureUrl -> {
+            byte[] texture = ("{\"textures\":{\"SKIN\":{\"url\":\"" + textureUrl + "\"}}}").getBytes();
+            this.texture = new String(Base64.getEncoder().encode(texture));
         });
     }
 
