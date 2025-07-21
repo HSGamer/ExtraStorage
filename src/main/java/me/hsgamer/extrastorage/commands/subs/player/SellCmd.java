@@ -51,7 +51,7 @@ public final class SellCmd
                             context.sendMessage(Message.getMessage("FAIL.cannot-be-sold"));
                             return;
                         }
-                        int sellAmount = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
+                        int sellAmount = quantity;
                         storage.subtract(key, (long) sellAmount);
                         context.sendMessage(Message.getMessage("SUCCESS.item-sold")
                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(quantity))

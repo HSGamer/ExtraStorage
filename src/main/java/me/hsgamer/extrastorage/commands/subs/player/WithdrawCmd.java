@@ -78,7 +78,7 @@ public final class WithdrawCmd
         }
         iStack.setAmount(free);
 
-        int withdrawAmount = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
+        int withdrawAmount = free;
         storage.subtract(args0, (long) withdrawAmount);
         ItemUtil.giveItem(player, iStack);
 

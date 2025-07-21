@@ -63,7 +63,7 @@ public final class SubtractCmd
                 return;
             }
 
-            int subtractAmount = (int) Math.min(current, Integer.MAX_VALUE);
+            int subtractAmount = Math.min(amount, current);
             storage.subtract(args0, (long) subtractAmount);
 
             context.sendMessage(Message.getMessage("SUCCESS.Subtract.self")
@@ -93,7 +93,7 @@ public final class SubtractCmd
             return;
         }
 
-        int subtractAmount = (int) Math.min(current, Integer.MAX_VALUE);
+        int subtractAmount = Math.min(amount, current);
         storage.subtract(args0, (long) subtractAmount);
 
         context.sendMessage(Message.getMessage("SUCCESS.Subtract.sender")
