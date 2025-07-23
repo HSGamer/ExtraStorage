@@ -1,8 +1,6 @@
 package me.hsgamer.extrastorage.listeners;
 
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.data.user.ESUser;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,20 +31,14 @@ public final class PlayerListener
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-
-        User user = manager.getUser(uuid);
-        if (user == null) new ESUser(uuid);
+        manager.getOrCreateEntry(uuid);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-
-        User user = manager.getUser(uuid);
-        if (user == null) return;
-
-        user.save();
+        manager.getUser(uuid).save();
     }
 
 }

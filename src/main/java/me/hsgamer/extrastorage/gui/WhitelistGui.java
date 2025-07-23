@@ -6,7 +6,6 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.data.item.ESItem;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.gui.base.ESGui;
 import me.hsgamer.extrastorage.gui.icon.Icon;
@@ -105,10 +104,10 @@ public final class WhitelistGui
         endIndex = Math.min(items.size(), page * slots.length);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = items.get(startIndex);
-            ESItem item = new ESItem(key, false, 1);
-            if (!item.isLoaded()) continue;
+            ItemUtil.ItemPair pair = ItemUtil.getItem(key);
+            if (pair.type() == ItemUtil.ItemType.NONE) continue;
 
-            ItemStack iStack = item.getItem();
+            ItemStack iStack = pair.item();
 
             ItemMeta meta = iStack.getItemMeta();
 

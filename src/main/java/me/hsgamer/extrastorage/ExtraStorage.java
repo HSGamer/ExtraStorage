@@ -21,23 +21,10 @@ import me.hsgamer.extrastorage.listeners.storage.UltimateStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.VanillaPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.WildStackerPickupListener;
 import me.hsgamer.extrastorage.tasks.AutoUpdateTask;
-import me.hsgamer.extrastorage.util.Utils;
-import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
-import me.hsgamer.hscore.database.driver.mysql.MySqlDriver;
-import me.hsgamer.hscore.database.driver.sqlite.SqliteFileDriver;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
 
 public final class ExtraStorage extends JavaPlugin {
 
@@ -54,8 +41,6 @@ public final class ExtraStorage extends JavaPlugin {
     @Getter
     private Message message;
 
-    @Getter
-    private JavaSqlClient databaseClient;
     @Getter
     private UserManager userManager;
     @Getter
@@ -86,7 +71,6 @@ public final class ExtraStorage extends JavaPlugin {
         this.metrics = new Metrics(this, 18779);
 
         this.loadConfigs();
-        this.setupDatabase();
         this.userManager = new UserManager(this);
         this.loadGuiFile();
 
@@ -151,56 +135,5 @@ public final class ExtraStorage extends JavaPlugin {
             new UltimateStackerPickupListener(this);
         else if (getServer().getPluginManager().isPluginEnabled("RoseStacker")) new RoseStackerPickupListener(this);
         else new VanillaPickupListener(this);
-    }
-
-
-    private void setupDatabase() {
-        me.hsgamer.hscore.database.Setting databaseSetting;
-        if (setting.getDBType().equals("mysql")) {
-            metrics.addCustomChart(new SimplePie("database", () -> "MySQL"));
-            databaseSetting = me.hsgamer.hscore.database.Setting.create(new MySqlDriver());
-            databaseSetting
-                    .setHost(setting.getDBHost())
-                    .setPort(Integer.toString(setting.getDBPort()))
-                    .setDatabaseName(setting.getDBDatabase())
-                    .setUsername(setting.getDBUsername())
-                    .setPassword(setting.getDBPassword());
-        } else {
-            metrics.addCustomChart(new SimplePie("database", () -> "SQLite"));
-            databaseSetting = me.hsgamer.hscore.database.Setting.create(new SqliteFileDriver(this.getDataFolder()));
-            databaseSetting.setDatabaseName(setting.getDBDatabase());
-        }
-        try {
-            databaseClient = new JavaSqlClient(databaseSetting);
-            getLogger().info("Established " + setting.getDBDatabase() + " connection.");
-        } catch (Exception error) {
-            getLogger().log(Level.SEVERE, "Failed to establish " + setting.getDBDatabase() + " connection! Please contact the author for help!", error);
-            return;
-        }
-
-        this.executeQueryFromFile();
-    }
-
-    private void executeQueryFromFile() {
-        String query;
-        try (
-                InputStream inStream = this.getClass().getResourceAsStream("/sql/" + setting.getDBType() + "_query.sql");
-                BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(inStream))
-        ) {
-            query = reader.lines().reduce("", (acc, line) -> acc + line + "\n");
-        } catch (IOException error) {
-            getLogger().log(Level.SEVERE, "Failed to read database setup file!", error);
-            return;
-        }
-        query = query.replaceAll(Utils.getRegex("table"), setting.getDBTable());
-
-        try (Connection conn = databaseClient.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute(query);
-        } catch (SQLException error) {
-            getLogger().log(Level.SEVERE, "Failed to execute query from file!", error);
-            return;
-        }
-
-        getLogger().info("Database setup completed!");
     }
 }
