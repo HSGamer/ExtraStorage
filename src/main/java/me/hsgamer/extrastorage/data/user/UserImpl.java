@@ -1,5 +1,8 @@
 package me.hsgamer.extrastorage.data.user;
 
+import me.hsgamer.topper.storage.sql.converter.ComplexSqlValueConverter;
+import me.hsgamer.topper.storage.sql.core.SqlValueConverter;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +10,7 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 public class UserImpl {
-    public static final UserImpl EMPTY = new UserImpl(Collections.emptyMap(), "", Collections.emptyMap(), 0, false);
+    public static final UserImpl EMPTY = new UserImpl(Collections.emptyMap(), "", Collections.emptyMap(), 0, true);
 
     public final Map<UUID, Long> partners;
     public final String texture;
@@ -21,6 +24,13 @@ public class UserImpl {
         this.items = items;
         this.space = space;
         this.status = status;
+    }
+
+    public static SqlValueConverter<UserImpl> getConverter(boolean isMySql) {
+        return ComplexSqlValueConverter.<UserImpl>builder()
+                .constructor(() -> EMPTY)
+                // TODO: Columns
+                .build();
     }
 
     public UserImpl withPartners(Map<UUID, Long> partners) {

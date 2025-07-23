@@ -7,8 +7,10 @@ import me.hsgamer.extrastorage.hooks.economy.*;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.topper.storage.sql.core.SqlDatabaseSetting;
 import org.bukkit.Sound;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +176,50 @@ public final class Setting
 
         String formatName = Utils.formatName(validKey);
         return (colorize ? Utils.colorize("&f" + formatName) : formatName);
+    }
+
+    public SqlDatabaseSetting getSqlDatabaseSetting() {
+        return new SqlDatabaseSetting() {
+            @Override
+            public String getHost() {
+                return DBHost;
+            }
+
+            @Override
+            public String getPort() {
+                return String.valueOf(DBPort);
+            }
+
+            @Override
+            public String getDatabase() {
+                return DBDatabase;
+            }
+
+            @Override
+            public String getUsername() {
+                return DBUsername;
+            }
+
+            @Override
+            public String getPassword() {
+                return DBPassword;
+            }
+
+            @Override
+            public boolean isUseSSL() {
+                return false;
+            }
+
+            @Override
+            public Map<String, Object> getDriverProperties() {
+                return Collections.emptyMap();
+            }
+
+            @Override
+            public Map<String, Object> getClientProperties() {
+                return Collections.emptyMap();
+            }
+        };
     }
 
 }
