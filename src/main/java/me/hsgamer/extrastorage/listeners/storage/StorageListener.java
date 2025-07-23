@@ -125,18 +125,16 @@ public abstract class StorageListener
         int amount = item.getAmount();
         long freeSpace = storage.getFreeSpace();
 
-        if ((freeSpace != -1) && (freeSpace < amount)) {
-            amount = (int) freeSpace;
-            item.setAmount(item.getAmount() - amount);
-            isResidual = true;
-        }
+        // Giới hạn số lượng lấy ra tối đa là Integer.MAX_VALUE
+        long maxTake = Math.min(amount, freeSpace == -1 ? Integer.MAX_VALUE : Math.min(freeSpace, Integer.MAX_VALUE));
+        amount = (int) maxTake;
 
         if (!isResidual) event.setCancelled(true);
         storage.add(item, amount);
 
         if (!Strings.isNullOrEmpty(Message.getMessage("WARN.Stored.ActionBar"))) {
             ActionBar.send(user.getPlayer(), Message.getMessage("WARN.Stored.ActionBar")
-                    .replaceAll(Utils.getRegex("current"), Digital.formatThousands(storage.getItem(item).get().getQuantity()))
+                    .replaceAll(Utils.getRegex("current"), Digital.formatThousands(storage.getItem(item).get().getQuantity() > Integer.MAX_VALUE ? Integer.MAX_VALUE : storage.getItem(item).get().getQuantity()))
                     .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
                     .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(item, true)));
         }

@@ -35,9 +35,9 @@ public final class SetCmd
     @Override
     public void execute(CommandContext context) {
         String args0 = context.getArgs(0), args1 = context.getArgs(1);
-        int amount;
+        long amount;
         try {
-            amount = Digital.getBetween(0, Integer.MAX_VALUE, Integer.parseInt(args1));
+            amount = Digital.getBetween(0, Long.MAX_VALUE, Long.parseLong(args1));
         } catch (NumberFormatException ignored) {
             context.sendMessage(Message.getMessage("FAIL.not-number").replaceAll(VALUE_REGEX, args1));
             return;
@@ -65,7 +65,7 @@ public final class SetCmd
                     context.sendMessage(Message.getMessage("FAIL.storage-is-full"));
                     return;
                 }
-                if ((usedSpace + amount) > space) amount = (int) (space - usedSpace);
+                if ((usedSpace + amount) > space) amount = (space - usedSpace);
             }
             storage.set(args0, amount);
 
@@ -98,7 +98,7 @@ public final class SetCmd
                 context.sendMessage(Message.getMessage("FAIL.storage-is-full"));
                 return;
             }
-            if ((usedSpace + amount) > space) amount = (int) (space - usedSpace);
+            if ((usedSpace + amount) > space) amount = (space - usedSpace);
         }
         storage.set(args0, amount);
 

@@ -136,22 +136,22 @@ public final class SellGui
                     .handleClick(event -> {
                         this.playSoundIfPresent();
 
-                        int current = item.getQuantity();
+                        int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                         if (current < 1) {
                             player.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(item.getKey(), true)));
                             return;
                         }
 
-                        int result = amount;
-                        if (event.isShiftClick()) result = Digital.getBetween(1, Integer.MAX_VALUE, current);
+                        int sellAmount = current;
+                        if (event.isShiftClick()) sellAmount = Digital.getBetween(1, Integer.MAX_VALUE, current);
                         else if (event.isLeftClick()) ; // Bỏ qua vì phần này chỉ bán @amount vật phẩm.
                         else if (event.isRightClick())
-                            result = Digital.getBetween(1, current, iStack.getMaxStackSize());
+                            sellAmount = Digital.getBetween(1, current, iStack.getMaxStackSize());
                         else return;
 
                         instance.getSetting()
                                 .getEconomyProvider()
-                                .sellItem(player, item.getItem(), result, rs -> {
+                                .sellItem(player, item.getItem(), sellAmount, rs -> {
                                     if (!rs.isSuccess()) {
                                         player.sendMessage(Message.getMessage("FAIL.cannot-be-sold"));
                                         return;

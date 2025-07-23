@@ -153,11 +153,11 @@ public interface Storage {
      *
      * @param key      the item key. Can be an ItemStack or a string as MATERIAL:DATA
      * @param quantity the quantity to be added
-     * @see Storage#subtract(Object, int)
-     * @see Storage#set(Object, int)
+     * @see Storage#subtract(Object, long)
+     * @see Storage#set(Object, long)
      * @see Storage#reset(Object)
      */
-    void add(Object key, int quantity);
+    void add(Object key, long quantity);
 
     /**
      * Subtract the item quantity. For unfiltered items, if the quantity is less than 1 after subtracted,
@@ -165,32 +165,32 @@ public interface Storage {
      *
      * @param key      the item key. Can be an ItemStack or a string as MATERIAL:DATA
      * @param quantity the quantity to be subtracted
-     * @see Storage#add(Object, int)
-     * @see Storage#set(Object, int)
+     * @see Storage#add(Object, long)
+     * @see Storage#set(Object, long)
      * @see Storage#reset(Object)
      */
-    void subtract(Object key, int quantity);
+    void subtract(Object key, long quantity);
 
     /**
-     * Set the item quantity. And same as {@link Storage#subtract(Object, int) subtract(Object, int)} method,
+     * Set the item quantity. And same as {@link Storage#subtract(Object, long) subtract(Object, long)} method,
      * for unfiltered items, if the quantity is set less than 1, it will be automatically removed from the storage.
      *
      * @param key      the item key. Can be an ItemStack or a string as MATERIAL:DATA
      * @param quantity the quantity to be set
-     * @see Storage#add(Object, int)
-     * @see Storage#subtract(Object, int)
+     * @see Storage#add(Object, long)
+     * @see Storage#subtract(Object, long)
      * @see Storage#reset(Object)
      */
-    void set(Object key, int quantity);
+    void set(Object key, long quantity);
 
     /**
-     * Reset the item quantity (can be null to reset all items). And same as {@link Storage#subtract(Object, int) subtract(Object, int)} method,
+     * Reset the item quantity (can be null to reset all items). And same as {@link Storage#subtract(Object, long) subtract(Object, long)} method,
      * for unfiltered items, after reseting, it will be automatically removed from the storage.
      *
      * @param key the item key. Can be an ItemStack, a string as MATERIAL:DATA or null for all items
-     * @see Storage#add(Object, int)
-     * @see Storage#subtract(Object, int)
-     * @see Storage#set(Object, int)
+     * @see Storage#add(Object, long)
+     * @see Storage#subtract(Object, long)
+     * @see Storage#set(Object, long)
      */
     void reset(Object key);
 

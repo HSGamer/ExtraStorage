@@ -42,33 +42,33 @@ public interface Item {
      *
      * @return the item quantity
      */
-    int getQuantity();
+    long getQuantity();
 
     /**
      * Add the item quantity
      *
      * @param quantity the quantity to be added
-     * @see Item#subtract(int)
-     * @see Item#set(int)
+     * @see Item#subtract(long)
+     * @see Item#set(long)
      */
-    void add(int quantity);
+    void add(long quantity);
 
     /**
      * Subtract the item quantity
      *
      * @param quantity the quantity to be subtracted
-     * @see Item#add(int)
-     * @see Item#set(int)
+     * @see Item#add(long)
+     * @see Item#set(long)
      */
-    void subtract(int quantity);
+    void subtract(long quantity);
 
     /**
      * Change the item quantity;
      *
      * @param quantity the item quantity to be changed
-     * @see Item#add(int)
-     * @see Item#subtract(int)
+     * @see Item#add(long)
+     * @see Item#subtract(long)
      */
-    void set(int quantity);
+    void set(long quantity);
 
 }

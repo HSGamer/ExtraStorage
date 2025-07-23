@@ -215,7 +215,7 @@ public final class StorageGui
                             return;
                         }
 
-                        int current = item.getQuantity();
+                        int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                         if (current <= 0) {
                             player.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                             return;
@@ -223,10 +223,10 @@ public final class StorageGui
 
                         ItemStack vanillaItem = item.getItem();
                         if (click == ClickType.SHIFT_LEFT)
-                            vanillaItem.setAmount(Digital.getBetween(1, Integer.MAX_VALUE, current));
+                            vanillaItem.setAmount(current);
                         else if (event.isLeftClick()) ; // Bỏ qua vì phần này chỉ rút 1 vật phẩm.
                         else if (event.isRightClick())
-                            vanillaItem.setAmount(Digital.getBetween(1, current, clicked.getMaxStackSize()));
+                            vanillaItem.setAmount(Math.min(current, clicked.getMaxStackSize()));
                         else return;
                         if (item.getType() == ItemUtil.ItemType.VANILLA) {
                             /*

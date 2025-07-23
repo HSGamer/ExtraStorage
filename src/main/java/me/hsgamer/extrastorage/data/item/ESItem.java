@@ -11,9 +11,9 @@ public final class ESItem
     private final String key;
     private ItemUtil.ItemPair itemPair;
     private boolean filtered;
-    private int quantity;
+    private long quantity;
 
-    public ESItem(String key, boolean filtered, int quantity) {
+    public ESItem(String key, boolean filtered, long quantity) {
         key = ItemUtil.normalizeMaterialKey(key);
         this.key = key;
         this.filtered = filtered;
@@ -63,22 +63,22 @@ public final class ESItem
     }
 
     @Override
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
     @Override
-    public void add(int quantity) {
+    public void add(long quantity) {
         this.quantity += quantity;
     }
 
     @Override
-    public void subtract(int quantity) {
+    public void subtract(long quantity) {
         this.quantity -= quantity;
     }
 
     @Override
-    public void set(int quantity) {
+    public void set(long quantity) {
         this.quantity = quantity;
     }
 
