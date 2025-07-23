@@ -35,6 +35,7 @@ public class TextureFetcher {
             String url = String.format(URL, name);
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 
+            connection.setRequestProperty("User-Agent", "ExtraStorage/TextureFetcher");
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
