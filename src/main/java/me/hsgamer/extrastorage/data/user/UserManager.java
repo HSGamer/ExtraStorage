@@ -2,7 +2,7 @@ package me.hsgamer.extrastorage.data.user;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.data.user.stub.StubUser;
+import me.hsgamer.extrastorage.data.stub.StubUser;
 import me.hsgamer.topper.data.simple.SimpleDataHolder;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;

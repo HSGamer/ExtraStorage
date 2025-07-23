@@ -1,4 +1,4 @@
-package me.hsgamer.extrastorage.data.user.stub;
+package me.hsgamer.extrastorage.data.stub;
 
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.util.ItemUtil;

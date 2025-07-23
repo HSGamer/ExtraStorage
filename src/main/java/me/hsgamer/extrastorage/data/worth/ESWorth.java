@@ -1,4 +1,4 @@
-package me.hsgamer.extrastorage.data.item;
+package me.hsgamer.extrastorage.data.worth;
 
 import me.hsgamer.extrastorage.api.item.Worth;
 

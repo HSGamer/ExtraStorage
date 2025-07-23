@@ -8,7 +8,7 @@ import me.hsgamer.extrastorage.commands.handler.CommandHandler;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.configs.types.BukkitConfigChecker;
-import me.hsgamer.extrastorage.data.item.WorthManager;
+import me.hsgamer.extrastorage.data.worth.WorthManager;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.gui.*;
