@@ -31,14 +31,14 @@ public final class PlayerListener
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        manager.getOrCreateEntry(uuid);
+        manager.load(uuid);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        manager.getUser(uuid).save();
+        manager.save(uuid);
     }
 
 }
