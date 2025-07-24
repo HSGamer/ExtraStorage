@@ -1,6 +1,12 @@
 package me.hsgamer.extrastorage.data.user;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import me.hsgamer.extrastorage.util.ItemUtil;
+import me.hsgamer.topper.storage.sql.converter.BooleanSqlValueConverter;
 import me.hsgamer.topper.storage.sql.converter.ComplexSqlValueConverter;
+import me.hsgamer.topper.storage.sql.converter.NumberSqlValueConverter;
+import me.hsgamer.topper.storage.sql.converter.StringSqlValueConverter;
 import me.hsgamer.topper.storage.sql.core.SqlValueConverter;
 
 import java.util.Collections;
@@ -29,7 +35,71 @@ public class UserImpl {
     public static SqlValueConverter<UserImpl> getConverter(boolean isMySql) {
         return ComplexSqlValueConverter.<UserImpl>builder()
                 .constructor(() -> EMPTY)
-                // TODO: Columns
+                .entry(new BooleanSqlValueConverter("status"), user -> user.status, UserImpl::withStatus)
+                .entry(new StringSqlValueConverter("texture", "TINYTEXT"), user -> user.texture, UserImpl::withTexture)
+                .entry(new NumberSqlValueConverter<>("space", false, Number::longValue), user -> user.space, UserImpl::withSpace)
+                .entry(
+                        new StringSqlValueConverter("partners", isMySql ? "LONGTEXT" : "TEXT"),
+                        user -> {
+                            JsonObject jsonObject = new JsonObject();
+                            for (Map.Entry<UUID, Long> entry : user.partners.entrySet()) {
+                                jsonObject.addProperty(entry.getKey().toString(), entry.getValue());
+                            }
+                            return jsonObject.toString();
+                        },
+                        (user, string) -> {
+                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            Map<UUID, Long> partners = new HashMap<>();
+                            jsonObject.entrySet().forEach(entry -> {
+                                UUID uuid = UUID.fromString(entry.getKey());
+                                long timestamp = entry.getValue().getAsLong();
+                                partners.put(uuid, timestamp);
+                            });
+                            return user.withPartners(partners);
+                        }
+                )
+                .entry(
+                        new StringSqlValueConverter("filter", isMySql ? "LONGTEXT" : "TEXT"),
+                        user -> {
+                            JsonObject jsonObject = new JsonObject();
+                            for (Map.Entry<String, ItemImpl> entry : user.items.entrySet()) {
+                                if (!entry.getValue().filtered) continue;
+                                jsonObject.addProperty(entry.getKey(), entry.getValue().quantity);
+                            }
+                            return jsonObject.toString();
+                        },
+                        (user, string) -> {
+                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            Map<String, ItemImpl> items = new HashMap<>();
+                            jsonObject.entrySet().forEach(entry -> {
+                                String key = ItemUtil.normalizeMaterialKey(entry.getKey());
+                                long quantity = entry.getValue().getAsLong();
+                                items.put(key, ItemImpl.EMPTY.withFiltered(true).withQuantity(quantity));
+                            });
+                            return user.withAdditionalItems(items);
+                        }
+                )
+                .entry(
+                        new StringSqlValueConverter("unfilter", isMySql ? "LONGTEXT" : "TEXT"),
+                        user -> {
+                            JsonObject jsonObject = new JsonObject();
+                            for (Map.Entry<String, ItemImpl> entry : user.items.entrySet()) {
+                                if (entry.getValue().filtered) continue;
+                                jsonObject.addProperty(entry.getKey(), entry.getValue().quantity);
+                            }
+                            return jsonObject.toString();
+                        },
+                        (user, string) -> {
+                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            Map<String, ItemImpl> items = new HashMap<>();
+                            jsonObject.entrySet().forEach(entry -> {
+                                String key = ItemUtil.normalizeMaterialKey(entry.getKey());
+                                long quantity = entry.getValue().getAsLong();
+                                items.put(key, ItemImpl.EMPTY.withFiltered(false).withQuantity(quantity));
+                            });
+                            return user.withAdditionalItems(items);
+                        }
+                )
                 .build();
     }
 
@@ -54,6 +124,12 @@ public class UserImpl {
     }
 
     public UserImpl withItems(Map<String, ItemImpl> items) {
+        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+    }
+
+    public UserImpl withAdditionalItems(Map<String, ItemImpl> additionalItems) {
+        HashMap<String, ItemImpl> items = new HashMap<>(this.items);
+        additionalItems.forEach(items::putIfAbsent);
         return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
     }
 

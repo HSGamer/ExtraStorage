@@ -1,7 +1,6 @@
 package me.hsgamer.extrastorage;
 
 import lombok.Getter;
-import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.AdminCommands;
 import me.hsgamer.extrastorage.commands.PlayerCommands;
 import me.hsgamer.extrastorage.commands.handler.CommandHandler;
@@ -20,8 +19,8 @@ import me.hsgamer.extrastorage.listeners.storage.RoseStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.UltimateStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.VanillaPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.WildStackerPickupListener;
-import me.hsgamer.extrastorage.tasks.AutoUpdateTask;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,9 +48,6 @@ public final class ExtraStorage extends JavaPlugin {
     @Getter
     private Log log;
 
-    @Getter
-    private AutoUpdateTask autoUpdateTask;
-
     private ESPlaceholder placeholder;
 
     @Override
@@ -73,6 +69,7 @@ public final class ExtraStorage extends JavaPlugin {
         this.loadConfigs();
         this.userManager = new UserManager(this);
         this.loadGuiFile();
+        this.addExtraMetrics();
 
         this.log = new Log(this);
 
@@ -84,8 +81,6 @@ public final class ExtraStorage extends JavaPlugin {
             if (placeholder.register())
                 getLogger().info("Hooked into PlaceholderAPI");
         }
-
-        this.autoUpdateTask = new AutoUpdateTask(this, setting.getAutoUpdateTime());
     }
 
     @Override
@@ -95,12 +90,8 @@ public final class ExtraStorage extends JavaPlugin {
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
             InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
             if (holder instanceof GuiCreator) player.closeInventory();
-
-            User user = userManager.getUser(player);
-            if (user != null) user.save();
-            else
-                getLogger().severe("Failed to save data of the player " + player.getUniqueId() + " (" + player.getName() + ").");
         });
+        if (userManager != null) userManager.save();
     }
 
 
@@ -135,5 +126,13 @@ public final class ExtraStorage extends JavaPlugin {
             new UltimateStackerPickupListener(this);
         else if (getServer().getPluginManager().isPluginEnabled("RoseStacker")) new RoseStackerPickupListener(this);
         else new VanillaPickupListener(this);
+    }
+
+    private void addExtraMetrics() {
+        if (instance.getSetting().getDBType().equalsIgnoreCase("mysql")) {
+            metrics.addCustomChart(new SimplePie("database", () -> "MySQL"));
+        } else {
+            metrics.addCustomChart(new SimplePie("database", () -> "SQLite"));
+        }
     }
 }

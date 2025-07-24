@@ -30,7 +30,7 @@ public class StubItem implements Item {
 
     @Override
     public ItemStack getItem() {
-        return ItemUtil.getItem(key).item();
+        return ItemUtil.getItem(key).item().clone();
     }
 
     @Override

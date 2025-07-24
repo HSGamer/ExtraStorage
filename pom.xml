@@ -13,7 +13,7 @@
 	
 	<properties>
 		<core.version>4.6.0</core.version>
-		<topper.version>4.0.0</topper.version>
+		<topper.version>4.1.0</topper.version>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -52,6 +52,10 @@
 								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.core</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>me.hsgamer.topper</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.topper</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
