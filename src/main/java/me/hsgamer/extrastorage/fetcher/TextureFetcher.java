@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class TextureFetcher {
@@ -22,7 +20,6 @@ public class TextureFetcher {
             .maximumSize(1000)
             .expireAfterWrite(30, TimeUnit.MINUTES)
             .build();
-    private static final ExecutorService pool = Executors.newCachedThreadPool();
 
     private static TextureResponse getResponse(String name) {
         name = name.toLowerCase();
@@ -66,23 +63,6 @@ public class TextureFetcher {
     public static String getTextureUrl(String name) {
         TextureResponse response = getResponse(name);
         return response != null ? response.textureUrl : null;
-    }
-
-    private static void getResponse(String name, Consumer<TextureResponse> action) {
-        pool.execute(() -> {
-            TextureResponse response = getResponse(name);
-            if (response != null) {
-                action.accept(response);
-            }
-        });
-    }
-
-    public static void getUUID(String name, Consumer<UUID> action) {
-        getResponse(name, response -> action.accept(response.uuid));
-    }
-
-    public static void getTextureUrl(String name, Consumer<String> action) {
-        getResponse(name, response -> action.accept(response.textureUrl));
     }
 
     private static class TextureResponse {

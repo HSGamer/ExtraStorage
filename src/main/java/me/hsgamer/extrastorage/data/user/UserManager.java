@@ -3,6 +3,7 @@ package me.hsgamer.extrastorage.data.user;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.stub.StubUser;
+import me.hsgamer.extrastorage.fetcher.TextureFetcher;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
 import me.hsgamer.topper.data.core.DataEntry;
@@ -122,6 +123,17 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                         key -> ItemImpl.EMPTY.withFiltered(true)
                 ));
         entry.setValue(user -> user.withItems(map), false);
+
+        Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
+            String name = player.getName();
+            if (name == null || name.isEmpty()) return;
+            String textureUrl = TextureFetcher.getTextureUrl(name);
+            if (textureUrl == null || textureUrl.isEmpty()) return;
+            byte[] texture = ("{\"textures\":{\"SKIN\":{\"url\":\"" + textureUrl + "\"}}}").getBytes();
+            String textureString = new String(Base64.getEncoder().encode(texture));
+            entry.setValue(user -> user.withTexture(textureString));
+        });
     }
 
     @Override
