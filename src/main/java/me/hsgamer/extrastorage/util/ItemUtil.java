@@ -9,13 +9,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static me.hsgamer.extrastorage.data.Constants.INVALID;
 
 public class ItemUtil {
     public static final ExtraStorage instance = ExtraStorage.getInstance();
     public static final AllItemProvider provider = new AllItemProvider();
+    private static final Map<String, ItemPair> ITEM_CACHE = new ConcurrentHashMap<>();
 
     /**
      * Validate the key to the material-key
@@ -91,6 +94,11 @@ public class ItemUtil {
     }
 
     public static ItemPair getItem(String key) {
+        ItemPair itemPair = ITEM_CACHE.get(key);
+        if (itemPair != null) {
+            return itemPair;
+        }
+
         String[] split = key.split(":", 2);
         ItemType itemType = ItemType.VANILLA;
         ItemStack item = null;
@@ -113,7 +121,14 @@ public class ItemUtil {
         if (item == null) {
             itemType = ItemType.NONE;
         }
-        return new ItemPair(item, itemType);
+        ItemPair pair = new ItemPair(item, itemType);
+        ITEM_CACHE.put(key, pair);
+        return pair;
+    }
+
+    public static boolean isValidItem(String key) {
+        ItemPair itemPair = getItem(key);
+        return itemPair.type() != ItemType.NONE;
     }
 
     public static void giveItem(Player player, ItemStack item) {

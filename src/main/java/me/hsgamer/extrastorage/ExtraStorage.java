@@ -1,14 +1,13 @@
 package me.hsgamer.extrastorage;
 
 import lombok.Getter;
-import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.AdminCommands;
 import me.hsgamer.extrastorage.commands.PlayerCommands;
 import me.hsgamer.extrastorage.commands.handler.CommandHandler;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.configs.types.BukkitConfigChecker;
-import me.hsgamer.extrastorage.data.item.WorthManager;
+import me.hsgamer.extrastorage.data.worth.WorthManager;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.gui.*;
@@ -20,24 +19,11 @@ import me.hsgamer.extrastorage.listeners.storage.RoseStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.UltimateStackerPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.VanillaPickupListener;
 import me.hsgamer.extrastorage.listeners.storage.WildStackerPickupListener;
-import me.hsgamer.extrastorage.tasks.AutoUpdateTask;
-import me.hsgamer.extrastorage.util.Utils;
-import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
-import me.hsgamer.hscore.database.driver.mysql.MySqlDriver;
-import me.hsgamer.hscore.database.driver.sqlite.SqliteFileDriver;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
 
 public final class ExtraStorage extends JavaPlugin {
 
@@ -55,17 +41,12 @@ public final class ExtraStorage extends JavaPlugin {
     private Message message;
 
     @Getter
-    private JavaSqlClient databaseClient;
-    @Getter
     private UserManager userManager;
     @Getter
     private WorthManager worthManager;
 
     @Getter
     private Log log;
-
-    @Getter
-    private AutoUpdateTask autoUpdateTask;
 
     private ESPlaceholder placeholder;
 
@@ -86,9 +67,9 @@ public final class ExtraStorage extends JavaPlugin {
         this.metrics = new Metrics(this, 18779);
 
         this.loadConfigs();
-        this.setupDatabase();
         this.userManager = new UserManager(this);
         this.loadGuiFile();
+        this.addExtraMetrics();
 
         this.log = new Log(this);
 
@@ -100,8 +81,6 @@ public final class ExtraStorage extends JavaPlugin {
             if (placeholder.register())
                 getLogger().info("Hooked into PlaceholderAPI");
         }
-
-        this.autoUpdateTask = new AutoUpdateTask(this, setting.getAutoUpdateTime());
     }
 
     @Override
@@ -111,12 +90,8 @@ public final class ExtraStorage extends JavaPlugin {
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
             InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
             if (holder instanceof GuiCreator) player.closeInventory();
-
-            User user = userManager.getUser(player);
-            if (user != null) user.save();
-            else
-                getLogger().severe("Failed to save data of the player " + player.getUniqueId() + " (" + player.getName() + ").");
         });
+        if (userManager != null) userManager.save();
     }
 
 
@@ -153,54 +128,11 @@ public final class ExtraStorage extends JavaPlugin {
         else new VanillaPickupListener(this);
     }
 
-
-    private void setupDatabase() {
-        me.hsgamer.hscore.database.Setting databaseSetting;
-        if (setting.getDBType().equals("mysql")) {
+    private void addExtraMetrics() {
+        if (instance.getSetting().getDBType().equalsIgnoreCase("mysql")) {
             metrics.addCustomChart(new SimplePie("database", () -> "MySQL"));
-            databaseSetting = me.hsgamer.hscore.database.Setting.create(new MySqlDriver());
-            databaseSetting
-                    .setHost(setting.getDBHost())
-                    .setPort(Integer.toString(setting.getDBPort()))
-                    .setDatabaseName(setting.getDBDatabase())
-                    .setUsername(setting.getDBUsername())
-                    .setPassword(setting.getDBPassword());
         } else {
             metrics.addCustomChart(new SimplePie("database", () -> "SQLite"));
-            databaseSetting = me.hsgamer.hscore.database.Setting.create(new SqliteFileDriver(this.getDataFolder()));
-            databaseSetting.setDatabaseName(setting.getDBDatabase());
         }
-        try {
-            databaseClient = new JavaSqlClient(databaseSetting);
-            getLogger().info("Established " + setting.getDBDatabase() + " connection.");
-        } catch (Exception error) {
-            getLogger().log(Level.SEVERE, "Failed to establish " + setting.getDBDatabase() + " connection! Please contact the author for help!", error);
-            return;
-        }
-
-        this.executeQueryFromFile();
-    }
-
-    private void executeQueryFromFile() {
-        String query;
-        try (
-                InputStream inStream = this.getClass().getResourceAsStream("/sql/" + setting.getDBType() + "_query.sql");
-                BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(inStream))
-        ) {
-            query = reader.lines().reduce("", (acc, line) -> acc + line + "\n");
-        } catch (IOException error) {
-            getLogger().log(Level.SEVERE, "Failed to read database setup file!", error);
-            return;
-        }
-        query = query.replaceAll(Utils.getRegex("table"), setting.getDBTable());
-
-        try (Connection conn = databaseClient.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute(query);
-        } catch (SQLException error) {
-            getLogger().log(Level.SEVERE, "Failed to execute query from file!", error);
-            return;
-        }
-
-        getLogger().info("Database setup completed!");
     }
 }

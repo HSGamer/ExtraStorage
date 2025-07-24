@@ -1,105 +1,160 @@
 package me.hsgamer.extrastorage.data.user;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import lombok.Getter;
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.api.events.StorageLoadEvent;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.extrastorage.data.stub.StubUser;
+import me.hsgamer.extrastorage.fetcher.TextureFetcher;
+import me.hsgamer.extrastorage.util.ItemUtil;
+import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
+import me.hsgamer.topper.data.core.DataEntry;
+import me.hsgamer.topper.data.simple.SimpleDataHolder;
+import me.hsgamer.topper.storage.core.DataStorage;
+import me.hsgamer.topper.storage.sql.converter.UUIDSqlValueConverter;
+import me.hsgamer.topper.storage.sql.core.SqlDataStorageSupplier;
+import me.hsgamer.topper.storage.sql.mysql.MySqlDataStorageSupplier;
+import me.hsgamer.topper.storage.sql.sqlite.SqliteDataStorageSupplier;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-public final class UserManager {
-
+public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     private final ExtraStorage instance;
-    private final Map<UUID, User> users;
-    @Getter
-    private boolean loaded;
+    private final DataStorage<UUID, UserImpl> storage;
+    private final AtomicBoolean loaded = new AtomicBoolean(false);
+    private final AtomicReference<ConcurrentHashMap<UUID, UserImpl>> saveMapRef = new AtomicReference<>(new ConcurrentHashMap<>());
 
     public UserManager(ExtraStorage instance) {
         this.instance = instance;
-        this.loaded = false;
-        this.users = new ConcurrentHashMap<>();
-        this.load();
-    }
+        boolean isMySql = instance.getSetting().getDBType().equalsIgnoreCase("mysql");
+        SqlDataStorageSupplier.Options options = SqlDataStorageSupplier.options()
+                .setIncrementalKey("id")
+                .setClientFunction(JavaSqlClient::new);
+        SqlDataStorageSupplier supplier = isMySql
+                ? new MySqlDataStorageSupplier(instance.getSetting().getSqlDatabaseSetting(), options)
+                : new SqliteDataStorageSupplier(instance.getDataFolder(), instance.getSetting().getSqlDatabaseSetting(), options);
+        this.storage = supplier.getStorage(
+                instance.getSetting().getDBTable(),
+                new UUIDSqlValueConverter("uuid"),
+                UserImpl.getConverter(isMySql)
+        );
 
-    private void load() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            final StorageLoadEvent event = new StorageLoadEvent();
-
-            try (Connection conn = instance.getDatabaseClient().getConnection(); Statement stmt = conn.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM `" + instance.getSetting().getDBTable() + '`');
-                while (rs.next()) {
-                    UUID uuid = UUID.fromString(rs.getString("uuid"));
-                    if (users.containsKey(uuid)) continue;
-
-                    boolean status = rs.getBoolean("status");
-                    String texture = rs.getString("texture");
-                    if (texture == null) texture = "";
-                    long space = rs.getLong("space");
-                    JsonObject items = new JsonParser().parse(rs.getString("filter")).getAsJsonObject(),
-                            unused = new JsonParser().parse(rs.getString("unfilter")).getAsJsonObject(),
-                            partners = new JsonParser().parse(rs.getString("partners")).getAsJsonObject();
-
-                    users.put(uuid, new ESUser(uuid, status, texture, space, items, unused, partners));
-                }
-                rs.close();
-
-                Bukkit.getServer().getOnlinePlayers().forEach(player -> {
-                    UUID uuid = player.getUniqueId();
-                    if (!users.containsKey(uuid)) new ESUser(uuid);
-                });
-
-                event.setLoaded(true);
-            } catch (SQLException error) {
-                instance.getLogger().log(Level.SEVERE, "Failed to load the user data! Please contact the author for help!", error);
-                event.setLoaded(false);
+        Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+            try {
+                this.storage.onRegister();
+                this.storage.load().forEach((uuid, user) -> getOrCreateEntry(uuid).setValue(user, false));
+            } catch (Exception e) {
+                instance.getLogger().log(Level.SEVERE, "Error while loading user", e);
             } finally {
-                this.loaded = true;
-                Bukkit.getScheduler().runTask(instance, () -> Bukkit.getServer().getPluginManager().callEvent(event));
+                loaded.set(true);
             }
         });
-        executor.shutdown();
+
+        long autoUpdateTime = instance.getSetting().getAutoUpdateTime() * 20L;
+        Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> save(), autoUpdateTime, autoUpdateTime);
     }
 
+    public void save() {
+        Map<UUID, UserImpl> map = saveMapRef.get();
+        if (map.isEmpty()) return;
+        saveMapRef.set(new ConcurrentHashMap<>());
 
-    void insert(ESUser user) {
-        String query = "INSERT INTO `{table}`(`uuid`, `texture`, `space`, `partners`, `filter`, `unfilter`) VALUES (?, ?, ?, '{}', '{}', '{}')"
-                .replaceAll(Utils.getRegex("table"), instance.getSetting().getDBTable());
-        try (Connection conn = instance.getDatabaseClient().getConnection(); PreparedStatement prepare = conn.prepareStatement(query)) {
-            prepare.setString(1, user.getUUID().toString());
-            prepare.setString(2, user.getTexture());
-            prepare.setLong(3, instance.getSetting().getMaxSpace());
-            prepare.execute();
-        } catch (SQLException error) {
-            instance.getLogger().log(Level.SEVERE, "Failed to create data for player UUID: " + user.getUUID() + " (" + user.getName() + "). Please contact the author for help!", error);
-        } finally {
-            users.put(user.getUUID(), user);
+        Optional<DataStorage.Modifier<UUID, UserImpl>> optionalModifier = storage.modify();
+        if (!optionalModifier.isPresent()) {
+            instance.getLogger().log(Level.WARNING, "Failed to get modifier for user storage");
+            return;
+        }
+        DataStorage.Modifier<UUID, UserImpl> modifier = optionalModifier.get();
+
+        try {
+            modifier.save(map);
+            modifier.commit();
+        } catch (Exception e) {
+            instance.getLogger().log(Level.SEVERE, "Error while saving user data", e);
+            modifier.rollback();
         }
     }
 
+    public void save(UUID uuid) {
+        Map<UUID, UserImpl> saveMap = saveMapRef.get();
+        UserImpl toSave = saveMap.get(uuid);
+        if (toSave == null) return;
+        saveMap.remove(uuid);
+
+        Optional<DataStorage.Modifier<UUID, UserImpl>> optionalModifier = storage.modify();
+        if (!optionalModifier.isPresent()) {
+            ExtraStorage.getInstance().getLogger().log(Level.WARNING, "Failed to get modifier for user storage");
+            return;
+        }
+        DataStorage.Modifier<UUID, UserImpl> modifier = optionalModifier.get();
+        try {
+            modifier.save(Collections.singletonMap(uuid, toSave));
+            modifier.commit();
+        } catch (Exception e) {
+            ExtraStorage.getInstance().getLogger().log(Level.SEVERE, "Error while saving user data for " + uuid, e);
+            modifier.rollback();
+        }
+    }
+
+    public boolean isLoaded() {
+        return loaded.get();
+    }
+
+    @Override
+    public @NotNull UserImpl getDefaultValue() {
+        return UserImpl.EMPTY;
+    }
+
+    @Override
+    public void onCreate(DataEntry<UUID, UserImpl> entry) {
+        Map<String, ItemImpl> map = instance.getSetting().getWhitelist().stream()
+                .map(ItemUtil::normalizeMaterialKey)
+                .filter(Objects::nonNull)
+                .filter(key -> !key.trim().isEmpty())
+                .distinct()
+                .collect(Collectors.toMap(
+                        key -> key,
+                        key -> ItemImpl.EMPTY.withFiltered(true)
+                ));
+        entry.setValue(user -> user.withItems(map), false);
+    }
+
+    @Override
+    public void onUpdate(DataEntry<UUID, UserImpl> entry, UserImpl oldValue, UserImpl newValue) {
+        saveMapRef.get().put(entry.getKey(), newValue);
+    }
+
+    public void load(UUID uuid) {
+        DataEntry<UUID, UserImpl> entry = getOrCreateEntry(uuid);
+        if (entry.getValue().texture.isEmpty()) {
+            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+                OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
+                String name = player.getName();
+                if (name == null || name.isEmpty()) return;
+                String textureUrl = TextureFetcher.getTextureUrl(name);
+                if (textureUrl == null || textureUrl.isEmpty()) return;
+                byte[] texture = ("{\"textures\":{\"SKIN\":{\"url\":\"" + textureUrl + "\"}}}").getBytes();
+                String textureString = new String(Base64.getEncoder().encode(texture));
+                entry.setValue(user -> user.withTexture(textureString));
+            });
+        }
+    }
 
     public Collection<User> getUsers() {
-        return users.values();
+        return getEntryMap().values().stream().map(StubUser::new).collect(Collectors.toSet());
     }
 
     public User getUser(UUID uuid) {
-        return users.get(uuid);
+        return new StubUser(getOrCreateEntry(uuid));
     }
 
     public User getUser(OfflinePlayer player) {
-        return users.get(player.getUniqueId());
+        return getUser(player.getUniqueId());
     }
-
 }

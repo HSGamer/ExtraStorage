@@ -13,6 +13,7 @@
 	
 	<properties>
 		<core.version>4.6.0</core.version>
+		<topper.version>4.1.0</topper.version>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -51,6 +52,10 @@
 								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.core</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>me.hsgamer.topper</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.topper</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
@@ -241,19 +246,29 @@
 
 		<dependency>
 			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-database-driver-sqlite</artifactId>
+			<artifactId>hscore-database-client-java</artifactId>
 			<version>${core.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.xerial</groupId>
-					<artifactId>sqlite-jdbc</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-database-driver-mysql</artifactId>
+			<artifactId>hscore-web</artifactId>
 			<version>${core.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>me.hsgamer</groupId>
+			<artifactId>topper-data-simple</artifactId>
+			<version>${topper.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>me.hsgamer</groupId>
+			<artifactId>topper-storage-sql-converter</artifactId>
+			<version>${topper.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>me.hsgamer</groupId>
+			<artifactId>topper-storage-sql-mysql</artifactId>
+			<version>${topper.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.mysql</groupId>
@@ -263,13 +278,14 @@
 		</dependency>
 		<dependency>
 			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-database-client-java</artifactId>
-			<version>${core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-web</artifactId>
-			<version>${core.version}</version>
+			<artifactId>topper-storage-sql-sqlite</artifactId>
+			<version>${topper.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.xerial</groupId>
+					<artifactId>sqlite-jdbc</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	

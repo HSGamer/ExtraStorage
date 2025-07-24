@@ -16,9 +16,6 @@ public final class ReloadCmd
         instance.getMessage().reload();
         instance.getWorthManager().reload();
 
-        instance.getAutoUpdateTask().setTime(instance.getSetting().getAutoUpdateTime());
-        if (instance.getSetting().isRestartOnChange()) instance.getAutoUpdateTask().resetTime();
-
         context.sendMessage(Message.getMessage("SUCCESS.config-reload"));
     }
 

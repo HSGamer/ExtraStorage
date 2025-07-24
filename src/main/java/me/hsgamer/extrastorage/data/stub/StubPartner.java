@@ -1,4 +1,4 @@
-package me.hsgamer.extrastorage.data.user;
+package me.hsgamer.extrastorage.data.stub;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
@@ -8,14 +8,12 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
-public final class ESPartner
-        implements Partner {
-
+public class StubPartner implements Partner {
     private final OfflinePlayer player;
     private final long timestamp;
 
-    ESPartner(UUID uuid, long timestamp) {
-        this.player = Bukkit.getServer().getOfflinePlayer(uuid);
+    public StubPartner(UUID uuid, long timestamp) {
+        this.player = Bukkit.getOfflinePlayer(uuid);
         this.timestamp = timestamp;
     }
 
@@ -33,5 +31,4 @@ public final class ESPartner
     public String getTimeFormatted() {
         return DateFormatUtils.format(timestamp, ExtraStorage.getInstance().getSetting().getDateFormat());
     }
-
 }
