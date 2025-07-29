@@ -1,8 +1,8 @@
-package me.hsgamer.extrastorage.listeners.storage;
+package me.hsgamer.extrastorage.listeners.pickup;
 
-import com.bgsoftware.wildstacker.api.WildStackerAPI;
-import com.bgsoftware.wildstacker.api.objects.StackedItem;
 import com.google.common.base.Strings;
+import dev.rosewood.rosestacker.api.RoseStackerAPI;
+import dev.rosewood.rosestacker.stack.StackedItem;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.configs.Message;
@@ -11,27 +11,34 @@ import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
-public final class WildStackerPickupListener
-        extends StorageListener {
-
-    public WildStackerPickupListener(ExtraStorage instance) {
+public class RoseStackerPickupListener extends PickupListener {
+    public RoseStackerPickupListener(ExtraStorage instance) {
         super(instance);
     }
 
     @Override
+    public EventPriority getPickupPriority() {
+        return EventPriority.LOWEST;
+    }
+
+    @Override
     public void onPickup(EntityPickupItemEvent event, Player player, Storage storage, Item entity, ItemStack item) {
-        int amount = WildStackerAPI.getItemAmount(entity), result = amount;
+        RoseStackerAPI api = RoseStackerAPI.getInstance();
+        StackedItem stackedItem = api.getStackedItem(entity);
+        int amount = (stackedItem != null ? stackedItem.getStackSize() : item.getAmount()), result = amount;
 
         long freeSpace = storage.getFreeSpace();
         if ((freeSpace != -1) && (freeSpace < amount)) {
             result = (int) freeSpace;
             int residual = amount - result;
 
-            StackedItem sItem = WildStackerAPI.getStackedItem(entity);
-            sItem.setStackAmount(residual, true);
+            if (stackedItem != null) {
+                stackedItem.setStackSize(residual);
+            }
 
             item.setAmount(residual);
             entity.setItemStack(item);
@@ -51,5 +58,4 @@ public final class WildStackerPickupListener
                     .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(item, true)));
         }
     }
-
 }

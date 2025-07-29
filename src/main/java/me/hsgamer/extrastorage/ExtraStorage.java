@@ -14,11 +14,12 @@ import me.hsgamer.extrastorage.gui.*;
 import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.listeners.InventoryListener;
+import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PlayerListener;
-import me.hsgamer.extrastorage.listeners.storage.RoseStackerPickupListener;
-import me.hsgamer.extrastorage.listeners.storage.UltimateStackerPickupListener;
-import me.hsgamer.extrastorage.listeners.storage.VanillaPickupListener;
-import me.hsgamer.extrastorage.listeners.storage.WildStackerPickupListener;
+import me.hsgamer.extrastorage.listeners.pickup.RoseStackerPickupListener;
+import me.hsgamer.extrastorage.listeners.pickup.UltimateStackerPickupListener;
+import me.hsgamer.extrastorage.listeners.pickup.VanillaPickupListener;
+import me.hsgamer.extrastorage.listeners.pickup.WildStackerPickupListener;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -120,6 +121,7 @@ public final class ExtraStorage extends JavaPlugin {
     private void registerEvents() {
         new PlayerListener(this);
         new InventoryListener(this);
+        new ItemListener(this);
 
         if (getServer().getPluginManager().isPluginEnabled("WildStacker")) new WildStackerPickupListener(this);
         else if (getServer().getPluginManager().isPluginEnabled("UltimateStacker"))
