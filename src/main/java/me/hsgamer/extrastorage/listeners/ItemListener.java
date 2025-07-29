@@ -106,10 +106,14 @@ public class ItemListener extends BaseListener {
         boolean isResidual = false;
         int amount = item.getAmount();
         long freeSpace = storage.getFreeSpace();
-
-        // Giới hạn số lượng lấy ra tối đa là Integer.MAX_VALUE
         long maxTake = Math.min(amount, freeSpace == -1 ? Integer.MAX_VALUE : Math.min(freeSpace, Integer.MAX_VALUE));
         amount = (int) maxTake;
+
+        if ((freeSpace != -1) && (freeSpace < amount)) {
+            amount = (int) freeSpace;
+            item.setAmount(item.getAmount() - amount);
+            isResidual = true;
+        }
 
         if (!isResidual) event.setCancelled(true);
         ListenerUtil.addToStorage(user.getPlayer(), storage, item, amount);
