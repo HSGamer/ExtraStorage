@@ -15,11 +15,8 @@ import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.listeners.InventoryListener;
 import me.hsgamer.extrastorage.listeners.ItemListener;
+import me.hsgamer.extrastorage.listeners.PickupListener;
 import me.hsgamer.extrastorage.listeners.PlayerListener;
-import me.hsgamer.extrastorage.listeners.pickup.RoseStackerPickupListener;
-import me.hsgamer.extrastorage.listeners.pickup.UltimateStackerPickupListener;
-import me.hsgamer.extrastorage.listeners.pickup.VanillaPickupListener;
-import me.hsgamer.extrastorage.listeners.pickup.WildStackerPickupListener;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -122,12 +119,7 @@ public final class ExtraStorage extends JavaPlugin {
         new PlayerListener(this);
         new InventoryListener(this);
         new ItemListener(this);
-
-        if (getServer().getPluginManager().isPluginEnabled("WildStacker")) new WildStackerPickupListener(this);
-        else if (getServer().getPluginManager().isPluginEnabled("UltimateStacker"))
-            new UltimateStackerPickupListener(this);
-        else if (getServer().getPluginManager().isPluginEnabled("RoseStacker")) new RoseStackerPickupListener(this);
-        else new VanillaPickupListener(this);
+        new PickupListener(this);
     }
 
     private void addExtraMetrics() {
