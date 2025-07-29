@@ -40,7 +40,6 @@ public abstract class PickupListener extends BaseListener {
         ItemStack item = entity.getItemStack().clone();
 
         User user = instance.getUserManager().getUser(player);
-        if (user == null) return;
         if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
 
         Storage storage = user.getStorage();

@@ -9,8 +9,7 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.util.ActionBar;
-import me.hsgamer.extrastorage.util.Digital;
-import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.extrastorage.util.ListenerUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -113,13 +112,6 @@ public class ItemListener extends BaseListener {
         amount = (int) maxTake;
 
         if (!isResidual) event.setCancelled(true);
-        storage.add(item, amount);
-
-        if (!Strings.isNullOrEmpty(Message.getMessage("WARN.Stored.ActionBar"))) {
-            ActionBar.send(user.getPlayer(), Message.getMessage("WARN.Stored.ActionBar")
-                    .replaceAll(Utils.getRegex("current"), Digital.formatThousands(storage.getItem(item).get().getQuantity() > Integer.MAX_VALUE ? Integer.MAX_VALUE : storage.getItem(item).get().getQuantity()))
-                    .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
-                    .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(item, true)));
-        }
+        ListenerUtil.addToStorage(user.getPlayer(), storage, item, amount);
     }
 }

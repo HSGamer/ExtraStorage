@@ -2,13 +2,9 @@ package me.hsgamer.extrastorage.listeners.pickup;
 
 import com.craftaro.ultimatestacker.api.UltimateStackerApi;
 import com.craftaro.ultimatestacker.api.stack.item.StackedItemManager;
-import com.google.common.base.Strings;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
-import me.hsgamer.extrastorage.configs.Message;
-import me.hsgamer.extrastorage.util.ActionBar;
-import me.hsgamer.extrastorage.util.Digital;
-import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.extrastorage.util.ListenerUtil;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -39,17 +35,6 @@ public final class UltimateStackerPickupListener
             event.setCancelled(true);
             entity.remove();
         }
-        storage.add(item, result);
-
-        if (instance.getSetting().getPickupSound() != null)
-            player.playSound(player.getLocation(), instance.getSetting().getPickupSound(), 4.0f, 2.0f);
-
-        if (!Strings.isNullOrEmpty(Message.getMessage("WARN.Stored.ActionBar"))) {
-            ActionBar.send(player, Message.getMessage("WARN.Stored.ActionBar")
-                    .replaceAll(Utils.getRegex("current"), Digital.formatThousands(storage.getItem(item).get().getQuantity()))
-                    .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(result))
-                    .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(item, true)));
-        }
+        ListenerUtil.addToStorage(player, storage, item, result);
     }
-
 }
