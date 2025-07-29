@@ -203,11 +203,11 @@ public abstract class ESGui
                             if (orderSort) {
                                 compare = obj1.getKey().compareTo(obj2.getKey());
                                 if (compare == 0)
-                                    compare = Integer.compare((int)Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE), (int)Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE));
+                                    compare = Integer.compare((int) Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE));
                             } else {
                                 compare = obj2.getKey().compareTo(obj1.getKey());
                                 if (compare == 0)
-                                    compare = Integer.compare((int)Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE), (int)Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE));
+                                    compare = Integer.compare((int) Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE));
                             }
                             break;
                         case NAME:
@@ -215,11 +215,11 @@ public abstract class ESGui
                             if (orderSort) {
                                 compare = name1.compareTo(name2);
                                 if (compare == 0)
-                                    compare = Integer.compare((int)Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE), (int)Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE));
+                                    compare = Integer.compare((int) Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE));
                             } else {
                                 compare = name2.compareTo(name1);
                                 if (compare == 0)
-                                    compare = Integer.compare((int)Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE), (int)Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE));
+                                    compare = Integer.compare((int) Math.min(obj1.getValue().getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj2.getValue().getQuantity(), Integer.MAX_VALUE));
                             }
                             break;
                         case QUANTITY:

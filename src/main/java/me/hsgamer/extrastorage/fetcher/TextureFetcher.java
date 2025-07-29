@@ -4,7 +4,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.bukkit.util.Consumer;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
