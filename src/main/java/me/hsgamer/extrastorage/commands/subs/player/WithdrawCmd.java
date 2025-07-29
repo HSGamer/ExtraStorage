@@ -79,7 +79,7 @@ public final class WithdrawCmd
         iStack.setAmount(free);
 
         int withdrawAmount = free;
-        storage.subtract(args0, (long) withdrawAmount);
+        storage.subtract(args0, withdrawAmount);
         ItemUtil.giveItem(player, iStack);
 
         context.sendMessage(Message.getMessage("SUCCESS.withdrew-item")

@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.data.user;
 
+import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
+import io.github.projectunified.minelib.scheduler.common.task.Task;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.stub.StubUser;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -29,6 +32,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     private final DataStorage<UUID, UserImpl> storage;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
     private final AtomicReference<ConcurrentHashMap<UUID, UserImpl>> saveMapRef = new AtomicReference<>(new ConcurrentHashMap<>());
+    private final Task autoSaveTask;
 
     public UserManager(ExtraStorage instance) {
         this.instance = instance;
@@ -45,7 +49,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                 UserImpl.getConverter(isMySql)
         );
 
-        Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+        AsyncScheduler.get(instance).run(() -> {
             try {
                 this.storage.onRegister();
                 this.storage.load().forEach((uuid, user) -> getOrCreateEntry(uuid).setValue(user, false));
@@ -56,8 +60,12 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
             }
         });
 
-        long autoUpdateTime = instance.getSetting().getAutoUpdateTime() * 20L;
-        Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> save(), autoUpdateTime, autoUpdateTime);
+        this.autoSaveTask = AsyncScheduler.get(instance).runTimer(
+                () -> save(),
+                instance.getSetting().getAutoUpdateTime(),
+                instance.getSetting().getAutoUpdateTime(),
+                TimeUnit.SECONDS
+        );
     }
 
     public void save() {
@@ -133,7 +141,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     public void load(UUID uuid) {
         DataEntry<UUID, UserImpl> entry = getOrCreateEntry(uuid);
         if (entry.getValue().texture.isEmpty()) {
-            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+            AsyncScheduler.get(instance).run(() -> {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
                 String name = player.getName();
                 if (name == null || name.isEmpty()) return;
@@ -156,5 +164,9 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
 
     public User getUser(OfflinePlayer player) {
         return getUser(player.getUniqueId());
+    }
+
+    public void stop() {
+        autoSaveTask.cancel();
     }
 }

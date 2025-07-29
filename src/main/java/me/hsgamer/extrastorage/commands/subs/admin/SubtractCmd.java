@@ -64,7 +64,7 @@ public final class SubtractCmd
             }
 
             int subtractAmount = Math.min(amount, current);
-            storage.subtract(args0, (long) subtractAmount);
+            storage.subtract(args0, subtractAmount);
 
             context.sendMessage(Message.getMessage("SUCCESS.Subtract.self")
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
@@ -94,7 +94,7 @@ public final class SubtractCmd
         }
 
         int subtractAmount = Math.min(amount, current);
-        storage.subtract(args0, (long) subtractAmount);
+        storage.subtract(args0, subtractAmount);
 
         context.sendMessage(Message.getMessage("SUCCESS.Subtract.sender")
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))

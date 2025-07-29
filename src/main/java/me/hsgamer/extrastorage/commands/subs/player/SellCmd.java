@@ -52,7 +52,7 @@ public final class SellCmd
                             return;
                         }
                         int sellAmount = quantity;
-                        storage.subtract(key, (long) sellAmount);
+                        storage.subtract(key, sellAmount);
                         context.sendMessage(Message.getMessage("SUCCESS.item-sold")
                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(quantity))
                                 .replaceAll(Utils.getRegex("item"), instance.getSetting().getNameFormatted(key, true))

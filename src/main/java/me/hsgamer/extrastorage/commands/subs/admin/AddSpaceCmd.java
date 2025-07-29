@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.commands.subs.admin;
 
+import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.abstraction.Command;
@@ -60,7 +61,7 @@ public final class AddSpaceCmd
 
         String args1 = context.getArgs(1);
         if (args1.matches("(?ium)(\\*|-all)")) {
-            Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+            AsyncScheduler.get(instance).run(() -> {
                 for (User user : manager.getUsers()) {
                     Storage storage = user.getStorage();
 

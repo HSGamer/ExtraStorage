@@ -7,9 +7,9 @@ import me.hsgamer.extrastorage.commands.handler.CommandHandler;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.configs.types.BukkitConfigChecker;
-import me.hsgamer.extrastorage.data.worth.WorthManager;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
+import me.hsgamer.extrastorage.data.worth.WorthManager;
 import me.hsgamer.extrastorage.gui.*;
 import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
@@ -84,12 +84,14 @@ public final class ExtraStorage extends JavaPlugin {
     @Override
     public void onDisable() {
         if ((placeholder != null) && placeholder.isRegistered()) placeholder.unregister();
-        Bukkit.getScheduler().cancelTasks(this);
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
             InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
             if (holder instanceof GuiCreator) player.closeInventory();
         });
-        if (userManager != null) userManager.save();
+        if (userManager != null) {
+            userManager.stop();
+            userManager.save();
+        }
     }
 
 
