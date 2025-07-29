@@ -121,10 +121,6 @@ public class PickupListener implements Listener {
         Storage storage = user.getStorage();
         if (storage.isMaxSpace() || (!storage.canStore(item))) return;
 
-        this.onPickup(event, player, storage, entity, item);
-    }
-
-    private void onPickup(EntityPickupItemEvent event, Player player, Storage storage, Item entity, ItemStack item) {
         int amount = pickupHandler.getAmount(event, entity, item);
         int result = amount;
 
