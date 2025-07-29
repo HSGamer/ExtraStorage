@@ -14,6 +14,7 @@
 	<properties>
 		<core.version>4.6.0</core.version>
 		<topper.version>4.1.0</topper.version>
+		<minelib.version>1.2.5</minelib.version>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -286,6 +287,12 @@
 					<artifactId>sqlite-jdbc</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>minelib-scheduler-async</artifactId>
+			<version>${minelib.version}</version>
 		</dependency>
 	</dependencies>
 	
