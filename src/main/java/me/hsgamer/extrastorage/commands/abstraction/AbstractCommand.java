@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.commands.abstraction;
 
-import lombok.NonNull;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
@@ -28,7 +27,7 @@ public abstract class AbstractCommand
     }
 
     @Override
-    public boolean onCommand(@NonNull CommandSender sender, @NonNull org.bukkit.command.Command command, @NonNull String label, String[] args) {
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         CommandListener listener = listeners.get(command.getLabel());
 
         while (args.length > 0) {

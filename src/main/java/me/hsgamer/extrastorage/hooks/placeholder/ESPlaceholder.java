@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.hooks.placeholder;
 
-import lombok.NonNull;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
@@ -20,17 +19,17 @@ public final class ESPlaceholder
     }
 
     @Override
-    public @NonNull String getIdentifier() {
+    public String getIdentifier() {
         return "exstorage";
     }
 
     @Override
-    public @NonNull String getAuthor() {
+    public String getAuthor() {
         return "HyronicTeam";
     }
 
     @Override
-    public @NonNull String getVersion() {
+    public String getVersion() {
         return instance.getDescription().getVersion();
     }
 

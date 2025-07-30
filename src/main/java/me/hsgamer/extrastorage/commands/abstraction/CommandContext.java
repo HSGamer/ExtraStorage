@@ -1,18 +1,19 @@
 package me.hsgamer.extrastorage.commands.abstraction;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public final class CommandContext {
 
     private final CommandSender sender;
     private final String label;
     private final String[] arguments;
+
+    CommandContext(CommandSender sender, String label, String[] arguments) {
+        this.sender = sender;
+        this.label = label;
+        this.arguments = arguments;
+    }
 
     public String getName() {
         return sender.getName();
@@ -42,4 +43,15 @@ public final class CommandContext {
         return (sender.isOp() || sender.hasPermission(perm));
     }
 
+    public CommandSender getSender() {
+        return this.sender;
+    }
+
+    public String getLabel() {
+        return this.label;
+    }
+
+    public String[] getArguments() {
+        return this.arguments;
+    }
 }

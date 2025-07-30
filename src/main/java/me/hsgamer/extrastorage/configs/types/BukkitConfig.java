@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.configs.types;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.configs.abstraction.AbstractConfig;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,7 +10,6 @@ import java.util.logging.Level;
 
 public abstract class BukkitConfig extends AbstractConfig {
 
-    @Getter
     protected FileConfiguration config;
 
     protected BukkitConfig(String fileName) {
@@ -50,4 +48,7 @@ public abstract class BukkitConfig extends AbstractConfig {
         }
     }
 
+    public FileConfiguration getConfig() {
+        return this.config;
+    }
 }

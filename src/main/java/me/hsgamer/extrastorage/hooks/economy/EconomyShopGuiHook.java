@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.hooks.economy;
 
-import lombok.Getter;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.hsgamer.extrastorage.data.log.Log;
@@ -19,7 +18,6 @@ public final class EconomyShopGuiHook
         implements EconomyProvider {
 
     private final Economy econ;
-    @Getter
     private boolean isPaid;
 
     public EconomyShopGuiHook() {
@@ -98,4 +96,7 @@ public final class EconomyShopGuiHook
         result.accept(new Result(amount, price, econ.depositPlayer(player, price).transactionSuccess()));
     }
 
+    public boolean isPaid() {
+        return this.isPaid;
+    }
 }

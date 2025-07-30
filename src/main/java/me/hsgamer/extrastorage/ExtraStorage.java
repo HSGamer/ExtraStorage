@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.commands.AdminCommands;
 import me.hsgamer.extrastorage.commands.PlayerCommands;
 import me.hsgamer.extrastorage.commands.handler.CommandHandler;
@@ -25,28 +24,25 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ExtraStorage extends JavaPlugin {
 
-    @Getter
     private static ExtraStorage instance;
 
     private boolean firstLoad;
 
-    @Getter
     private Metrics metrics;
 
-    @Getter
     private Setting setting;
-    @Getter
     private Message message;
 
-    @Getter
     private UserManager userManager;
-    @Getter
     private WorthManager worthManager;
 
-    @Getter
     private Log log;
 
     private ESPlaceholder placeholder;
+
+    public static ExtraStorage getInstance() {
+        return ExtraStorage.instance;
+    }
 
     @Override
     public void onLoad() {
@@ -130,5 +126,29 @@ public final class ExtraStorage extends JavaPlugin {
         } else {
             metrics.addCustomChart(new SimplePie("database", () -> "SQLite"));
         }
+    }
+
+    public Metrics getMetrics() {
+        return this.metrics;
+    }
+
+    public Setting getSetting() {
+        return this.setting;
+    }
+
+    public Message getMessage() {
+        return this.message;
+    }
+
+    public UserManager getUserManager() {
+        return this.userManager;
+    }
+
+    public WorthManager getWorthManager() {
+        return this.worthManager;
+    }
+
+    public Log getLog() {
+        return this.log;
     }
 }

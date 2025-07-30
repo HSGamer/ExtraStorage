@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.gui.abstraction;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.events.GuiClickEvent;
@@ -21,7 +20,6 @@ public abstract class GuiCreator
         implements InventoryHolder, GuiAction {
 
     protected final ExtraStorage instance;
-    @Getter
     protected final Player player;
     private final Pattern SLOT_PATTERN;
     private final Map<Integer, Icon> icons;
@@ -113,4 +111,7 @@ public abstract class GuiCreator
         return slots;
     }
 
+    public Player getPlayer() {
+        return this.player;
+    }
 }

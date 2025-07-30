@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.gui;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
@@ -26,7 +25,6 @@ public final class StorageGui
 
     private Setting setting;
 
-    @Getter
     private User partner;
     private Storage storage;
 
@@ -524,4 +522,7 @@ public final class StorageGui
         return -1;
     }
 
+    public User getPartner() {
+        return this.partner;
+    }
 }

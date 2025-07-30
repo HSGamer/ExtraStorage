@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.configs;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.Debug;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.hooks.economy.*;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Getter
 public final class Setting
         extends BukkitConfig {
 
@@ -222,4 +220,107 @@ public final class Setting
         };
     }
 
+    public boolean isCheckForUpdates() {
+        return this.checkForUpdates;
+    }
+
+    public String getDBType() {
+        return this.DBType;
+    }
+
+    public String getDBDatabase() {
+        return this.DBDatabase;
+    }
+
+    public String getDBHost() {
+        return this.DBHost;
+    }
+
+    public String getDBUsername() {
+        return this.DBUsername;
+    }
+
+    public String getDBPassword() {
+        return this.DBPassword;
+    }
+
+    public String getDBTable() {
+        return this.DBTable;
+    }
+
+    public int getDBPort() {
+        return this.DBPort;
+    }
+
+    public String getDateFormat() {
+        return this.dateFormat;
+    }
+
+    public boolean isOnlyStoreWhenInvFull() {
+        return this.onlyStoreWhenInvFull;
+    }
+
+    public int getAutoUpdateTime() {
+        return this.autoUpdateTime;
+    }
+
+    public boolean isRestartOnChange() {
+        return this.restartOnChange;
+    }
+
+    public boolean isLogSales() {
+        return this.logSales;
+    }
+
+    public boolean isLogTransfer() {
+        return this.logTransfer;
+    }
+
+    public boolean isLogWithdraw() {
+        return this.logWithdraw;
+    }
+
+    public EconomyProvider getEconomyProvider() {
+        return this.economyProvider;
+    }
+
+    public String getCurrency() {
+        return this.currency;
+    }
+
+    public long getMaxSpace() {
+        return this.maxSpace;
+    }
+
+    public boolean isBlockedMining() {
+        return this.blockedMining;
+    }
+
+    public boolean isAutoStoreItem() {
+        return this.autoStoreItem;
+    }
+
+    public boolean isPickupToStorage() {
+        return this.pickupToStorage;
+    }
+
+    public Sound getPickupSound() {
+        return this.pickupSound;
+    }
+
+    public List<String> getBlacklistWorlds() {
+        return this.blacklistWorlds;
+    }
+
+    public List<String> getBlacklist() {
+        return this.blacklist;
+    }
+
+    public List<String> getWhitelist() {
+        return this.whitelist;
+    }
+
+    public Map<String, String> getName() {
+        return this.name;
+    }
 }

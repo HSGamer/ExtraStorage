@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.configs.abstraction;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,7 +12,6 @@ public abstract class AbstractConfig implements Config {
 
     protected final ExtraStorage instance;
     protected final Logger logger;
-    @Getter
     private final String fileName;
     protected File file;
 
@@ -37,4 +35,7 @@ public abstract class AbstractConfig implements Config {
         });
     }
 
+    public String getFileName() {
+        return this.fileName;
+    }
 }

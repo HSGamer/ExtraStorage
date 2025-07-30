@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import lombok.Getter;
 import lombok.NonNull;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.hsgamer.extrastorage.ExtraStorage;
@@ -37,11 +36,14 @@ import java.util.regex.Pattern;
 
 public final class ItemBuilder {
 
-    @Getter
     private final ItemStack item;
 
     ItemBuilder(@NonNull ItemStack item) {
         this.item = item;
+    }
+
+    public ItemStack getItem() {
+        return this.item;
     }
 
     public static final class Builder {

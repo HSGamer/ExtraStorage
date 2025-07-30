@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.gui.icon.events;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.gui.icon.Icon;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -12,11 +11,8 @@ public final class IconClickEvent
         extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    @Getter
     private final InventoryClickEvent event;
-    @Getter
     private final Icon icon;
-    @Getter
     private final Player player;
 
     public IconClickEvent(InventoryClickEvent event, Icon icon, Player player) {
@@ -50,4 +46,15 @@ public final class IconClickEvent
         return handlers;
     }
 
+    public InventoryClickEvent getEvent() {
+        return this.event;
+    }
+
+    public Icon getIcon() {
+        return this.icon;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
 }

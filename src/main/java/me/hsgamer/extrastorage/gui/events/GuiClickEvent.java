@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.gui.events;
 
-import lombok.Getter;
 import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -11,9 +10,7 @@ public final class GuiClickEvent
         extends GuiEvent
         implements Cancellable {
 
-    @Getter
     private final InventoryClickEvent event;
-    @Getter
     private final Player player;
     private boolean cancelled = false;
 
@@ -41,4 +38,11 @@ public final class GuiClickEvent
         this.cancelled = cancel;
     }
 
+    public InventoryClickEvent getEvent() {
+        return this.event;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
 }
