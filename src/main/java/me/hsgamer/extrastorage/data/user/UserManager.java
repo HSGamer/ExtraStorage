@@ -3,6 +3,7 @@ package me.hsgamer.extrastorage.data.user;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import io.github.projectunified.minelib.scheduler.common.task.Task;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.api.events.StorageLoadEvent;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.stub.StubUser;
 import me.hsgamer.extrastorage.fetcher.TextureFetcher;
@@ -50,13 +51,17 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
         );
 
         AsyncScheduler.get(instance).run(() -> {
+            final StorageLoadEvent event = new StorageLoadEvent();
             try {
                 this.storage.onRegister();
                 this.storage.load().forEach((uuid, user) -> getOrCreateEntry(uuid).setValue(user, false));
+                event.setLoaded(true);
             } catch (Exception e) {
                 instance.getLogger().log(Level.SEVERE, "Error while loading user", e);
+                event.setLoaded(false);
             } finally {
                 loaded.set(true);
+                Bukkit.getScheduler().runTask(instance, () -> Bukkit.getServer().getPluginManager().callEvent(event));
             }
         });
 
