@@ -1,14 +1,17 @@
-package me.hsgamer.extrastorage.util;
+package me.hsgamer.extrastorage.listeners;
 
 import com.google.common.base.Strings;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
+import me.hsgamer.extrastorage.util.ActionBar;
+import me.hsgamer.extrastorage.util.Digital;
+import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface ListenerUtil {
+interface ListenerUtil {
     static void addToStorage(Player player, Storage storage, ItemStack item, int amount) {
         storage.add(item, amount);
 

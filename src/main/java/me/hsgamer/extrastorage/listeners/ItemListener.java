@@ -9,7 +9,6 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.util.ActionBar;
-import me.hsgamer.extrastorage.util.ListenerUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
