@@ -290,6 +290,11 @@
 
 		<dependency>
 			<groupId>io.github.projectunified</groupId>
+			<artifactId>minelib-scheduler-global</artifactId>
+			<version>${minelib.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
 			<artifactId>minelib-scheduler-async</artifactId>
 			<version>${minelib.version}</version>
 		</dependency>

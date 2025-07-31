@@ -2,6 +2,7 @@ package me.hsgamer.extrastorage.data.user;
 
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import io.github.projectunified.minelib.scheduler.common.task.Task;
+import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.events.StorageLoadEvent;
 import me.hsgamer.extrastorage.api.user.User;
@@ -61,7 +62,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                 event.setLoaded(false);
             } finally {
                 loaded.set(true);
-                Bukkit.getScheduler().runTask(instance, () -> Bukkit.getServer().getPluginManager().callEvent(event));
+                GlobalScheduler.get(instance).run(() -> Bukkit.getServer().getPluginManager().callEvent(event));
             }
         });
 
