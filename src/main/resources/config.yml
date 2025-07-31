@@ -1,9 +1,5 @@
 # !!! DO NOT TOUCH THIS !!!
-ConfigVersion: 3.4.0
-
-#If enabled, a notification and the download link will be printed on console
-#whenever an update is available.
-CheckForUpdates: true
+ConfigVersion: 3.7.0
 
 # If enabled, the plugin will show some debug information in the console.
 # Use this option only when you need to report a bug.
@@ -33,9 +29,6 @@ OnlyStoreWhenInvFull: false
 #Time (in seconds) automatically updates the player data:
 # * Cannot be disabled, default/minimum is 10 seconds.
 AutoUpdateTime: 10
-#Do you want to restart AutoUpdateTask if the above time is changed ?
-#If false, AutoUpdateTask will continue to run for the rest of the time until it finishes.
-RestartOnChange: true
 
 #Use the log to record player actions.
 Log:

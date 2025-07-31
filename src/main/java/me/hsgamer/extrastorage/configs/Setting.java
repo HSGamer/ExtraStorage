@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 public final class Setting
         extends BukkitConfig {
 
-    private boolean checkForUpdates;
-
     // Database connection:
     private String DBType, DBDatabase, DBHost, DBUsername, DBPassword, DBTable;
     private int DBPort;
@@ -29,7 +27,6 @@ public final class Setting
     private boolean onlyStoreWhenInvFull;
 
     private int autoUpdateTime;
-    private boolean restartOnChange;
 
     private boolean logSales, logTransfer, logWithdraw;
 
@@ -51,8 +48,6 @@ public final class Setting
 
     @Override
     public void setup() {
-        this.checkForUpdates = config.getBoolean("CheckForUpdates");
-
         this.DBType = config.getString("Database.Type", "SQLite").toLowerCase();
         this.DBDatabase = config.getString("Database.Database", "database");
         this.DBHost = config.getString("Database.Host", "127.0.0.1");
@@ -98,7 +93,6 @@ public final class Setting
         this.currency = config.getString("Economy.Currency", "");
 
         this.autoUpdateTime = Digital.getBetween(10, Integer.MAX_VALUE, config.getInt("AutoUpdateTime", 30));
-        this.restartOnChange = config.getBoolean("RestartOnChange");
 
         this.logSales = config.getBoolean("Log.Sales");
         this.logTransfer = config.getBoolean("Log.Transfer");
@@ -220,36 +214,12 @@ public final class Setting
         };
     }
 
-    public boolean isCheckForUpdates() {
-        return this.checkForUpdates;
-    }
-
     public String getDBType() {
         return this.DBType;
     }
 
-    public String getDBDatabase() {
-        return this.DBDatabase;
-    }
-
-    public String getDBHost() {
-        return this.DBHost;
-    }
-
-    public String getDBUsername() {
-        return this.DBUsername;
-    }
-
-    public String getDBPassword() {
-        return this.DBPassword;
-    }
-
     public String getDBTable() {
         return this.DBTable;
-    }
-
-    public int getDBPort() {
-        return this.DBPort;
     }
 
     public String getDateFormat() {
@@ -262,10 +232,6 @@ public final class Setting
 
     public int getAutoUpdateTime() {
         return this.autoUpdateTime;
-    }
-
-    public boolean isRestartOnChange() {
-        return this.restartOnChange;
     }
 
     public boolean isLogSales() {
