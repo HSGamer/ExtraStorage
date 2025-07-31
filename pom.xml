@@ -41,6 +41,7 @@
 						<goals><goal>shade</goal></goals>
 						<configuration>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<minimizeJar>true</minimizeJar>
 							<relocations>
 								<relocation>
 									<pattern>org.bstats</pattern>
@@ -49,6 +50,10 @@
 								<relocation>
 									<pattern>io.github.projectunified.uniitem</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.uniitem</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>io.github.projectunified.minelib</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.minelib</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
@@ -246,7 +251,7 @@
 		</dependency>
 		<dependency>
 			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-web</artifactId>
+			<artifactId>hscore-bukkit-utils</artifactId>
 			<version>${core.version}</version>
 		</dependency>
 

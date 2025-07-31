@@ -8,7 +8,7 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.util.VersionUtils;
+import me.hsgamer.hscore.bukkit.utils.VersionUtils;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;

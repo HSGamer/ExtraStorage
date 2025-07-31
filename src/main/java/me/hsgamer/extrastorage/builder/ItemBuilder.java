@@ -12,7 +12,7 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
-import me.hsgamer.extrastorage.util.VersionUtils;
+import me.hsgamer.hscore.bukkit.utils.VersionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
