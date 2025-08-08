@@ -142,9 +142,11 @@ public final class SellGui
                             return;
                         }
 
-                        int sellAmount = current;
-                        if (event.isShiftClick()) sellAmount = Digital.getBetween(1, Integer.MAX_VALUE, current);
-                        else if (event.isLeftClick()) ; // Bỏ qua vì phần này chỉ bán @amount vật phẩm.
+                        int sellAmount;
+                        if (event.isShiftClick())
+                            sellAmount = Digital.getBetween(1, Integer.MAX_VALUE, current);
+                        else if (event.isLeftClick())
+                            sellAmount = amount;
                         else if (event.isRightClick())
                             sellAmount = Digital.getBetween(1, current, iStack.getMaxStackSize());
                         else return;
