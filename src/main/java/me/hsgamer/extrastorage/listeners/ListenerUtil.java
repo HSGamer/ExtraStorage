@@ -16,8 +16,7 @@ interface ListenerUtil {
         storage.add(item, amount);
 
         Setting setting = ExtraStorage.getInstance().getSetting();
-        if (setting.getPickupSound() != null)
-            player.playSound(player.getLocation(), setting.getPickupSound(), 4.0f, 2.0f);
+        setting.playPickupSound(player);
 
         if (!Strings.isNullOrEmpty(Message.getMessage("WARN.Stored.ActionBar"))) {
             ActionBar.send(player, Message.getMessage("WARN.Stored.ActionBar")

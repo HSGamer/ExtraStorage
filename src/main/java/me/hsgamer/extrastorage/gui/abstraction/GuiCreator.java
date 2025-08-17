@@ -78,7 +78,7 @@ public abstract class GuiCreator
 
 
     protected final void playSoundIfPresent() {
-        if (sound != null) player.playSound(player.getLocation(), sound, 4.0f, 1.0f);
+        soundPlayer.accept(player);
     }
 
     protected final boolean hasPermission(String perm) {

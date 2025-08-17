@@ -5,14 +5,16 @@ import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.hooks.economy.*;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
+import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import me.hsgamer.topper.storage.sql.core.SqlDatabaseSetting;
-import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class Setting
@@ -37,7 +39,7 @@ public final class Setting
     private boolean blockedMining;
 
     private boolean autoStoreItem, pickupToStorage;
-    private Sound pickupSound;
+    private Consumer<Player> pickupSoundPlayer;
 
     private List<String> blacklistWorlds, blacklist, whitelist;
     private Map<String, String> name;
@@ -103,12 +105,7 @@ public final class Setting
 
         this.autoStoreItem = config.getBoolean("AutoStoreItem", true);
         this.pickupToStorage = config.getBoolean("PickupToStorage");
-        String sound = config.getString("PickupSound", "__NO_SOUND__").toUpperCase();
-        try {
-            this.pickupSound = Sound.valueOf(sound);
-        } catch (Exception ignored) {
-            this.pickupSound = Sound.ENTITY_ITEM_PICKUP;
-        }
+        this.pickupSoundPlayer = SoundUtil.getSoundPlayer(config.getString("PickupSound", ""));
 
         this.blacklistWorlds = config.getStringList("BlacklistWorlds");
         this.blacklist = config.getStringList("Blacklist")
@@ -270,8 +267,8 @@ public final class Setting
         return this.pickupToStorage;
     }
 
-    public Sound getPickupSound() {
-        return this.pickupSound;
+    public void playPickupSound(Player player) {
+        this.pickupSoundPlayer.accept(player);
     }
 
     public List<String> getBlacklistWorlds() {
