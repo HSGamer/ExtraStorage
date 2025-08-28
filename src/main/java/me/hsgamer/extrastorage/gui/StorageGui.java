@@ -127,6 +127,7 @@ public final class StorageGui
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = keys.toArray()[startIndex].toString();
             Item item = items.get(key);
+            if (item == null || !item.isLoaded()) continue;
 
             ItemStack iStack = item.getItem().clone();
             ItemMeta meta = iStack.getItemMeta();
@@ -175,6 +176,7 @@ public final class StorageGui
                                 Optional<Item> optional = storage.getItem(is);
                                 if (!optional.isPresent()) continue;
                                 Item i = optional.get();
+                                if (!i.isLoaded()) continue;
 
                                 if (item.getType() != i.getType()) continue;
                                 if (!item.getKey().equalsIgnoreCase(ItemUtil.toMaterialKey(is))) continue;

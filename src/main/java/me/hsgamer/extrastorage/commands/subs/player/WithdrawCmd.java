@@ -40,6 +40,10 @@ public final class WithdrawCmd
             return;
         }
         Item item = optional.get();
+        if (!item.isLoaded()) {
+            context.sendMessage(Message.getMessage("FAIL.item-not-in-storage").replaceAll(Utils.getRegex("player"), player.getName()));
+            return;
+        }
 
         int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (current < 1) {

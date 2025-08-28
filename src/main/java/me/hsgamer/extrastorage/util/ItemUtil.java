@@ -128,7 +128,7 @@ public class ItemUtil {
 
     public static boolean isValidItem(String key) {
         ItemPair itemPair = getItem(key);
-        return itemPair.type() != ItemType.NONE;
+        return itemPair.type() != ItemType.NONE && itemPair.item() != null;
     }
 
     public static void giveItem(Player player, ItemStack item) {
