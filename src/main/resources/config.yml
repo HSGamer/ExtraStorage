@@ -1,5 +1,5 @@
 # !!! DO NOT TOUCH THIS !!!
-ConfigVersion: 3.7.0
+ConfigVersion: 3.7.4
 
 # If enabled, the plugin will show some debug information in the console.
 # Use this option only when you need to report a bug.
@@ -104,6 +104,10 @@ Whitelist:
 #- 'IA:iasurvival:banana' #Use the item from ItemsAdder.
 #- 'ORAXEN:amethyst' #Use the item from Oraxen.
 #- 'NEXO:banana' #Use the item from Nexo.
+
+# Limit the allowed items to be always in the whitelist.
+# * If this option is enabled, the player will not be able to add items that are not in the whitelist.
+LimitWhitelist: false
 
 #Format the name for items that are in the player's storage:
 #FormatName: {}

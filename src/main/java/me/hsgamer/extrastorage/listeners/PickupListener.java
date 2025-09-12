@@ -8,6 +8,7 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.Constants;
+import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.hscore.bukkit.utils.VersionUtils;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -116,6 +117,9 @@ public class PickupListener implements Listener {
 
         User user = instance.getUserManager().getUser(player);
         if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
+
+        String validKey = ItemUtil.toMaterialKey(item);
+        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) return;
 
         Storage storage = user.getStorage();
         if (storage.isMaxSpace() || (!storage.canStore(item))) return;

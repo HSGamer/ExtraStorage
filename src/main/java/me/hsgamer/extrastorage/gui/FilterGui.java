@@ -47,7 +47,7 @@ public final class FilterGui
             }
             if (storage.canStore(validKey)) return;
 
-            if (instance.getSetting().getBlacklist().contains(validKey)) {
+            if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) {
                 player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
                 return;
             }
@@ -87,7 +87,7 @@ public final class FilterGui
             }
             if (storage.canStore(validKey)) return;
 
-            if (instance.getSetting().getBlacklist().contains(validKey)) {
+            if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) {
                 player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
                 return;
             }

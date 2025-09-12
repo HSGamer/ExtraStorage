@@ -9,6 +9,7 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.util.ActionBar;
+import me.hsgamer.extrastorage.util.ItemUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -100,6 +101,10 @@ public class ItemListener extends BaseListener {
         Storage storage = user.getStorage();
 
         ItemStack item = event.getEntity().getItemStack();
+
+        String validKey = ItemUtil.toMaterialKey(item);
+        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) return;
+
         if (storage.isMaxSpace() || (!this.canStore(user.getPlayer(), item)) || (!storage.canStore(item))) return;
 
         boolean isResidual = false;

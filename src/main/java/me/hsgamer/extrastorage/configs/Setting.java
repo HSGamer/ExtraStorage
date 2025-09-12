@@ -42,6 +42,7 @@ public final class Setting
     private Consumer<Player> pickupSoundPlayer;
 
     private List<String> blacklistWorlds, blacklist, whitelist;
+    private boolean limitWhitelist;
     private Map<String, String> name;
 
     public Setting() {
@@ -129,6 +130,7 @@ public final class Setting
                 .map(ItemUtil::normalizeMaterialKey)
                 .filter(key -> (!blacklist.contains(key)))
                 .collect(Collectors.toList());
+        this.limitWhitelist = config.getBoolean("LimitWhitelist", false);
 
         this.name = new HashMap<>();
         config.getConfigurationSection("FormatName")
@@ -281,6 +283,10 @@ public final class Setting
 
     public List<String> getWhitelist() {
         return this.whitelist;
+    }
+
+    public boolean isLimitWhitelist() {
+        return limitWhitelist;
     }
 
     public Map<String, String> getName() {
