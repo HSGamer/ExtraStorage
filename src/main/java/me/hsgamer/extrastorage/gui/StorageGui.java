@@ -167,6 +167,10 @@ public final class StorageGui
                                 player.sendMessage(Message.getMessage("FAIL.item-not-filtered"));
                                 return;
                             }
+                            if (instance.getSetting().getBlacklist().contains(item.getKey()) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(item.getKey()))) {
+                                player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
+                                return;
+                            }
 
                             int count = 0;
                             ItemStack[] items = player.getInventory().getStorageContents();
