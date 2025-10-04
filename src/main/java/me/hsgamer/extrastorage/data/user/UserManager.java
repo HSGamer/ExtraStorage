@@ -136,7 +136,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                         key -> key,
                         key -> ItemImpl.EMPTY.withFiltered(true)
                 ));
-        entry.setValue(user -> user.withItems(map), false);
+        entry.setValue(user -> user.withItems(map).withSpace(instance.getSetting().getMaxSpace()), false);
     }
 
     @Override
