@@ -55,7 +55,11 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
             final StorageLoadEvent event = new StorageLoadEvent();
             try {
                 this.storage.onRegister();
-                this.storage.load().forEach((uuid, user) -> getOrCreateEntry(uuid).setValue(user, false));
+                this.storage.load().forEach((uuid, user) -> {
+                    if (user.space != 0) {
+                        getOrCreateEntry(uuid).setValue(user, false);
+                    }
+                });
                 event.setLoaded(true);
             } catch (Exception e) {
                 instance.getLogger().log(Level.SEVERE, "Error while loading user", e);
