@@ -56,7 +56,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
             try {
                 this.storage.onRegister();
                 this.storage.load().forEach((uuid, user) -> {
-                    if (user.space != 0) {
+                    if (user.space != 0 || user.items.values().stream().mapToLong(item -> item.quantity).sum() != 0) {
                         getOrCreateEntry(uuid).setValue(user, false);
                     }
                 });
