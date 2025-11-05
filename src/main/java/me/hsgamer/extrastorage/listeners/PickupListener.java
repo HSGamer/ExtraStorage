@@ -33,6 +33,11 @@ public class PickupListener implements Listener {
         if (pluginManager.isPluginEnabled("WildStacker"))
             return new PickupHandler() {
                 @Override
+                public boolean hasProblem() {
+                    return true;
+                }
+
+                @Override
                 public EventPriority getPickupPriority() {
                     return EventPriority.LOWEST;
                 }
@@ -120,6 +125,8 @@ public class PickupListener implements Listener {
         if ((!instance.getSetting().isPickupToStorage()) || (!(event.getEntity() instanceof Player))) return;
         Player player = (Player) event.getEntity();
 
+        if (pickupHandler.hasProblem()) return;
+
         Item entity = event.getItem();
         if (instance.getSetting().getBlacklistWorlds().contains(entity.getWorld().getName())) return;
         ItemStack item = entity.getItemStack().clone();
@@ -155,6 +162,10 @@ public class PickupListener implements Listener {
     private interface PickupHandler {
         default EventPriority getPickupPriority() {
             return EventPriority.LOW;
+        }
+
+        default boolean hasProblem() {
+            return false;
         }
 
         int getAmount(EntityPickupItemEvent event, Item entity, ItemStack item);
