@@ -33,7 +33,7 @@
 		<wildstacker.version>2025.2</wildstacker.version>
 		<ultimatestacker.version>1.0.0-20240329.173606-35</ultimatestacker.version>
 		<rosestacker.version>1.5.20</rosestacker.version>
-		<uniitem.version>2.2.1</uniitem.version>
+		<uniitem.version>2.3.0</uniitem.version>
 	</properties>
 	
 	<build>
