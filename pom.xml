@@ -12,11 +12,28 @@
 	<name>ExtraStorage</name>
 	
 	<properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
 		<core.version>4.6.0</core.version>
 		<topper.version>4.9.0</topper.version>
 		<minelib.version>1.2.5</minelib.version>
-		<java.version>1.8</java.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
+		<authlib.version>5.0.47</authlib.version>
+		<bstats.version>3.0.2</bstats.version>
+		<headdatabase.version>1.3.1</headdatabase.version>
+		<vault.version>1.7.1</vault.version>
+		<shopgui.version>3.0.0</shopgui.version>
+		<economyshopgui.version>1.7.0</economyshopgui.version>
+		<playerpoints.version>3.2.6</playerpoints.version>
+		<tokenmanager.version>3.2.4</tokenmanager.version>
+		<ultraeconomy.version>1.1.2</ultraeconomy.version>
+		<coinsengine.version>2.4.1</coinsengine.version>
+		<placeholderapi.version>2.11.5</placeholderapi.version>
+		<wildstacker.version>2025.2</wildstacker.version>
+		<ultimatestacker.version>1.0.0-20240329.173606-35</ultimatestacker.version>
+		<rosestacker.version>1.5.20</rosestacker.version>
+		<uniitem.version>2.2.1</uniitem.version>
 	</properties>
 	
 	<build>
@@ -120,25 +137,25 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.20-R0.1-SNAPSHOT</version>
+			<version>${spigot.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.mojang</groupId>
 			<artifactId>authlib</artifactId>
-			<version>5.0.47</version>
+			<version>${authlib.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bstats</groupId>
 			<artifactId>bstats-bukkit</artifactId>
-			<version>3.0.2</version>
+			<version>${bstats.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.arcaniax</groupId>
 			<artifactId>HeadDatabase-API</artifactId>
-			<version>1.3.1</version>
+			<version>${headdatabase.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -150,7 +167,7 @@
 		<dependency>
 			<groupId>com.github.MilkBowl</groupId>
 			<artifactId>VaultAPI</artifactId>
-			<version>1.7.1</version>
+			<version>${vault.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -162,7 +179,7 @@
 		<dependency>
 			<groupId>com.github.brcdev-minecraft</groupId>
 			<artifactId>shopgui-api</artifactId>
-			<version>3.0.0</version>
+			<version>${shopgui.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -174,19 +191,19 @@
 		<dependency>
 			<groupId>com.github.Gypopo</groupId>
 			<artifactId>EconomyShopGUI-API</artifactId>
-			<version>1.7.0</version>
+			<version>${economyshopgui.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.black_ixx</groupId>
 			<artifactId>playerpoints</artifactId>
-			<version>3.2.6</version>
+			<version>${playerpoints.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.Realizedd</groupId>
 			<artifactId>TokenManager</artifactId>
-			<version>3.2.4</version>
+			<version>${tokenmanager.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -198,19 +215,19 @@
 		<dependency>
 			<groupId>me.TechsCode</groupId>
 			<artifactId>UltraEconomyAPI</artifactId>
-			<version>1.1.2</version>
+			<version>${ultraeconomy.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>su.nightexpress.coinsengine</groupId>
 			<artifactId>CoinsEngine</artifactId>
-			<version>2.4.1</version>
+			<version>${coinsengine.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>me.clip</groupId>
 			<artifactId>placeholderapi</artifactId>
-			<version>2.11.5</version>
+			<version>${placeholderapi.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -222,26 +239,26 @@
 		<dependency>
 			<groupId>com.bgsoftware</groupId>
 			<artifactId>WildStackerAPI</artifactId>
-			<version>2025.2</version>
+			<version>${wildstacker.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.craftaro</groupId>
 			<artifactId>UltimateStacker-API</artifactId>
-			<version>1.0.0-20240329.173606-35</version>
+			<version>${ultimatestacker.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>dev.rosewood</groupId>
 			<artifactId>rosestacker</artifactId>
-			<version>1.5.20</version>
+			<version>${rosestacker.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>uni-item-all</artifactId>
-			<version>2.2.1</version>
+			<version>${uniitem.version}</version>
 		</dependency>
 
 		<dependency>
