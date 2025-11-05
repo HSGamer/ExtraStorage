@@ -33,6 +33,11 @@ public class PickupListener implements Listener {
         if (pluginManager.isPluginEnabled("WildStacker"))
             return new PickupHandler() {
                 @Override
+                public EventPriority getPickupPriority() {
+                    return EventPriority.LOWEST;
+                }
+
+                @Override
                 public int getAmount(EntityPickupItemEvent event, Item entity, ItemStack item) {
                     return WildStackerAPI.getItemAmount(entity);
                 }
@@ -123,7 +128,8 @@ public class PickupListener implements Listener {
         if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
 
         String validKey = ItemUtil.toMaterialKey(item);
-        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) return;
+        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey)))
+            return;
 
         Storage storage = user.getStorage();
         if (storage.isMaxSpace() || (!storage.canStore(item))) return;
