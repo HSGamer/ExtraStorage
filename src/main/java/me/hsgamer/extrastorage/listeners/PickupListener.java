@@ -77,6 +77,9 @@ public class PickupListener implements Listener {
                     dev.rosewood.rosestacker.stack.StackedItem stackedItem = api.getStackedItem(entity);
                     if (stackedItem != null) {
                         stackedItem.setStackSize(amount);
+                    } else {
+                        item.setAmount(amount);
+                        entity.setItemStack(item);
                     }
                 }
             };
@@ -93,7 +96,8 @@ public class PickupListener implements Listener {
 
                 @Override
                 public void applyAmount(Item entity, ItemStack item, int amount) {
-
+                    item.setAmount(amount);
+                    entity.setItemStack(item);
                 }
             };
     }
@@ -135,9 +139,6 @@ public class PickupListener implements Listener {
             int residual = amount - result;
 
             pickupHandler.applyAmount(entity, item, residual);
-
-            item.setAmount(residual);
-            entity.setItemStack(item);
         } else {
             event.setCancelled(true);
             entity.remove();
