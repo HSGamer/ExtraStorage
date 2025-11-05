@@ -39,16 +39,14 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     public UserManager(ExtraStorage instance) {
         this.instance = instance;
         boolean isMySql = instance.getSetting().getDBType().equalsIgnoreCase("mysql");
-        SqlDataStorageSupplier.Options options = SqlDataStorageSupplier.options()
-                .setIncrementalKey("id")
-                .setClientFunction(JavaSqlClient::new);
         SqlDataStorageSupplier supplier = isMySql
-                ? new MySqlDataStorageSupplier(instance.getSetting().getSqlDatabaseSetting(), options)
-                : new SqliteDataStorageSupplier(instance.getDataFolder(), instance.getSetting().getSqlDatabaseSetting(), options);
+                ? new MySqlDataStorageSupplier(instance.getSetting().getSqlDatabaseSetting(), JavaSqlClient::new)
+                : new SqliteDataStorageSupplier(instance.getDataFolder(), instance.getSetting().getSqlDatabaseSetting(), JavaSqlClient::new);
         this.storage = supplier.getStorage(
                 instance.getSetting().getDBTable(),
                 new UUIDSqlValueConverter("uuid"),
-                UserImpl.getConverter(isMySql)
+                UserImpl.getConverter(isMySql),
+                SqlDataStorageSupplier.options().setIncrementalKey("id")
         );
 
         AsyncScheduler.get(instance).run(() -> {
