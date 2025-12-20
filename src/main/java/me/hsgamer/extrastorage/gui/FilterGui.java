@@ -141,6 +141,7 @@ public final class FilterGui
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = keys.toArray()[startIndex].toString();
             Item item = items.get(key);
+            if (item == null || !item.isLoaded()) continue;
 
             ItemStack iStack = item.getItem().clone();
             ItemMeta meta = iStack.getItemMeta();

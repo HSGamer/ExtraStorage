@@ -97,6 +97,7 @@ public final class SellGui
     private void addRepresentItem() {
         int index = 0, pageCount = 1;
         for (Item item : items.values()) {
+            if (item == null || !item.isLoaded()) continue;
             ItemStack iStack = item.getItem().clone();
 
             int amount = econ.getAmount(iStack);
