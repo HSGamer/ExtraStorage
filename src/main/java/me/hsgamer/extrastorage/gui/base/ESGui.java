@@ -1,12 +1,18 @@
 package me.hsgamer.extrastorage.gui.base;
 
+import com.google.common.base.Strings;
+import io.github.projectunified.craftitem.spigot.core.SpigotItem;
+import io.github.projectunified.craftitem.spigot.modifier.EnchantmentModifier;
+import io.github.projectunified.craftitem.spigot.modifier.ItemFlagModifier;
+import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
+import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.builder.ItemBuilder;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import me.hsgamer.extrastorage.gui.icon.Icon;
+import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,9 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class ESGui
         extends GuiCreator {
+    private static final Pattern HDB_PATTERN = Pattern.compile("(?ium)(hdb)-(?<value>[a-zA-Z0-9]+)");
 
     protected Player player;
     protected User user;
@@ -241,18 +250,49 @@ public abstract class ESGui
 
 
     protected final ItemStack getItemStack(String model, User user, Material material, int amount, short data, String texture, List<String> enchants, List<String> flags, Consumer<ItemMeta> meta) {
-        return new ItemBuilder.Builder()
-                .setModel(model)
-                .setUser(user)
-                .setMaterial(material)
-                .setAmount(amount)
-                .setData(data)
-                .setTexture(texture)
-                .setEnchantments(enchants)
-                .setHideFlags(flags)
-                .setMeta(meta)
-                .build()
-                .getItem();
+        amount = Math.max(1, amount);
+
+        SpigotItem spigotItem;
+
+        if (!Strings.isNullOrEmpty(model)) {
+            if (!model.contains(":")) return new ItemStack(Material.STONE);
+            ItemUtil.ItemPair pair = ItemUtil.getItem(model);
+            if (pair.type() == ItemUtil.ItemType.NONE) return new ItemStack(Material.STONE);
+            spigotItem = new SpigotItem(pair.item());
+        } else if (!Strings.isNullOrEmpty(texture)) {
+            spigotItem = new SpigotItem(Material.PLAYER_HEAD);
+
+            String textureValue;
+
+            Matcher matcher = HDB_PATTERN.matcher(texture);
+            if (matcher.find()) {
+                if (!instance.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) return new ItemStack(Material.STONE);
+                String ID = matcher.group("value");
+                HeadDatabaseAPI api = new HeadDatabaseAPI();
+                textureValue = api.getBase64(api.getItemHead(ID));
+            } else if (texture.matches(Utils.getRegex("viewer", "player"))) {
+                textureValue = user.getTexture();
+            } else {
+                textureValue = texture;
+            }
+
+            new SkullModifier(textureValue).modify(spigotItem);
+        } else {
+            spigotItem = new SpigotItem(new ItemStack(material, amount, data));
+        }
+        spigotItem.setAmount(amount);
+
+        spigotItem.editMeta(meta);
+
+        if (flags != null) {
+            new ItemFlagModifier(flags).modify(spigotItem);
+        }
+
+        if (enchants != null) {
+            new EnchantmentModifier(enchants, ',').modify(spigotItem);
+        }
+
+        return spigotItem.getItemStack();
     }
 
     protected final ItemStack getItemStack(String path, User user, Consumer<ItemMeta> meta) {

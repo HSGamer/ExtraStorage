@@ -74,6 +74,10 @@
 									<shadedPattern>me.hsgamer.extrastorage.lib.minelib</shadedPattern>
 								</relocation>
 								<relocation>
+									<pattern>io.github.projectunified.craftitem</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.craftitem</shadedPattern>
+								</relocation>
+								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.core</shadedPattern>
 								</relocation>
@@ -99,10 +103,6 @@
 		<repository>
 			<id>spigotmc-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-		</repository>
-		<repository>
-			<id>minecraft-repo</id>
-			<url>https://libraries.minecraft.net/</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
@@ -139,12 +139,6 @@
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
 			<version>${spigot.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mojang</groupId>
-			<artifactId>authlib</artifactId>
-			<version>${authlib.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -303,6 +297,17 @@
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>minelib-scheduler-async</artifactId>
 			<version>${minelib.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftitem-spigot-modifier</artifactId>
+			<version>${craftitem.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftitem-spigot-skull</artifactId>
+			<version>${craftitem.version}</version>
 		</dependency>
 	</dependencies>
 	

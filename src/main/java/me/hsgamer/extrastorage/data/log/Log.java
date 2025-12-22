@@ -2,13 +2,13 @@ package me.hsgamer.extrastorage.data.log;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.configs.Setting;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -32,7 +32,8 @@ public final class Log {
         if ((!setting.isLogTransfer()) && (!setting.isLogWithdraw()) && (!setting.isLogSales())) return false;
 
         this.cal = Calendar.getInstance(TimeZone.getDefault());
-        this.logFile = new File(logFolder, DateFormatUtils.format(cal, "dd-MM-yyyy") + ".txt");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        this.logFile = new File(logFolder, dateFormat.format(cal.getTime()) + ".txt");
 
         try {
             if (!logFile.exists()) logFile.createNewFile();
@@ -48,7 +49,8 @@ public final class Log {
 
         try {
             FileWriter writer = new FileWriter(logFile, true);
-            String text, time = DateFormatUtils.format(cal, "HH:mm:ss"), itemName = setting.getNameFormatted(key, true);
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            String text, time = timeFormat.format(cal.getTime()), itemName = setting.getNameFormatted(key, true);
             switch (action) {
                 case SELL:
                     text = String.format("[%s] %s sold x%d %s for: %.2f", time, player.getName(), amount, itemName, price);

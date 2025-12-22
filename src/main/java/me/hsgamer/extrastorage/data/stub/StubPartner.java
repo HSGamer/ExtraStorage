@@ -2,10 +2,11 @@ package me.hsgamer.extrastorage.data.stub;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class StubPartner implements Partner {
@@ -29,6 +30,7 @@ public class StubPartner implements Partner {
 
     @Override
     public String getTimeFormatted() {
-        return DateFormatUtils.format(timestamp, ExtraStorage.getInstance().getSetting().getDateFormat());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ExtraStorage.getInstance().getSetting().getDateFormat());
+        return dateFormat.format(new Date(timestamp));
     }
 }
