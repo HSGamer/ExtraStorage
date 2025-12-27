@@ -17,6 +17,7 @@ import me.hsgamer.extrastorage.listeners.InventoryListener;
 import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PickupListener;
 import me.hsgamer.extrastorage.listeners.PlayerListener;
+import me.hsgamer.hscore.license.common.LicenseStatus;
 import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
@@ -25,6 +26,9 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.Map;
 
 public final class ExtraStorage extends JavaPlugin {
 
@@ -99,7 +103,10 @@ public final class ExtraStorage extends JavaPlugin {
     private void checkLicense() {
         LicenseTemplate template = new LicenseTemplate(new SpigotLicenseChecker("90379"), new PolymartLicenseChecker("860", true, true));
         template.addDefaultMessage(this.getName());
-        AsyncScheduler.get(this).run(() -> template.getMessage().forEach(getLogger()::warning));
+        AsyncScheduler.get(this).run(() -> {
+            Map.Entry<LicenseStatus, List<String>> result = template.getResult();
+            result.getValue().forEach(result.getKey() == LicenseStatus.VALID ? getLogger()::info : getLogger()::warning);
+        });
     }
 
     private void loadConfigs() {
