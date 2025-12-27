@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage;
 
+import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.commands.AdminCommands;
 import me.hsgamer.extrastorage.commands.PlayerCommands;
 import me.hsgamer.extrastorage.commands.handler.CommandHandler;
@@ -16,6 +17,9 @@ import me.hsgamer.extrastorage.listeners.InventoryListener;
 import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PickupListener;
 import me.hsgamer.extrastorage.listeners.PlayerListener;
+import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
+import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
+import me.hsgamer.hscore.license.template.LicenseTemplate;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -75,6 +79,8 @@ public final class ExtraStorage extends JavaPlugin {
             if (placeholder.register())
                 getLogger().info("Hooked into PlaceholderAPI");
         }
+
+        this.checkLicense();
     }
 
     @Override
@@ -90,6 +96,11 @@ public final class ExtraStorage extends JavaPlugin {
         }
     }
 
+    private void checkLicense() {
+        LicenseTemplate template = new LicenseTemplate(new SpigotLicenseChecker("90379"), new PolymartLicenseChecker("860", true, true));
+        template.addDefaultMessage(this.getName());
+        AsyncScheduler.get(this).run(() -> template.getMessage().forEach(getLogger()::warning));
+    }
 
     private void loadConfigs() {
         this.setting = new Setting();
