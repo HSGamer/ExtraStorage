@@ -1,31 +1,69 @@
 package me.hsgamer.extrastorage.util;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.github.projectunified.uniitem.all.AllItemProvider;
+import io.github.projectunified.uniitem.api.Item;
 import io.github.projectunified.uniitem.api.ItemKey;
 import me.hsgamer.extrastorage.Debug;
 import me.hsgamer.extrastorage.ExtraStorage;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static me.hsgamer.extrastorage.data.Constants.INVALID;
 
 public class ItemUtil {
-    public static final ExtraStorage instance = ExtraStorage.getInstance();
     public static final AllItemProvider provider = new AllItemProvider();
-    private static final Map<String, ItemPair> ITEM_CACHE = new ConcurrentHashMap<>();
+    private static final LoadingCache<String, Item> itemCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build(new CacheLoader<String, Item>() {
+                @Override
+                public @NotNull Item load(@NotNull String key) {
+                    try {
+                        ItemKey itemKey = ItemKey.fromString(key);
+                        Item item = provider.wrap(itemKey);
+                        if (item.isValid()) {
+                            return item;
+                        }
+                    } catch (Exception e) {
+                        // IGNORED
+                    }
 
-    /**
-     * Validate the key to the material-key
-     *
-     * @param key the item key. Can be an ItemStack or a string as MATERIAL:DATA
-     * @return the material-key
-     */
+                    Material material = null;
+
+                    String[] split = key.split(":", 2);
+                    if (split.length == 2) {
+                        String possibleType = split[0];
+
+                        Material possibleMaterial = Material.matchMaterial(possibleType);
+                        if (possibleMaterial != null) {
+                            material = possibleMaterial;
+                        }
+                    }
+
+                    if (material == null) {
+                        material = Material.matchMaterial(key);
+                    }
+
+                    if (material != null) {
+                        return new VanillaItem(material);
+                    }
+
+                    return Item.INVALID;
+                }
+            });
+
     public static String toMaterialKey(Object key) {
         if (key instanceof ItemStack) {
             ItemStack item = (ItemStack) key;
@@ -57,78 +95,29 @@ public class ItemUtil {
         }
     }
 
-    private static boolean match(String key, String... keys) {
-        for (String k : keys) {
-            if (key.equalsIgnoreCase(k)) return true;
-        }
-        return false;
-    }
-
-    // Temporary method to normalize material key
+    /**
+     * Normalize the key
+     *
+     * @param key the key
+     * @return the normalized key
+     */
     public static String normalizeMaterialKey(String key) {
         String[] split = key.split(":", 2);
         if (split.length == 1) {
             return key;
         }
 
-        String type = split[0];
-        String rest = split[1];
+        String possibleType = split[0];
+        String possibleId = split[1];
 
-        if (match(type, "oraxen", "orx")) {
-            return "ORAXEN:" + rest;
-        }
-        if (match(type, "itemsadder", "ia")) {
-            return "ITEMSADDER:" + rest;
-        }
-        if (match(type, "nexo")) {
-            return "NEXO:" + rest;
+        // Return the type if it's a Material
+        Material material = Material.matchMaterial(possibleType);
+        if (material != null) {
+            return material.name();
         }
 
-        String finalType = provider.getType(type);
-        finalType = finalType == null ? type : finalType;
-        if (provider.isValidKey(new ItemKey(finalType, rest))) {
-            return finalType.toUpperCase(Locale.ROOT) + ":" + rest;
-        }
-
-        return type;
-    }
-
-    public static ItemPair getItem(String key) {
-        ItemPair itemPair = ITEM_CACHE.get(key);
-        if (itemPair != null) {
-            return itemPair;
-        }
-
-        String[] split = key.split(":", 2);
-        ItemType itemType = ItemType.VANILLA;
-        ItemStack item = null;
-        if (split.length >= 2) {
-            String type = split[0].toLowerCase(Locale.ROOT);
-            String id = split[1];
-
-            itemType = ItemType.CUSTOM;
-            ItemKey itemKey = new ItemKey(type, id);
-            item = provider.item(itemKey);
-        }
-
-        if (itemType == ItemType.VANILLA) {
-            Material material = Material.matchMaterial(key);
-            if (material != null) {
-                item = new ItemStack(material, 1);
-                item.setItemMeta(null);
-            }
-        }
-        if (item == null) {
-            itemType = ItemType.NONE;
-        }
-        ItemPair pair = new ItemPair(item, itemType);
-        ITEM_CACHE.put(key, pair);
-        return pair;
-    }
-
-    public static boolean isValidItem(String key) {
-        ItemPair itemPair = getItem(key);
-        return itemPair.type() != ItemType.NONE && itemPair.item() != null;
+        // Always put the type in uppercase
+        return possibleType.toUpperCase(Locale.ROOT) + ":" + possibleId;
     }
 
     public static void giveItem(Player player, ItemStack item) {
@@ -145,47 +134,60 @@ public class ItemUtil {
         }
     }
 
-    public enum ItemType {
-        NONE, VANILLA, CUSTOM
+    public static Item getItem(String key) {
+        try {
+            return itemCache.get(key);
+        } catch (ExecutionException e) {
+            ExtraStorage.getInstance().getLogger().log(Level.SEVERE, "[ITEM] Error getting item: " + key, e);
+            return Item.INVALID;
+        }
     }
 
-    public static final class ItemPair {
-        private final ItemStack item;
-        private final ItemType type;
-
-        public ItemPair(ItemStack item, ItemType type) {
-            this.item = item;
-            this.type = type;
+    public static ItemType getItemType(Item item) {
+        if (!item.isValid()) {
+            return ItemType.NONE;
         }
+        return item instanceof VanillaItem ? ItemType.VANILLA : ItemType.CUSTOM;
+    }
 
-        public ItemStack item() {
-            return item;
-        }
+    public static final class VanillaItem implements Item {
+        private final @Nullable Material material;
 
-        public ItemType type() {
-            return type;
+        public VanillaItem(@Nullable Material material) {
+            this.material = material;
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj == null || obj.getClass() != this.getClass()) return false;
-            ItemPair that = (ItemPair) obj;
-            return Objects.equals(this.item, that.item) &&
-                    Objects.equals(this.type, that.type);
+        public boolean isValid() {
+            return material != null;
         }
 
         @Override
-        public int hashCode() {
-            return Objects.hash(item, type);
+        public @Nullable ItemKey key() {
+            if (material == null) return null;
+            NamespacedKey key = material.getKey();
+            return new ItemKey(key.getNamespace(), key.getKey());
         }
 
         @Override
-        public String toString() {
-            return "ItemPair[" +
-                    "item=" + item + ", " +
-                    "type=" + type + ']';
+        public @Nullable ItemStack bukkitItem() {
+            if (material == null) return null;
+            return new ItemStack(material);
         }
 
+        @Override
+        public @Nullable ItemStack bukkitItem(@NotNull Player player) {
+            return bukkitItem();
+        }
+
+        @Override
+        public boolean isSimilar(@NotNull ItemStack itemStack) {
+            if (material == null) return false;
+            return !itemStack.hasItemMeta() && Objects.equals(material, itemStack.getType());
+        }
+    }
+
+    public enum ItemType {
+        NONE, VANILLA, CUSTOM
     }
 }

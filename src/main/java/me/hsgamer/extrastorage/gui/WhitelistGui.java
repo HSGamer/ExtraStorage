@@ -104,10 +104,10 @@ public final class WhitelistGui
         endIndex = Math.min(items.size(), page * slots.length);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = items.get(startIndex);
-            ItemUtil.ItemPair pair = ItemUtil.getItem(key);
-            if (pair.type() == ItemUtil.ItemType.NONE) continue;
+            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(key);
+            if (!item.isValid()) continue;
 
-            ItemStack iStack = pair.item();
+            ItemStack iStack = item.bukkitItem();
 
             ItemMeta meta = iStack.getItemMeta();
 

@@ -256,9 +256,9 @@ public abstract class ESGui
 
         if (!Strings.isNullOrEmpty(model)) {
             if (!model.contains(":")) return new ItemStack(Material.STONE);
-            ItemUtil.ItemPair pair = ItemUtil.getItem(model);
-            if (pair.type() == ItemUtil.ItemType.NONE) return new ItemStack(Material.STONE);
-            spigotItem = new SpigotItem(pair.item());
+            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
+            if (!item.isValid()) return new ItemStack(Material.STONE);
+            spigotItem = new SpigotItem(item.bukkitItem());
         } else if (!Strings.isNullOrEmpty(texture)) {
             spigotItem = new SpigotItem(Material.PLAYER_HEAD);
 

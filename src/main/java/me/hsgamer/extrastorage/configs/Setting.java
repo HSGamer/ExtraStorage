@@ -1,7 +1,9 @@
 package me.hsgamer.extrastorage.configs;
 
+import io.github.projectunified.uniitem.api.Item;
 import me.hsgamer.extrastorage.Debug;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
+import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.hooks.economy.*;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -9,6 +11,7 @@ import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import me.hsgamer.topper.storage.sql.core.SqlDatabaseSetting;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -111,22 +114,10 @@ public final class Setting
         this.blacklistWorlds = config.getStringList("BlacklistWorlds");
         this.blacklist = config.getStringList("Blacklist")
                 .stream()
-                .map(string -> {
-                    if (!string.contains(":")) return string.concat(":0");
-                    String key = string.substring(0, string.indexOf(':'));
-                    if (key.matches("(?ium)(I(tems)?A(dder)?|Oraxen)")) return string;
-                    return string;
-                })
                 .map(ItemUtil::normalizeMaterialKey)
                 .collect(Collectors.toList());
         this.whitelist = config.getStringList("Whitelist")
                 .stream()
-                .map(string -> {
-                    if (!string.contains(":")) return string.concat(":0");
-                    String key = string.substring(0, string.indexOf(':'));
-                    if (key.matches("(?ium)(I(tems)?A(dder)?|Oraxen)")) return string;
-                    return string;
-                })
                 .map(ItemUtil::normalizeMaterialKey)
                 .filter(key -> (!blacklist.contains(key)))
                 .collect(Collectors.toList());
@@ -158,15 +149,18 @@ public final class Setting
         String name = this.name.getOrDefault(validKey, "");
         if (!name.isEmpty()) return (colorize ? name : Utils.stripColor(name));
 
-        ItemUtil.ItemPair pair = ItemUtil.getItem(validKey);
-        if (pair.type() != ItemUtil.ItemType.NONE && pair.type() != ItemUtil.ItemType.VANILLA) {
-            String finalName = pair.item().getItemMeta().getDisplayName();
+        Item item = ItemUtil.getItem(validKey);
+
+        if (item instanceof ItemUtil.VanillaItem) {
+            String formatName = Utils.formatName(validKey);
+            return colorize ? Utils.colorize("&f" + formatName) : formatName;
+        } else {
+            ItemStack itemStack = item.bukkitItem();
+            if (itemStack == null) return Constants.INVALID;
+            String finalName = itemStack.getItemMeta().getDisplayName();
             if (!colorize) Utils.stripColor(finalName);
             return finalName;
         }
-
-        String formatName = Utils.formatName(validKey);
-        return (colorize ? Utils.colorize("&f" + formatName) : formatName);
     }
 
     public SqlDatabaseSetting getSqlDatabaseSetting() {

@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.data.stub;
 
+import com.google.common.base.Preconditions;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import org.bukkit.inventory.ItemStack;
@@ -7,10 +8,12 @@ import org.bukkit.inventory.ItemStack;
 public class StubItem implements Item {
     private final StubStorage storage;
     private final String key;
+    private final io.github.projectunified.uniitem.api.Item item;
 
     public StubItem(StubStorage storage, String key) {
         this.storage = storage;
         this.key = key;
+        this.item = ItemUtil.getItem(key);
     }
 
     @Override
@@ -20,17 +23,19 @@ public class StubItem implements Item {
 
     @Override
     public boolean isLoaded() {
-        return ItemUtil.isValidItem(key);
+        return item.isValid();
     }
 
     @Override
     public ItemUtil.ItemType getType() {
-        return ItemUtil.getItem(key).type();
+        return ItemUtil.getItemType(item);
     }
 
     @Override
     public ItemStack getItem() {
-        return ItemUtil.getItem(key).item().clone();
+        ItemStack itemStack = item.bukkitItem();
+        Preconditions.checkNotNull(itemStack);
+        return itemStack;
     }
 
     @Override

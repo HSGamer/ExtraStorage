@@ -75,7 +75,7 @@ public final class ESPlaceholder
             if (isFormatted) key = key.substring(key.indexOf('_') + 1);
 
             Optional<Item> item = storage.getItem(key);
-            if (!item.isPresent()) item = storage.getItem(key.toUpperCase());
+            if (!item.isPresent()) item = storage.getItem(key);
             if (!item.isPresent()) return "-1";
 
             if (isFormatted) return Digital.formatThousands(Math.min(item.get().getQuantity(), Integer.MAX_VALUE));

@@ -51,9 +51,6 @@ public class StubStorage implements Storage {
     public long getUsedSpace() {
         long usedSpace = 0;
         for (Map.Entry<String, ItemImpl> entry : user.entry.getValue().items.entrySet()) {
-            if (!ItemUtil.isValidItem(entry.getKey())) {
-                continue;
-            }
             try {
                 usedSpace = Math.addExact(usedSpace, entry.getValue().quantity);
             } catch (ArithmeticException e) {
