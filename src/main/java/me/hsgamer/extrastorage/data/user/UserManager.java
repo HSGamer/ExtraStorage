@@ -2,9 +2,7 @@ package me.hsgamer.extrastorage.data.user;
 
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import io.github.projectunified.minelib.scheduler.common.task.Task;
-import io.github.projectunified.minelib.scheduler.global.GlobalScheduler;
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.api.events.StorageLoadEvent;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.stub.StubUser;
 import me.hsgamer.extrastorage.fetcher.TextureFetcher;
@@ -24,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -32,7 +29,6 @@ import java.util.stream.Collectors;
 public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     private final ExtraStorage instance;
     private final DataStorage<UUID, UserImpl> storage;
-    private final AtomicBoolean loaded = new AtomicBoolean(false);
     private final AtomicReference<ConcurrentHashMap<UUID, UserImpl>> saveMapRef = new AtomicReference<>(new ConcurrentHashMap<>());
     private final Task autoSaveTask;
 
@@ -49,24 +45,16 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                 SqlDataStorageSupplier.options().setIncrementalKey("id")
         );
 
-        AsyncScheduler.get(instance).run(() -> {
-            final StorageLoadEvent event = new StorageLoadEvent();
-            try {
-                this.storage.onRegister();
-                this.storage.load().forEach((uuid, user) -> {
-                    if (user.space != 0 || user.items.values().stream().mapToLong(item -> item.quantity).sum() != 0) {
-                        getOrCreateEntry(uuid).setValue(user, false);
-                    }
-                });
-                event.setLoaded(true);
-            } catch (Exception e) {
-                instance.getLogger().log(Level.SEVERE, "Error while loading user", e);
-                event.setLoaded(false);
-            } finally {
-                loaded.set(true);
-                GlobalScheduler.get(instance).run(() -> Bukkit.getServer().getPluginManager().callEvent(event));
-            }
-        });
+        try {
+            this.storage.onRegister();
+            this.storage.load().forEach((uuid, user) -> {
+                if (user.space != 0 || user.items.values().stream().mapToLong(item -> item.quantity).sum() != 0) {
+                    getOrCreateEntry(uuid).setValue(user, false);
+                }
+            });
+        } catch (Exception e) {
+            instance.getLogger().log(Level.SEVERE, "Error while loading user", e);
+        }
 
         this.autoSaveTask = AsyncScheduler.get(instance).runTimer(
                 () -> save(),
@@ -118,10 +106,6 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
         }
     }
 
-    public boolean isLoaded() {
-        return loaded.get();
-    }
-
     @Override
     public @NotNull UserImpl getDefaultValue() {
         return UserImpl.EMPTY;
@@ -131,7 +115,6 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     public void onCreate(DataEntry<UUID, UserImpl> entry) {
         Map<String, ItemImpl> map = instance.getSetting().getWhitelist().stream()
                 .map(ItemUtil::normalizeMaterialKey)
-                .filter(Objects::nonNull)
                 .filter(key -> !key.trim().isEmpty())
                 .distinct()
                 .collect(Collectors.toMap(

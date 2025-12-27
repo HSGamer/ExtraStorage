@@ -8,8 +8,6 @@ softdepend:
   - HeadDatabase
   - Vault
   - PlaceholderAPI
-  - ItemsAdder
-  - Oraxen
   - ShopGUIPlus
   - EconomyShopGUI
   - EconomyShopGUI-Premium
@@ -21,7 +19,6 @@ softdepend:
   - UltimateStacker
   - RoseStacker
   - CommandSpy
-  - Nexo
 
 commands:
   extrastorage:
