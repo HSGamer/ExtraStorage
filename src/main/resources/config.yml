@@ -77,16 +77,16 @@ BlacklistWorlds:
 #Blacklist: []
 # * NOTE: Brackets [] are optional, <> are required.
 Blacklist:
-#- '<material>[:<data>]'
-- 'BEDROCK' #Or can be 'bedrock:0'
+#- '<material>'
+- 'BEDROCK'
 
 #List of materials will be automatically added to the player's storage on their first join:
 #Please make sure you use the correct name of the material based on the server version you are using.
 # * You can still edit this option using in-game command '/esadmin whitelist'.
 #!!! THIS OPTION ONLY APPLY ONCE TO PLAYERS JOINING THE SERVER FOR THE FIRST TIME !!!
 Whitelist:
-#- '<material>[:<data>]'
-- 'STONE' #Will be automatically changed to 'STONE:0', and it is <material-key> you should remember.
+#- '<material>'
+- 'STONE'
 - 'COBBLESTONE'
 - 'COAL_BLOCK'
 - 'LAPIS_BLOCK'
@@ -113,13 +113,13 @@ LimitWhitelist: false
 #FormatName: {}
 FormatName:
   #<material-key>: '<name>'
-  COBBLESTONE:0: '&7Cobblestone'
-  COAL_BLOCK:0: '&8Coal Block'
-  LAPIS_BLOCK:0: '&9Lapis Block'
-  REDSTONE_BLOCK:0: '&cRedstone Block'
-  IRON_BLOCK:0: '&fIron Block'
-  GOLD_BLOCK:0: '&eGold Block'
-  DIAMOND_BLOCK:0: '&bDiamond Block'
-  EMERALD_BLOCK:0: '&aEmerald Block'
+  COBBLESTONE: '&7Cobblestone'
+  COAL_BLOCK: '&8Coal Block'
+  LAPIS_BLOCK: '&9Lapis Block'
+  REDSTONE_BLOCK: '&cRedstone Block'
+  IRON_BLOCK: '&fIron Block'
+  GOLD_BLOCK: '&eGold Block'
+  DIAMOND_BLOCK: '&bDiamond Block'
+  EMERALD_BLOCK: '&aEmerald Block'
   #IA:iasurvival:banana: '&eBanana'
   #ORAXEN:amethyst: '&dAmethyst'

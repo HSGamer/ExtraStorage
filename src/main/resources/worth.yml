@@ -2,30 +2,30 @@
 # * This option will be overridden if the value of the key "EconomyProvider" in config.yml is "ShopGUIPlus" or "EconomyShopGUI".
 Worth:
   #<material-key>:
-  COBBLESTONE:0:
+  COBBLESTONE:
     #Sell price:
     #Set to -1 to disallow the sale of this item.
     Price: 8.0
     #Requires item quantity (minimum value is 1):
     Quantity: 8
-  COAL_BLOCK:0:
+  COAL_BLOCK:
     Price: 10.0
     Quantity: 10
-  LAPIS_BLOCK:0:
+  LAPIS_BLOCK:
     Price: 12.0
     Quantity: 16
-  REDSTONE_BLOCK:0:
+  REDSTONE_BLOCK:
     Price: 13.0
     Quantity: 16
-  IRON_BLOCK:0:
+  IRON_BLOCK:
     Price: 16.0
     Quantity: 8
-  GOLD_BLOCK:0:
+  GOLD_BLOCK:
     Price: 15.0
     Quantity: 8
-  DIAMOND_BLOCK:0:
+  DIAMOND_BLOCK:
     Price: 18.0
     Quantity: 4
-  EMERALD_BLOCK:0:
+  EMERALD_BLOCK:
     Price: 18.0
     Quantity: 4
