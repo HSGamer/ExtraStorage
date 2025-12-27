@@ -8,6 +8,7 @@ import io.github.projectunified.uniitem.api.Item;
 import io.github.projectunified.uniitem.api.ItemKey;
 import me.hsgamer.extrastorage.Debug;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.data.Constants;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -16,15 +17,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static me.hsgamer.extrastorage.data.Constants.INVALID;
-
 public class ItemUtil {
     public static final AllItemProvider provider = new AllItemProvider();
+    private static final Map<String, String> keyCache = new ConcurrentHashMap<>();
     private static final LoadingCache<String, Item> itemCache = CacheBuilder.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .build(new CacheLoader<String, Item>() {
@@ -67,20 +69,24 @@ public class ItemUtil {
     public static String toMaterialKey(Object key) {
         if (key instanceof ItemStack) {
             ItemStack item = (ItemStack) key;
-            String keyStr = INVALID;
 
-            ItemKey itemKey = provider.key(item);
-            Debug.log("[KEY] ItemKey: " + itemKey);
-            if (itemKey != null) {
-                keyStr = itemKey.type().toUpperCase(Locale.ROOT) + ":" + itemKey.id();
-            }
+            Item validItem = getItem(item);
+            ItemKey itemKey = validItem.key();
 
-            if (Objects.equals(INVALID, keyStr) && !item.hasItemMeta()) {
-                keyStr = item.getType().name();
+            String keyStr;
+            if (itemKey == null) {
+                keyStr = Constants.INVALID;
+            } else {
+                if (validItem instanceof VanillaItem && itemKey.type().equals(NamespacedKey.MINECRAFT)) {
+                    keyStr = ((VanillaItem) validItem).getName();
+                } else {
+                    keyStr = itemKey.type().toUpperCase(Locale.ROOT) + ":" + itemKey.id();
+                }
             }
 
             Debug.log(
                     "[ITEM] Item: " + item,
+                    "[ITEM] ItemKey: " + itemKey,
                     "[ITEM] KeyStr: " + keyStr
             );
 
@@ -88,8 +94,8 @@ public class ItemUtil {
         } else {
             String keyStr = normalizeMaterialKey(key.toString());
             Debug.log(
-                    "[ITEM] Key: " + key,
-                    "[ITEM] KeyStr: " + keyStr
+                    "[KEY] Key: " + key,
+                    "[KEY] KeyStr: " + keyStr
             );
             return keyStr;
         }
@@ -102,22 +108,24 @@ public class ItemUtil {
      * @return the normalized key
      */
     public static String normalizeMaterialKey(String key) {
-        String[] split = key.split(":", 2);
-        if (split.length == 1) {
-            return key;
-        }
+        return keyCache.computeIfAbsent(key, k -> {
+            String[] split = k.split(":", 2);
+            if (split.length == 1) {
+                return k;
+            }
 
-        String possibleType = split[0];
-        String possibleId = split[1];
+            String possibleType = split[0];
+            String possibleId = split[1];
 
-        // Return the type if it's a Material
-        Material material = Material.matchMaterial(possibleType);
-        if (material != null) {
-            return material.name();
-        }
+            // Return the type if it's a Material
+            Material material = Material.matchMaterial(possibleType);
+            if (material != null) {
+                return material.name();
+            }
 
-        // Always put the type in uppercase
-        return possibleType.toUpperCase(Locale.ROOT) + ":" + possibleId;
+            // Always put the type in uppercase
+            return possibleType.toUpperCase(Locale.ROOT) + ":" + possibleId;
+        });
     }
 
     public static void giveItem(Player player, ItemStack item) {
@@ -143,6 +151,10 @@ public class ItemUtil {
         }
     }
 
+    public static Item getItem(ItemStack item) {
+        return item.hasItemMeta() ? provider.wrap(item) : new VanillaItem(item.getType());
+    }
+
     public static ItemType getItemType(Item item) {
         if (!item.isValid()) {
             return ItemType.NONE;
@@ -150,11 +162,19 @@ public class ItemUtil {
         return item instanceof VanillaItem ? ItemType.VANILLA : ItemType.CUSTOM;
     }
 
+    public enum ItemType {
+        NONE, VANILLA, CUSTOM
+    }
+
     public static final class VanillaItem implements Item {
         private final @Nullable Material material;
 
         public VanillaItem(@Nullable Material material) {
             this.material = material;
+        }
+
+        public String getName() {
+            return material != null ? material.name() : null;
         }
 
         @Override
@@ -185,9 +205,5 @@ public class ItemUtil {
             if (material == null) return false;
             return !itemStack.hasItemMeta() && Objects.equals(material, itemStack.getType());
         }
-    }
-
-    public enum ItemType {
-        NONE, VANILLA, CUSTOM
     }
 }
