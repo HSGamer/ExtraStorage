@@ -145,6 +145,7 @@ public final class Setting
 
     public String getNameFormatted(Object key, boolean colorize) {
         String validKey = ItemUtil.toMaterialKey(key);
+        if (validKey.equals(Constants.INVALID)) return Constants.INVALID;
 
         String name = this.name.getOrDefault(validKey, "");
         if (!name.isEmpty()) return (colorize ? name : Utils.stripColor(name));
