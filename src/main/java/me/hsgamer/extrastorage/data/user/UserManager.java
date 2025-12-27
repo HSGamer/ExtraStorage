@@ -138,9 +138,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                 if (name == null || name.isEmpty()) return;
                 String textureUrl = TextureFetcher.getTextureUrl(name);
                 if (textureUrl == null || textureUrl.isEmpty()) return;
-                byte[] texture = ("{\"textures\":{\"SKIN\":{\"url\":\"" + textureUrl + "\"}}}").getBytes();
-                String textureString = new String(Base64.getEncoder().encode(texture));
-                entry.setValue(user -> user.withTexture(textureString));
+                entry.setValue(user -> user.withTexture(textureUrl));
             });
         }
     }
