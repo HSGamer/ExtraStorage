@@ -9,6 +9,7 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.ESGui;
 import me.hsgamer.extrastorage.gui.icon.Icon;
+import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -16,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
@@ -124,30 +124,18 @@ public final class StorageGui
         int index = 0, startIndex, endIndex;
         Set<String> keys = items.keySet();
         endIndex = Math.min(items.size(), page * slots.length);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = keys.toArray()[startIndex].toString();
             Item item = items.get(key);
             if (item == null || !item.isLoaded()) continue;
 
-            ItemStack iStack = item.getItem().clone();
-            ItemMeta meta = iStack.getItemMeta();
-
-            String name = config.getString("RepresentItem.Name", "");
-            if (!name.isEmpty()) meta.setDisplayName(name);
-            else meta.setDisplayName(setting.getNameFormatted(key, true));
-
-            List<String> curLore = (meta.hasLore() ? meta.getLore() : new ArrayList<>()), newLore = config.getStringList("RepresentItem.Lore");
-            if (!newLore.isEmpty()) {
-                for (int i = 0; i < newLore.size(); i++) {
-                    String lore = newLore.get(i)
+            ItemStack iStack = displayModifier.construct(
+                    item,
+                    s -> s
                             .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
-                            .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()));
-                    newLore.set(i, lore);
-                }
-                curLore.addAll(newLore);
-                meta.setLore(curLore);
-            }
-            iStack.setItemMeta(meta);
+                            .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
+            );
 
             Icon icon = new Icon(iStack)
                     .handleClick(event -> {

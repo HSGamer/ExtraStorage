@@ -9,17 +9,17 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.gui.base.ESGui;
 import me.hsgamer.extrastorage.gui.icon.Icon;
+import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public final class WhitelistGui
         extends ESGui {
@@ -102,25 +102,12 @@ public final class WhitelistGui
     private void addRepresentItem() {
         int index = 0, startIndex, endIndex;
         endIndex = Math.min(items.size(), page * slots.length);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = items.get(startIndex);
             io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(key);
             if (!item.isValid()) continue;
-
-            ItemStack iStack = item.bukkitItem();
-
-            ItemMeta meta = iStack.getItemMeta();
-
-            String name = config.getString("RepresentItem.Name", "");
-            if (!name.isEmpty()) meta.setDisplayName(name);
-            else meta.setDisplayName(setting.getNameFormatted(key, true));
-
-            List<String> curLore = (meta.hasLore() ? meta.getLore() : new ArrayList<>()), newLore = config.getStringList("RepresentItem.Lore");
-            if (!newLore.isEmpty()) {
-                curLore.addAll(newLore);
-                meta.setLore(curLore);
-            }
-            iStack.setItemMeta(meta);
+            ItemStack iStack = displayModifier.construct(item, key, UnaryOperator.identity());
 
             Icon icon = new Icon(iStack)
                     .handleClick(event -> {

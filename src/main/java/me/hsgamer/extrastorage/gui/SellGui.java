@@ -5,15 +5,13 @@ import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.ESGui;
 import me.hsgamer.extrastorage.gui.icon.Icon;
+import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.hooks.economy.EconomyProvider;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public final class SellGui
@@ -96,12 +94,13 @@ public final class SellGui
 
     private void addRepresentItem() {
         int index = 0, pageCount = 1;
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
         for (Item item : items.values()) {
             if (item == null || !item.isLoaded()) continue;
-            ItemStack iStack = item.getItem().clone();
 
-            int amount = econ.getAmount(iStack);
-            String price = econ.getPrice(player, iStack, amount);
+            ItemStack sellItem = item.getItem().clone();
+            int amount = econ.getAmount(sellItem);
+            String price = econ.getPrice(player, sellItem, amount);
             if ((amount < 1) || (price == null)) continue;
 
             if (pageCount != page) {
@@ -112,26 +111,14 @@ public final class SellGui
                 continue;
             }
 
-            ItemMeta meta = iStack.getItemMeta();
-
-            String name = config.getString("RepresentItem.Name", "");
-            if (!name.isEmpty()) meta.setDisplayName(name);
-            else meta.setDisplayName(instance.getSetting().getNameFormatted(item.getKey(), true));
-
-            List<String> curLore = (meta.hasLore() ? meta.getLore() : new ArrayList<>()), newLore = config.getStringList("RepresentItem.Lore");
-            if (!newLore.isEmpty()) {
-                for (int i = 0; i < newLore.size(); i++) {
-                    String lore = newLore.get(i)
+            ItemStack iStack = displayModifier.construct(
+                    item,
+                    s -> s
                             .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
                             .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                             .replaceAll(Utils.getRegex("price"), price)
-                            .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(amount));
-                    newLore.set(i, lore);
-                }
-                curLore.addAll(newLore);
-                meta.setLore(curLore);
-            }
-            iStack.setItemMeta(meta);
+                            .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(amount))
+            );
 
             Icon icon = new Icon(iStack)
                     .handleClick(event -> {
