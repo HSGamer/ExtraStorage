@@ -155,19 +155,7 @@ public final class WhitelistGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             boolean left = event.isLeftClick();

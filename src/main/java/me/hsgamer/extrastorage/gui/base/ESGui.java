@@ -1,30 +1,22 @@
 package me.hsgamer.extrastorage.gui.base;
 
-import com.google.common.base.Strings;
-import io.github.projectunified.craftitem.spigot.core.SpigotItem;
-import io.github.projectunified.craftitem.spigot.modifier.EnchantmentModifier;
-import io.github.projectunified.craftitem.spigot.modifier.ItemFlagModifier;
-import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
-import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.gui.abstraction.GuiCreator;
 import me.hsgamer.extrastorage.gui.icon.Icon;
-import me.hsgamer.extrastorage.util.ItemUtil;
+import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 public abstract class ESGui
@@ -89,26 +81,8 @@ public abstract class ESGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) {
-                                for (int i = 0; i < lores.size(); i++) {
-                                    String lore = lores.get(i)
-                                            .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page))
-                                            .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
-                                    lores.set(i, lore);
-                                }
-                                meta.setLore(lores);
-                            }
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        s -> s.replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page))
+                                .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage))
                 )
         ).handleClick(event -> {
             this.playSoundIfPresent();
@@ -128,26 +102,8 @@ public abstract class ESGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) {
-                                for (int i = 0; i < lores.size(); i++) {
-                                    String lore = lores.get(i)
-                                            .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page))
-                                            .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
-                                    lores.set(i, lore);
-                                }
-                                meta.setLore(lores);
-                            }
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        s -> s.replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page))
+                                .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage))
                 )
         ).handleClick(event -> {
             this.playSoundIfPresent();
@@ -162,21 +118,7 @@ public abstract class ESGui
         for (String keys : config.getConfigurationSection("DecorateItems").getKeys(false)) {
             final String path = "DecorateItems." + keys;
 
-            ItemStack item = this.getItemStack(
-                    path,
-                    meta -> {
-                        String name = config.getString(path + ".Name", "");
-                        if (!name.isEmpty()) meta.setDisplayName(name);
-
-                        List<String> lores = config.getStringList(path + ".Lore");
-                        if (!lores.isEmpty()) meta.setLore(lores);
-
-                        if (config.contains(path + ".CustomModelData")) {
-                            int model = config.getInt(path + ".CustomModelData");
-                            meta.setCustomModelData(model);
-                        }
-                    }
-            );
+            ItemStack item = this.getItemStack(path, s -> s);
             if ((item == null) || (item.getType() == Material.AIR)) continue;
 
             Icon icon = new Icon(item);
@@ -248,69 +190,20 @@ public abstract class ESGui
         return sorted;
     }
 
-
-    protected final ItemStack getItemStack(String model, User user, Material material, int amount, short data, String texture, List<String> enchants, List<String> flags, Consumer<ItemMeta> meta) {
-        amount = Math.max(1, amount);
-
-        SpigotItem spigotItem;
-
-        if (!Strings.isNullOrEmpty(model)) {
-            if (!model.contains(":")) return new ItemStack(Material.STONE);
-            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
-            if (!item.isValid()) return new ItemStack(Material.STONE);
-            spigotItem = new SpigotItem(item.bukkitItem());
-        } else if (!Strings.isNullOrEmpty(texture)) {
-            spigotItem = new SpigotItem(Material.PLAYER_HEAD);
-
-            String textureValue;
-
-            Matcher matcher = HDB_PATTERN.matcher(texture);
-            if (matcher.find()) {
-                if (!instance.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) return new ItemStack(Material.STONE);
-                String ID = matcher.group("value");
-                HeadDatabaseAPI api = new HeadDatabaseAPI();
-                textureValue = api.getBase64(api.getItemHead(ID));
-            } else if (texture.matches(Utils.getRegex("viewer", "player"))) {
-                textureValue = user.getTexture();
-            } else {
-                textureValue = texture;
-            }
-
-            new SkullModifier(textureValue).modify(spigotItem);
-        } else {
-            spigotItem = new SpigotItem(new ItemStack(material, amount, data));
-        }
-        spigotItem.setAmount(amount);
-
-        spigotItem.editMeta(meta);
-
-        if (flags != null) {
-            new ItemFlagModifier(flags).modify(spigotItem);
-        }
-
-        if (enchants != null) {
-            new EnchantmentModifier(enchants, ',').modify(spigotItem);
-        }
-
-        return spigotItem.getItemStack();
+    protected final ItemStack getItemStack(String path, User user, UnaryOperator<String> translator) {
+        return GUIItem.get(config, path, null).getItem(user, translator);
     }
 
-    protected final ItemStack getItemStack(String path, User user, Consumer<ItemMeta> meta) {
-        return this.getItemStack(
-                config.getString(path + ".Model"),
-                user,
-                Material.matchMaterial(config.getString(path + ".Material")),
-                config.getInt(path + ".Amount"),
-                (short) config.getInt(path + ".Data"),
-                config.getString(path + ".Texture"),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                meta
-        );
+    protected final ItemStack getItemStack(String path, UnaryOperator<String> translator) {
+        return GUIItem.get(config, path, null).getItem(null, translator);
     }
 
-    protected final ItemStack getItemStack(String path, Consumer<ItemMeta> meta) {
-        return this.getItemStack(path, null, meta);
+    protected final ItemStack getItemStack(String path, User user) {
+        return getItemStack(path, user, UnaryOperator.identity());
+    }
+
+    protected final ItemStack getItemStack(String path) {
+        return getItemStack(path, UnaryOperator.identity());
     }
 
     public enum SortType {

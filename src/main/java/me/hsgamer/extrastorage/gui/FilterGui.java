@@ -188,36 +188,21 @@ public final class FilterGui
                 this.getItemStack(
                         PATH,
                         user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
+                        s -> {
+                            String UNKNOWN = Message.getMessage("STATUS.unknown");
 
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) {
-                                String UNKNOWN = Message.getMessage("STATUS.unknown");
+                            long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
+                            double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
 
-                                long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
-                                double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
-
-                                for (int i = 0; i < lores.size(); i++) {
-                                    String lore = lores.get(i)
-                                            .replaceAll(Utils.getRegex("player"), player.getName())
-                                            .replaceAll(Utils.getRegex("display"), player.getDisplayName())
-                                            .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
-                                            .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
-                                            .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
-                                            .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
-                                            .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
-                                            .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
-                                    lores.set(i, lore);
-                                }
-                                meta.setLore(lores);
-                            }
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
+                            return s
+                                    .replaceAll(Utils.getRegex("player"), player.getName())
+                                    .replaceAll(Utils.getRegex("display"), player.getDisplayName())
+                                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
+                                    .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
+                                    .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
+                                    .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
+                                    .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
+                                    .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
                         }
                 )
         ).handleClick(event -> {
@@ -248,19 +233,7 @@ public final class FilterGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             SortType newSort = (event.isShiftClick() ? sort : (event.isLeftClick() ? SortType.NAME : (event.isRightClick() ? SortType.QUANTITY : null)));
@@ -281,19 +254,7 @@ public final class FilterGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             SortType newSort = (event.isShiftClick() ? sort : (event.isLeftClick() ? SortType.QUANTITY : (event.isRightClick() ? SortType.MATERIAL : null)));
@@ -314,19 +275,7 @@ public final class FilterGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             SortType newSort = (event.isShiftClick() ? sort : (event.isLeftClick() ? SortType.MATERIAL : (event.isRightClick() ? SortType.NAME : null)));
@@ -347,19 +296,7 @@ public final class FilterGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             this.playSoundIfPresent();

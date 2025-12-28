@@ -7,7 +7,6 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.ESGui;
 import me.hsgamer.extrastorage.gui.icon.Icon;
 import me.hsgamer.extrastorage.util.Utils;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -99,39 +98,18 @@ public final class PartnerGui
             OfflinePlayer pnPlayer = partner.getOfflinePlayer();
             User user = instance.getUserManager().getUser(pnPlayer);
 
-            String texture = config.getString("RepresentItem.Texture", "");
             ItemStack item = this.getItemStack(
-                    config.getString(PATH + ".Model"),
-                    this.user,
-                    Material.matchMaterial(config.getString(PATH + ".Material")),
-                    config.getInt(PATH + ".Amount"),
-                    (short) config.getInt(PATH + ".Data"),
-                    texture.matches(Utils.getRegex("partner")) ? user.getTexture() : texture,
-                    config.getStringList(PATH + ".Enchantments"),
-                    config.getStringList(PATH + ".HideFlags"),
-                    meta -> {
-                        String name = config.getString("RepresentItem.Name", "");
-                        if (!name.isEmpty())
-                            meta.setDisplayName(name.replaceAll(Utils.getRegex("partner"), pnPlayer.getName())
-                                    .replaceAll(Utils.getRegex("time(stamp)?"), partner.getTimeFormatted()));
-
-                        List<String> lores = config.getStringList("RepresentItem.Lore");
-                        if (!lores.isEmpty()) {
-                            for (int i = 0; i < lores.size(); i++) {
-                                String lore = lores.get(i)
-                                        .replaceAll(Utils.getRegex("partner"), pnPlayer.getName())
-                                        .replaceAll(Utils.getRegex("time(stamp)?"), partner.getTimeFormatted());
-                                lores.set(i, lore);
-                            }
-                            meta.setLore(lores);
+                    PATH,
+                    user,
+                    s -> {
+                        if (s.matches(Utils.getRegex("partner"))) {
+                            return user.getTexture();
                         }
-
-                        if (config.contains(PATH + ".CustomModelData")) {
-                            int modelData = config.getInt("RepresentItem.CustomModelData");
-                            meta.setCustomModelData(modelData);
-                        }
+                        return s.replaceAll(Utils.getRegex("partner"), pnPlayer.getName())
+                                .replaceAll(Utils.getRegex("time(stamp)?"), partner.getTimeFormatted());
                     }
             );
+
             Icon icon = new Icon(item)
                     .handleClick(event -> {
                         this.playSoundIfPresent();
@@ -168,24 +146,7 @@ public final class PartnerGui
                 this.getItemStack(
                         PATH,
                         user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) {
-                                for (int i = 0; i < lores.size(); i++) {
-                                    String lore = lores.get(i).replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(partners.size()));
-                                    lores.set(i, lore);
-                                }
-                                meta.setLore(lores);
-                            }
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        s -> s.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(partners.size()))
                 )
         ).handleClick(event -> {
             if (partners.isEmpty() || (!event.isShiftClick())) return;
@@ -227,19 +188,7 @@ public final class PartnerGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             if (partners.isEmpty()) return;
@@ -261,19 +210,7 @@ public final class PartnerGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             if (partners.isEmpty()) return;
@@ -295,19 +232,7 @@ public final class PartnerGui
         Icon icon = new Icon(
                 this.getItemStack(
                         PATH,
-                        user,
-                        meta -> {
-                            String name = config.getString(PATH + ".Name", "");
-                            if (!name.isEmpty()) meta.setDisplayName(name);
-
-                            List<String> lores = config.getStringList(PATH + ".Lore");
-                            if (!lores.isEmpty()) meta.setLore(lores);
-
-                            if (config.contains(PATH + ".CustomModelData")) {
-                                int modelData = config.getInt(PATH + ".CustomModelData");
-                                meta.setCustomModelData(modelData);
-                            }
-                        }
+                        user
                 )
         ).handleClick(event -> {
             this.playSoundIfPresent();

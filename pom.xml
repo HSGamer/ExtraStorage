@@ -336,6 +336,11 @@
 
 		<dependency>
 			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftitem-modifier</artifactId>
+			<version>${craftitem.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
 			<artifactId>craftitem-spigot-modifier</artifactId>
 			<version>${craftitem.version}</version>
 		</dependency>
