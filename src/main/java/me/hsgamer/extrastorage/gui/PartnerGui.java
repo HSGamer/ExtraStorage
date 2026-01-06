@@ -103,7 +103,8 @@ public final class PartnerGui
                     user,
                     s -> {
                         if (s.matches(Utils.getRegex("partner"))) {
-                            return user.getTexture();
+                            String userTexture = user.getTexture();
+                            return userTexture.isEmpty() ? user.getUUID().toString() : userTexture;
                         }
                         return s.replaceAll(Utils.getRegex("partner"), pnPlayer.getName())
                                 .replaceAll(Utils.getRegex("time(stamp)?"), partner.getTimeFormatted());

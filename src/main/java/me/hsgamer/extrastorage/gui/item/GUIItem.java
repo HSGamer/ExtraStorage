@@ -50,7 +50,9 @@ public interface GUIItem {
                 spigotItemSupplier = user -> {
                     SpigotItem spigotItem = new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
                     if (user != null) {
-                        new SkullModifier(user.getTexture()).modify(spigotItem);
+                        String userTexture = user.getTexture();
+                        SkullModifier skullModifier = new SkullModifier(userTexture.isEmpty() || user.isOnline() ? user.getUUID().toString() : userTexture);
+                        skullModifier.modify(spigotItem);
                     }
                     return spigotItem;
                 };

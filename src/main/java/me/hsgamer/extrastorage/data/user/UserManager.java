@@ -5,7 +5,6 @@ import io.github.projectunified.minelib.scheduler.common.task.Task;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.stub.StubUser;
-import me.hsgamer.extrastorage.fetcher.TextureFetcher;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
 import me.hsgamer.topper.data.core.DataEntry;
@@ -15,7 +14,6 @@ import me.hsgamer.topper.storage.sql.converter.UUIDSqlValueConverter;
 import me.hsgamer.topper.storage.sql.core.SqlDataStorageSupplier;
 import me.hsgamer.topper.storage.sql.mysql.MySqlDataStorageSupplier;
 import me.hsgamer.topper.storage.sql.sqlite.SqliteDataStorageSupplier;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -130,17 +128,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     }
 
     public void load(UUID uuid) {
-        DataEntry<UUID, UserImpl> entry = getOrCreateEntry(uuid);
-        if (entry.getValue().texture.isEmpty()) {
-            AsyncScheduler.get(instance).run(() -> {
-                OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
-                String name = player.getName();
-                if (name == null || name.isEmpty()) return;
-                String textureUrl = TextureFetcher.getTextureUrl(name);
-                if (textureUrl == null || textureUrl.isEmpty()) return;
-                entry.setValue(user -> user.withTexture(textureUrl));
-            });
-        }
+        getOrCreateEntry(uuid);
     }
 
     public Collection<User> getUsers() {
