@@ -25,7 +25,7 @@ public final class ESPlaceholder
 
     @Override
     public String getAuthor() {
-        return "HyronicTeam";
+        return String.join(", ", instance.getDescription().getAuthors());
     }
 
     @Override
@@ -40,8 +40,6 @@ public final class ESPlaceholder
 
     @Override
     public String onRequest(OfflinePlayer player, String args) {
-        if (!player.isOnline()) return null;
-
         String argsLowerCase = args.toLowerCase();
 
         Storage storage = instance.getUserManager().getUser(player).getStorage();
