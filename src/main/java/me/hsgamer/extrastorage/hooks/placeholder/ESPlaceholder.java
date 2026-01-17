@@ -4,6 +4,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
+import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.util.Digital;
 import org.bukkit.OfflinePlayer;
 
@@ -65,6 +66,10 @@ public final class ESPlaceholder
                 return (storage.getSpaceAsPercent(false) == -1) ? "-1" : Double.toString(storage.getSpaceAsPercent(false));
             case "free_percent_formatted":
                 return (storage.getSpaceAsPercent(false) == -1) ? "-1" : (storage.getSpaceAsPercent(false) + "%");
+            case "status":
+                return Boolean.toString(storage.getStatus());
+            case "status_formatted":
+                return Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled"));
         }
 
         if (argsLowerCase.startsWith("quantity")) {
