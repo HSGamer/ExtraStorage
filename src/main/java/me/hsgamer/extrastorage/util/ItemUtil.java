@@ -123,8 +123,9 @@ public class ItemUtil {
                 return material.name();
             }
 
-            // Always put the type in uppercase
-            return possibleType.toUpperCase(Locale.ROOT) + ":" + possibleId;
+            // Always normalize and put the type in uppercase
+            String normalizedType = provider.normalize(possibleType).toUpperCase(Locale.ROOT);
+            return normalizedType + ":" + possibleId;
         });
     }
 
