@@ -79,7 +79,7 @@ public abstract class BaseGUI extends SpigotInventoryUI {
             public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
                 Map<Position, Consumer<ActionItem>> map = new HashMap<>();
                 int page = representItemMask.getPage(uuid);
-                int maxPage = -1; // TODO
+                int maxPage = representItemMask.getPageAmount(uuid);
                 UnaryOperator<String> replacer = s -> s
                         .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page + 1))
                         .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
