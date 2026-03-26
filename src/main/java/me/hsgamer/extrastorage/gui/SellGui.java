@@ -94,7 +94,7 @@ public final class SellGui
 
     private void addRepresentItem() {
         int index = 0, pageCount = 1;
-        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config.getConfigurationSection("RepresentItem"), true);
         for (Item item : items.values()) {
             if (item == null || !item.isLoaded()) continue;
 

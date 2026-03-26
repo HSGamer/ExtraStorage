@@ -35,6 +35,7 @@
 		<rosestacker.version>1.5.20</rosestacker.version>
 		<uniitem.version>2.5.0</uniitem.version>
 		<craftitem.version>1.4.1</craftitem.version>
+		<craftux.version>1.6.0</craftux.version>
 	</properties>
 	
 	<build>
@@ -348,6 +349,17 @@
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>craftitem-spigot-skull</artifactId>
 			<version>${craftitem.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftux-spigot</artifactId>
+			<version>${craftux.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftux-mask</artifactId>
+			<version>${craftux.version}</version>
 		</dependency>
 	</dependencies>
 	

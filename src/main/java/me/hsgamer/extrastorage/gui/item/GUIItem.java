@@ -28,12 +28,12 @@ import java.util.regex.Pattern;
 public interface GUIItem {
     Pattern HDB_PATTERN = Pattern.compile("(?ium)(hdb)-(?<value>[a-zA-Z0-9]+)");
 
-    static GUIItem get(ConfigurationSection config, String path, BiConsumer<User, ItemMeta> meta) {
+    static GUIItem get(ConfigurationSection section, BiConsumer<User, ItemMeta> meta) {
         Function<User, SpigotItem> spigotItemSupplier;
         List<ItemModifier> itemModifiers = new ArrayList<>();
 
-        String model = config.getString(path + ".Model");
-        String texture = config.getString(path + ".Texture");
+        String model = section.getString("Model");
+        String texture = section.getString("Texture");
         if (!Strings.isNullOrEmpty(model)) {
             io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
             spigotItemSupplier = user -> {
@@ -86,7 +86,7 @@ public interface GUIItem {
                 }
             }
         } else {
-            String materialName = config.getString(path + ".Material", "");
+            String materialName = section.getString("Material", "");
             Material material = Material.matchMaterial(materialName);
             if (material == null) {
                 spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
@@ -95,25 +95,25 @@ public interface GUIItem {
             }
         }
 
-        int amount = config.getInt(path + ".Amount");
+        int amount = section.getInt("Amount");
         itemModifiers.add((item, translator) -> item.setAmount(Math.max(1, amount)));
 
-        Integer customModelData = config.contains(path + ".CustomModelData") ? config.getInt(path + ".CustomModelData") : null;
+        Integer customModelData = section.contains("CustomModelData") ? section.getInt("CustomModelData") : null;
         if (customModelData != null) {
             itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> meta1.setCustomModelData(customModelData)));
         }
 
-        List<String> flags = config.getStringList(path + ".HideFlags");
+        List<String> flags = section.getStringList("HideFlags");
         if (!flags.isEmpty()) {
             itemModifiers.add(new ItemFlagModifier(flags));
         }
 
-        List<String> enchants = config.getStringList(path + ".Enchantments");
+        List<String> enchants = section.getStringList("Enchantments");
         if (!enchants.isEmpty()) {
             itemModifiers.add(new EnchantmentModifier(enchants, ','));
         }
 
-        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, path, false);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, false);
 
         return (user, translator) -> {
             SpigotItem spigotItem = spigotItemSupplier.apply(user);

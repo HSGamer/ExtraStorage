@@ -191,11 +191,11 @@ public abstract class ESGui
     }
 
     protected final ItemStack getItemStack(String path, User user, UnaryOperator<String> translator) {
-        return GUIItem.get(config, path, null).getItem(user, translator);
+        return GUIItem.get(config.getConfigurationSection(path), null).getItem(user, translator);
     }
 
     protected final ItemStack getItemStack(String path, UnaryOperator<String> translator) {
-        return GUIItem.get(config, path, null).getItem(null, translator);
+        return GUIItem.get(config.getConfigurationSection(path), null).getItem(null, translator);
     }
 
     protected final ItemStack getItemStack(String path, User user) {

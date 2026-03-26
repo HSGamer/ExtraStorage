@@ -102,7 +102,7 @@ public final class WhitelistGui
     private void addRepresentItem() {
         int index = 0, startIndex, endIndex;
         endIndex = Math.min(items.size(), page * slots.length);
-        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config.getConfigurationSection("RepresentItem"), true);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = items.get(startIndex);
             io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(key);

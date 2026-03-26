@@ -8,12 +8,11 @@ import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
 
-public class GuiConfig
-        extends BukkitConfig {
+public class GuiConfig extends BukkitConfig {
 
-    protected String title;
-    protected int rows;
-    protected Consumer<Player> soundPlayer;
+    public String title;
+    public int rows;
+    public Consumer<Player> soundPlayer;
 
     public GuiConfig(String fileName) {
         super(fileName + ".yml");

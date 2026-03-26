@@ -124,7 +124,7 @@ public final class StorageGui
         int index = 0, startIndex, endIndex;
         Set<String> keys = items.keySet();
         endIndex = Math.min(items.size(), page * slots.length);
-        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config, "RepresentItem", true);
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(config.getConfigurationSection("RepresentItem"), true);
         for (startIndex = (page - 1) * slots.length; startIndex < endIndex; startIndex++) {
             String key = keys.toArray()[startIndex].toString();
             Item item = items.get(key);

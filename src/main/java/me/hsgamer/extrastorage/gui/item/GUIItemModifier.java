@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 public interface GUIItemModifier {
-    static GUIItemModifier getDisplayItemModifier(ConfigurationSection config, String path, boolean additionalLore) {
+    static GUIItemModifier getDisplayItemModifier(ConfigurationSection section, boolean additionalLore) {
         List<ItemModifier> itemModifiers = new ArrayList<>();
-        String name = config.getString(path + ".Name");
+        String name = section.getString("Name");
         if (name != null && !name.isEmpty()) {
             itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta -> meta.setDisplayName(translator.apply(name))));
         }
-        List<String> lore = config.getStringList(path + ".Lore");
+        List<String> lore = section.getStringList("Lore");
         if (!lore.isEmpty()) {
             if (additionalLore) {
                 itemModifiers.add(
