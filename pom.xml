@@ -78,6 +78,10 @@
 									<shadedPattern>me.hsgamer.extrastorage.lib.craftitem</shadedPattern>
 								</relocation>
 								<relocation>
+									<pattern>io.github.projectunified.craftux</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.craftux</shadedPattern>
+								</relocation>
+								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.core</shadedPattern>
 								</relocation>
