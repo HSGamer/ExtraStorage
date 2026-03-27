@@ -77,7 +77,11 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         List<String> whitelist = new ArrayList<>(setting.getWhitelist());
 
-        whitelist.sort(orderSort ? Comparator.naturalOrder() : Comparator.reverseOrder());
+        if (sort == SortType.NAME_REVERSE) {
+            whitelist.sort(Comparator.reverseOrder());
+        } else {
+            whitelist.sort(Comparator.naturalOrder());
+        }
 
         return whitelist.stream()
                 .map(key -> {
@@ -112,7 +116,8 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
         HybridMask mask = new HybridMask();
 
         Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
+        putSortConfig(sortConfigMap, SortType.NAME_NATURAL, section, "SortByName");
+        putSortConfig(sortConfigMap, SortType.NAME_REVERSE, section, "SortByName");
         addSortMask(mask, sortConfigMap);
 
         return mask;
@@ -125,6 +130,6 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
     }
 
     public enum SortType {
-        NAME
+        NAME_NATURAL, NAME_REVERSE
     }
 }
