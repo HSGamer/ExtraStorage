@@ -25,6 +25,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,26 +49,28 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
     protected List<Button> getRepresentItems(ConfigurationSection section) {
         Setting setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
-        Stream<Item> itemStream = storage.getItems().values().stream()
-                .filter(item -> item != null && item.isLoaded());
-        if (sort != SortType.UNFILTER) {
-            itemStream = itemStream
-                    .filter(item -> item.isFiltered() || (item.getQuantity() > 0))
-                    .sorted((obj1, obj2) -> {
-                        switch (sort) {
-                            case MATERIAL:
-                                return SortUtil.compareItemByMaterial(obj1, obj2, orderSort);
-                            case NAME:
-                                return SortUtil.compareItemByName(obj1, obj2, orderSort);
-                            case QUANTITY:
-                                return SortUtil.compareItemByQuantity(obj1, obj2, orderSort);
-                            case UNFILTER:
-                                break;
-                        }
-                        return 0;
-                    });
-        } else {
+        Stream<Item> itemStream = storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
+        if (sort == SortType.UNFILTER) {
             itemStream = itemStream.filter(item -> !item.isFiltered());
+        } else {
+            itemStream = itemStream.filter(item -> item.isFiltered() || (item.getQuantity() > 0));
+            Comparator<Item> comparator = null;
+            switch (sort) {
+                case MATERIAL:
+                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
+                    break;
+                case NAME:
+                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
+                    break;
+                case QUANTITY:
+                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByQuantity);
+                    break;
+                default:
+                    break;
+            }
+            if (comparator != null) {
+                itemStream = itemStream.sorted(comparator);
+            }
         }
         return itemStream
                 .map(item -> {

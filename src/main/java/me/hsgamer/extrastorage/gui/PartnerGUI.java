@@ -18,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +41,20 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
     protected List<Button> getRepresentItems(ConfigurationSection section) {
         Stream<Partner> partnerStream = user.getPartners().stream();
 
-        partnerStream = partnerStream.sorted((obj1, obj2) -> {
-            switch (sort) {
-                case NAME:
-                    return SortUtil.comparePartnerByName(obj1, obj2, orderSort);
-                case TIME:
-                    return SortUtil.comparePartnerByTimestamp(obj1, obj2, orderSort);
-                default:
-                    return 0;
-            }
-        });
+        Comparator<Partner> comparator = null;
+        switch (sort) {
+            case NAME:
+                comparator = SortUtil.compose(orderSort, SortUtil::comparePartnerByName);
+                break;
+            case TIME:
+                comparator = SortUtil.compose(orderSort, SortUtil::comparePartnerByTimestamp);
+                break;
+            default:
+                break;
+        }
+        if (comparator != null) {
+            partnerStream = partnerStream.sorted(comparator);
+        }
 
         GUIItem representItem = GUIItem.get(section, null);
 

@@ -13,6 +13,7 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
+import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
@@ -76,11 +77,17 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         List<String> whitelist = new ArrayList<>(setting.getWhitelist());
 
-        if (sort == SortType.NAME_REVERSE) {
-            whitelist.sort(Comparator.reverseOrder());
-        } else {
-            whitelist.sort(Comparator.naturalOrder());
+        Comparator<String> comparator;
+        switch (sort) {
+            case NAME_REVERSE:
+                comparator = SortUtil.compose(orderSort, Comparator.<String>reverseOrder());
+                break;
+            case NAME_NATURAL:
+            default:
+                comparator = SortUtil.compose(orderSort, Comparator.<String>naturalOrder());
+                break;
         }
+        whitelist.sort(comparator);
 
         return whitelist.stream()
                 .map(key -> {

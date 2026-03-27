@@ -69,18 +69,23 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
         Stream<Item> itemStream = storage.getFilteredItems().values().stream()
                 .filter(item -> item != null && item.isLoaded());
 
-        itemStream = itemStream.sorted((obj1, obj2) -> {
-            switch (sort) {
-                case MATERIAL:
-                    return SortUtil.compareItemByMaterial(obj1, obj2, orderSort);
-                case NAME:
-                    return SortUtil.compareItemByName(obj1, obj2, orderSort);
-                case QUANTITY:
-                    return SortUtil.compareItemByQuantity(obj1, obj2, orderSort);
-                default:
-                    return 0;
-            }
-        });
+        Comparator<Item> comparator = null;
+        switch (sort) {
+            case MATERIAL:
+                comparator = SortUtil.compose(orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
+                break;
+            case NAME:
+                comparator = SortUtil.compose(orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
+                break;
+            case QUANTITY:
+                comparator = SortUtil.compose(orderSort, SortUtil::compareItemByQuantity);
+                break;
+            default:
+                break;
+        }
+        if (comparator != null) {
+            itemStream = itemStream.sorted(comparator);
+        }
 
         return itemStream.map(item -> {
             String key = item.getKey();
