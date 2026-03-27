@@ -2,9 +2,7 @@ package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
-import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.HybridMask;
-import io.github.projectunified.craftux.simple.SimpleButtonMask;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
@@ -12,7 +10,7 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.gui.config.GuiConfig;
+import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -29,16 +27,12 @@ import java.util.stream.Collectors;
 
 public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
 
-    public WhitelistGUI(Player player, GuiConfig config) {
-        super(player, config, SortType.class);
+    public WhitelistGUI(Player player) {
+        super(player, ExtraStorage.getInstance().getWhitelistGuiConfig(), SortType.class);
 
         setup();
     }
 
-    @Override
-    protected SortType fallbackSort() {
-        return SortType.NAME;
-    }
 
     @Override
     protected boolean onClick(InventoryClickEvent event) {
@@ -83,10 +77,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         List<String> whitelist = new ArrayList<>(setting.getWhitelist());
 
-        whitelist.sort((object1, object2) -> {
-            if (orderSort) return object1.compareTo(object2);
-            return object2.compareTo(object1);
-        });
+        whitelist.sort(orderSort ? Comparator.naturalOrder() : Comparator.reverseOrder());
 
         return whitelist.stream()
                 .map(key -> {
@@ -120,23 +111,17 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
     protected Mask getControlItems(ConfigurationSection section) {
         HybridMask mask = new HybridMask();
 
-        ConfigurationSection sortByNameSection = Objects.requireNonNull(section.getConfigurationSection("SortByName"), "ControlItems.SortByName must be non-null!");
-        GUIItem sortByNameItem = GUIItem.get(sortByNameSection, null);
-        List<Position> sortByNameSlots = getSlots(sortByNameSection);
-
-        SimpleButtonMask sortMask = new SimpleButtonMask();
-        mask.add(sortMask);
-        sortMask.setButton(sortByNameSlots, (uuid, actionItem) -> {
-            sortByNameItem.apply(actionItem, user, s -> s);
-            actionItem.setAction(InventoryClickEvent.class, event -> {
-                orderSort = !orderSort;
-                updateRepresentItems();
-                update();
-            });
-            return true;
-        });
+        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
+        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
+        addSortMask(mask, sortConfigMap);
 
         return mask;
+    }
+
+    private void putSortConfig(Map<SortType, SortButtonConfig<SortType>> map, SortType type, ConfigurationSection section, String key) {
+        ConfigurationSection subSection = section.getConfigurationSection(key);
+        if (subSection == null) return;
+        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
     }
 
     public enum SortType {

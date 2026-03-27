@@ -7,7 +7,7 @@ import me.hsgamer.extrastorage.commands.abstraction.CommandListener;
 import me.hsgamer.extrastorage.commands.abstraction.CommandTarget;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.gui.StorageGui;
+import me.hsgamer.extrastorage.gui.StorageGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -28,7 +28,7 @@ public final class OpenCmd
             return;
         }
 
-        new StorageGui(player, user, 1).open();
+        new StorageGUI(player, user).open();
     }
 
 }

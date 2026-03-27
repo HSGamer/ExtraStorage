@@ -15,6 +15,7 @@ public final class ReloadCmd
         instance.getSetting().reload();
         instance.getMessage().reload();
         instance.getWorthManager().reload();
+        instance.loadGuiFile();
 
         context.sendMessage(Message.getMessage("SUCCESS.config-reload"));
     }

@@ -9,7 +9,7 @@ import me.hsgamer.extrastorage.commands.abstraction.CommandTarget;
 import me.hsgamer.extrastorage.commands.subs.player.*;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.gui.StorageGui;
+import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -39,7 +39,7 @@ public final class PlayerCommands
         Player player = context.castToPlayer();
 
         if (context.getArgsLength() == 0) {
-            new StorageGui(player, 1).open();
+            new StorageGUI(player, null).open();
             return;
         }
 
@@ -61,7 +61,7 @@ public final class PlayerCommands
             return;
         }
 
-        new StorageGui(player, user, 1).open();
+        new StorageGUI(player, user).open();
     }
 
 

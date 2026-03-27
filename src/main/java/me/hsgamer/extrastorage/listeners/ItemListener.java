@@ -103,7 +103,8 @@ public class ItemListener extends BaseListener {
         ItemStack item = event.getEntity().getItemStack();
 
         String validKey = ItemUtil.toMaterialKey(item);
-        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey))) return;
+        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey)))
+            return;
 
         if (storage.isMaxSpace() || (!this.canStore(user.getPlayer(), item)) || (!storage.canStore(item))) return;
 

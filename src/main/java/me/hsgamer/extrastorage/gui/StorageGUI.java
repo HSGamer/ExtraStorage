@@ -1,11 +1,8 @@
 package me.hsgamer.extrastorage.gui;
 
-import io.github.projectunified.craftux.common.ActionItem;
 import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
-import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.HybridMask;
-import io.github.projectunified.craftux.simple.SimpleButtonMask;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.user.User;
@@ -13,9 +10,10 @@ import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
-import me.hsgamer.extrastorage.gui.config.GuiConfig;
+import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
+import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -25,28 +23,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
     private final User partner;
 
-    public StorageGUI(Player player, GuiConfig config, User partner) {
-        super(player, config, SortType.class);
+    public StorageGUI(Player player, User partner) {
+        super(player, ExtraStorage.getInstance().getStorageGuiConfig(), SortType.class);
         this.partner = ((partner == null) ? user : partner);
         this.storage = this.partner.getStorage();
 
         setup();
     }
 
-    @Override
-    protected SortType fallbackSort() {
-        return SortType.MATERIAL;
+    public User getPartner() {
+        return partner;
     }
+
 
     @Override
     protected List<Button> getRepresentItems(ConfigurationSection section) {
@@ -58,45 +54,17 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
             itemStream = itemStream
                     .filter(item -> item.isFiltered() || (item.getQuantity() > 0))
                     .sorted((obj1, obj2) -> {
-                        int compare = 0;
                         switch (sort) {
                             case MATERIAL:
-                                if (orderSort) {
-                                    compare = obj1.getKey().compareTo(obj2.getKey());
-                                    if (compare == 0)
-                                        compare = Integer.compare((int) Math.min(obj2.getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj1.getQuantity(), Integer.MAX_VALUE));
-                                } else {
-                                    compare = obj2.getKey().compareTo(obj1.getKey());
-                                    if (compare == 0)
-                                        compare = Integer.compare((int) Math.min(obj1.getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj2.getQuantity(), Integer.MAX_VALUE));
-                                }
-                                break;
+                                return SortUtil.compareItemByMaterial(obj1, obj2, orderSort);
                             case NAME:
-                                String name1 = setting.getNameFormatted(obj1.getKey(), false), name2 = setting.getNameFormatted(obj2.getKey(), false);
-                                if (orderSort) {
-                                    compare = name1.compareTo(name2);
-                                    if (compare == 0)
-                                        compare = Integer.compare((int) Math.min(obj2.getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj1.getQuantity(), Integer.MAX_VALUE));
-                                } else {
-                                    compare = name2.compareTo(name1);
-                                    if (compare == 0)
-                                        compare = Integer.compare((int) Math.min(obj1.getQuantity(), Integer.MAX_VALUE), (int) Math.min(obj2.getQuantity(), Integer.MAX_VALUE));
-                                }
-                                break;
+                                return SortUtil.compareItemByName(obj1, obj2, orderSort);
                             case QUANTITY:
-                                if (orderSort) {
-                                    compare = Long.compare(obj2.getQuantity(), obj1.getQuantity());
-                                    if (compare == 0) compare = obj1.getKey().compareTo(obj2.getKey());
-                                } else {
-                                    compare = Long.compare(obj1.getQuantity(), obj2.getQuantity());
-                                    if (compare == 0) compare = obj2.getKey().compareTo(obj1.getKey());
-                                }
-                                break;
-                            case TIME:
+                                return SortUtil.compareItemByQuantity(obj1, obj2, orderSort);
                             case UNFILTER:
                                 break;
                         }
-                        return compare;
+                        return 0;
                     });
         } else {
             itemStream = itemStream.filter(item -> !item.isFiltered());
@@ -238,154 +206,51 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
     protected Mask getControlItems(ConfigurationSection section) {
         HybridMask mask = new HybridMask();
 
-        ConfigurationSection aboutItemSection = Objects.requireNonNull(section.getConfigurationSection("About"), "ControlItems.About must be non-null!");
-        GUIItem aboutItem = GUIItem.get(aboutItemSection, null);
-        List<Position> aboutItemSlots = getSlots(aboutItemSection);
+        addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> {
+            String UNKNOWN = Message.getMessage("STATUS.unknown");
 
-        ConfigurationSection sortByMaterialSection = Objects.requireNonNull(section.getConfigurationSection("SortByMaterial"), "ControlItems.SortByMaterial must be non-null!");
-        GUIItem sortByMaterialItem = GUIItem.get(sortByMaterialSection, null);
-        List<Position> sortByMaterialSlots = getSlots(sortByMaterialSection);
+            long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
+            double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
 
-        ConfigurationSection sortByNameSection = Objects.requireNonNull(section.getConfigurationSection("SortByName"), "ControlItems.SortByName must be non-null!");
-        GUIItem sortByNameItem = GUIItem.get(sortByNameSection, null);
-        List<Position> sortByNameSlots = getSlots(sortByNameSection);
+            return s
+                    .replaceAll(Utils.getRegex("player"), partner.getName())
+                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
+                    .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
+                    .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
+                    .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
+                    .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
+                    .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
+        }, event -> {
+            boolean isAdminOrSelf = (this.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || partner.getUUID().equals(player.getUniqueId()));
+            if ((!this.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION)) || (!isAdminOrSelf)) return;
 
-        ConfigurationSection sortByQuantitySection = Objects.requireNonNull(section.getConfigurationSection("SortByQuantity"), "ControlItems.SortByQuantity must be non-null!");
-        GUIItem sortByQuantityItem = GUIItem.get(sortByQuantitySection, null);
-        List<Position> sortByQuantitySlots = getSlots(sortByQuantitySection);
+            boolean status = !storage.getStatus();
+            storage.setStatus(status);
 
-        ConfigurationSection sortByUnfilterSection = Objects.requireNonNull(section.getConfigurationSection("SortByUnfilter"), "ControlItems.SortByUnfilter must be non-null!");
-        GUIItem sortByUnfilterItem = GUIItem.get(sortByUnfilterSection, null);
-        List<Position> sortByUnfilterSlots = getSlots(sortByUnfilterSection);
-
-        ConfigurationSection switchSection = Objects.requireNonNull(section.getConfigurationSection("SwitchGui"), "ControlItems.SwitchGui must be non-null!");
-        GUIItem switchGuiItem = GUIItem.get(switchSection, null);
-        List<Position> switchSlots = getSlots(switchSection);
-
-        SimpleButtonMask aboutMask = new SimpleButtonMask();
-        mask.add(aboutMask);
-        aboutMask.setButton(aboutItemSlots, (uuid, actionItem) -> {
-            aboutItem.apply(actionItem, user, s -> {
-                String UNKNOWN = Message.getMessage("STATUS.unknown");
-
-                long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
-                double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
-
-                return s
-                        .replaceAll(Utils.getRegex("player"), partner.getName())
-                        .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
-                        .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
-                        .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
-                        .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
-                        .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
-                        .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
-            });
-            actionItem.setAction(InventoryClickEvent.class, event -> {
-                boolean isAdminOrSelf = (this.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || partner.getUUID().equals(player.getUniqueId()));
-                if ((!this.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION)) || (!isAdminOrSelf)) return;
-
-                boolean status = !storage.getStatus();
-                storage.setStatus(status);
-
-                player.sendMessage(Message.getMessage("SUCCESS.storage-usage-toggled").replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (status ? "enabled" : "disabled"))));
-                update();
-            });
-            return true;
+            player.sendMessage(Message.getMessage("SUCCESS.storage-usage-toggled").replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (status ? "enabled" : "disabled"))));
+            update();
         });
 
-        SimpleButtonMask switchMask = new SimpleButtonMask();
-        mask.add(switchMask);
-        switchMask.setButton(switchSlots, (uuid, actionItem) -> {
-            switchGuiItem.apply(actionItem, partner, s -> s);
-            actionItem.setAction(InventoryClickEvent.class, event -> {
-                if (event.isLeftClick()) {
-                    if (this.hasPermission(Constants.PLAYER_SELL_PERMISSION)) new SellGui(player, 1).open();
-                    else if (this.hasPermission(Constants.PLAYER_PARTNER_PERMISSION)) new PartnerGui(player, 1).open();
-                    else if (this.hasPermission(Constants.PLAYER_FILTER_PERMISSION)) new FilterGui(player, 1).open();
-                } else if (event.isRightClick()) {
-                    if (this.hasPermission(Constants.PLAYER_FILTER_PERMISSION)) new FilterGui(player, 1).open();
-                    else if (this.hasPermission(Constants.PLAYER_PARTNER_PERMISSION)) new PartnerGui(player, 1).open();
-                    else if (this.hasPermission(Constants.PLAYER_SELL_PERMISSION)) new SellGui(player, 1).open();
-                }
-            });
-            return true;
+        addSwitchButton(mask, Objects.requireNonNull(section.getConfigurationSection("SwitchGui")), event -> {
+            browseGUI(event.isLeftClick());
         });
 
-        Mask sortMask = new Mask() {
-            @Override
-            public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
-                Map<Position, Consumer<ActionItem>> map = new HashMap<>();
-
-                GUIItem displayItem = null;
-                List<Position> positions = new ArrayList<>();
-                SortType nextSort = null;
-                SortType previousSort = null;
-                switch (sort) {
-                    case MATERIAL: {
-                        displayItem = sortByMaterialItem;
-                        nextSort = SortType.NAME;
-                        previousSort = SortType.UNFILTER;
-                        positions = sortByMaterialSlots;
-                        break;
-                    }
-                    case NAME: {
-                        displayItem = sortByNameItem;
-                        nextSort = SortType.QUANTITY;
-                        previousSort = SortType.MATERIAL;
-                        positions = sortByNameSlots;
-                        break;
-                    }
-                    case QUANTITY: {
-                        displayItem = sortByQuantityItem;
-                        nextSort = SortType.UNFILTER;
-                        previousSort = SortType.MATERIAL;
-                        positions = sortByQuantitySlots;
-                        break;
-                    }
-                    case UNFILTER: {
-                        displayItem = sortByUnfilterItem;
-                        nextSort = SortType.MATERIAL;
-                        previousSort = SortType.QUANTITY;
-                        positions = sortByUnfilterSlots;
-                        break;
-                    }
-                    case TIME: {
-                        break;
-                    }
-                }
-
-                if (displayItem != null && !positions.isEmpty()) {
-                    GUIItem finalDisplayItem = displayItem;
-                    SortType finalNextSort = nextSort;
-                    SortType finalPreviousSort = previousSort;
-                    Consumer<ActionItem> actionItemConsumer = actionItem -> {
-                        finalDisplayItem.apply(actionItem, partner, s -> s);
-                        actionItem.setAction(InventoryClickEvent.class, event -> {
-                            if (event.isShiftClick()) {
-                                orderSort = !orderSort;
-                            } else {
-                                SortType newSort = event.isLeftClick() ? finalNextSort : (event.isRightClick() ? finalPreviousSort : null);
-                                if (newSort == null) return;
-                                sort = newSort;
-                            }
-                            updateRepresentItems();
-                            update();
-                        });
-                    };
-                    positions.forEach(position -> map.put(position, actionItemConsumer));
-                }
-                return map;
-            }
-        };
-        mask.add(sortMask);
+        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
+        putSortConfig(sortConfigMap, SortType.MATERIAL, section, "SortByMaterial");
+        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
+        putSortConfig(sortConfigMap, SortType.QUANTITY, section, "SortByQuantity");
+        putSortConfig(sortConfigMap, SortType.UNFILTER, section, "SortByUnfilter");
+        addSortMask(mask, sortConfigMap);
 
         return mask;
     }
 
-    /*
-     * Trả về khoảng trống còn lại trong kho đồ của người chơi:
-     * Sẽ là -1 nếu không còn khoảng trống nào.
-     */
+    private void putSortConfig(Map<SortType, SortButtonConfig<SortType>> map, SortType type, ConfigurationSection section, String key) {
+        ConfigurationSection subSection = section.getConfigurationSection(key);
+        if (subSection == null) return;
+        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
+    }
+
     private int getFreeSpace(ItemStack item) {
         ItemStack[] items = player.getInventory().getStorageContents();
         int empty = 0;
@@ -402,6 +267,6 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
     }
 
     public enum SortType {
-        MATERIAL, NAME, QUANTITY, TIME, UNFILTER
+        MATERIAL, NAME, QUANTITY, UNFILTER
     }
 }

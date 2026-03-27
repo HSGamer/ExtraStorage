@@ -8,7 +8,7 @@ import me.hsgamer.extrastorage.commands.abstraction.CommandListener;
 import me.hsgamer.extrastorage.commands.abstraction.CommandTarget;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.gui.SellGui;
+import me.hsgamer.extrastorage.gui.SellGUI;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public final class SellCmd
         Player player = context.castToPlayer();
 
         if (context.getArgsLength() == 0) {
-            new SellGui(player, 1).open();
+            new SellGUI(player).open();
             return;
         }
         Storage storage = instance.getUserManager().getUser(player).getStorage();

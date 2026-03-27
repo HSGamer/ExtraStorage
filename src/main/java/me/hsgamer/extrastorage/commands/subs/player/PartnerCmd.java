@@ -9,8 +9,8 @@ import me.hsgamer.extrastorage.commands.abstraction.CommandTarget;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.user.UserManager;
-import me.hsgamer.extrastorage.gui.PartnerGui;
-import me.hsgamer.extrastorage.gui.StorageGui;
+import me.hsgamer.extrastorage.gui.PartnerGUI;
+import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -35,7 +35,7 @@ public final class PartnerCmd
         User user = manager.getUser(player);
 
         if (context.getArgsLength() == 0) {
-            new PartnerGui(player, 1).open();
+            new PartnerGUI(player).open();
             return;
         }
 
@@ -97,8 +97,8 @@ public final class PartnerCmd
                     Player p = target.getPlayer();
                     p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
                     InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                    if (holder instanceof StorageGui) {
-                        StorageGui gui = (StorageGui) holder;
+                    if (holder instanceof StorageGUI) {
+                        StorageGUI gui = (StorageGUI) holder;
                         if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
                     }
                 }
@@ -117,8 +117,8 @@ public final class PartnerCmd
                     Player p = offPlayer.getPlayer();
                     p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
                     InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                    if (holder instanceof StorageGui) {
-                        StorageGui gui = (StorageGui) holder;
+                    if (holder instanceof StorageGUI) {
+                        StorageGUI gui = (StorageGUI) holder;
                         if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
                     }
                 }
