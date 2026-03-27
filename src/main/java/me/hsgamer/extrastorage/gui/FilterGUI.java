@@ -59,7 +59,6 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
 
             updateRepresentItems();
             update();
-            return false;
         }
         return super.onClick(event);
     }

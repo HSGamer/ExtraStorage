@@ -36,23 +36,23 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
 
     @Override
     protected boolean onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == event.getView().getBottomInventory()) {
+        if (event.getClickedInventory() == event.getWhoClicked().getOpenInventory().getBottomInventory()) {
             final ItemStack item = event.getCurrentItem();
             if ((item == null) || (item.getType() == Material.AIR)) return false;
 
             final String validKey = ItemUtil.toMaterialKey(item);
             if (validKey.equals(Constants.INVALID)) {
                 player.sendMessage(Message.getMessage("FAIL.invalid-item"));
-                return true;
+                return false;
             }
             Setting setting = ExtraStorage.getInstance().getSetting();
             if (setting.getBlacklist().contains(validKey)) {
                 player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
-                return true;
+                return false;
             }
             if (setting.getWhitelist().contains(validKey)) {
                 player.sendMessage(Message.getMessage("FAIL.item-already-whitelisted"));
-                return true;
+                return false;
             }
 
             setting.addToWhitelist(validKey);
@@ -66,7 +66,6 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
 
             updateRepresentItems();
             update();
-            return true;
         }
         return super.onClick(event);
     }
