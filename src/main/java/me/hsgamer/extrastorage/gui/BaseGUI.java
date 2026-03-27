@@ -158,7 +158,7 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
                             .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page + 1))
                             .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
 
-                    if (nextPageItem != null && page < maxPage - 1) {
+                    if (page < maxPage - 1) {
                         Consumer<ActionItem> actionItemConsumer = actionItem -> {
                             actionItem.setItem(nextPageItem.getItem(user, replacer));
                             actionItem.setAction(InventoryClickEvent.class, event -> {
@@ -168,7 +168,7 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
                         };
                         nextPageSlots.forEach(position -> map.put(position, actionItemConsumer));
                     }
-                    if (previousPageItem != null && page > 0) {
+                    if (page > 0) {
                         Consumer<ActionItem> actionItemConsumer = actionItem -> {
                             actionItem.setItem(previousPageItem.getItem(user, replacer));
                             actionItem.setAction(InventoryClickEvent.class, event -> {
