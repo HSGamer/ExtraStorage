@@ -15,12 +15,11 @@
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<core.version>4.7.6</core.version>
-		<topper.version>4.13.1</topper.version>
-		<minelib.version>1.2.5</minelib.version>
+		<core.version>4.8.1</core.version>
+		<topper.version>4.19.1</topper.version>
+		<minelib.version>1.3.0</minelib.version>
 		<spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
-		<authlib.version>5.0.47</authlib.version>
-		<bstats.version>3.0.2</bstats.version>
+		<bstats.version>3.2.1</bstats.version>
 		<headdatabase.version>1.3.1</headdatabase.version>
 		<vault.version>1.7.1</vault.version>
 		<shopgui.version>3.0.0</shopgui.version>
