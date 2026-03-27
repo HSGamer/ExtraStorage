@@ -7,6 +7,7 @@ import io.github.projectunified.craftitem.spigot.core.SpigotItemModifier;
 import io.github.projectunified.craftitem.spigot.modifier.EnchantmentModifier;
 import io.github.projectunified.craftitem.spigot.modifier.ItemFlagModifier;
 import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
+import io.github.projectunified.craftux.common.ActionItem;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -129,4 +130,8 @@ public interface GUIItem {
     }
 
     ItemStack getItem(User user, UnaryOperator<String> translator);
+
+    default void apply(ActionItem actionItem, User user, UnaryOperator<String> translator) {
+        actionItem.setItem(getItem(user, translator));
+    }
 }
