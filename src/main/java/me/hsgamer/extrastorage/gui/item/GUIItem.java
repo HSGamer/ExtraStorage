@@ -8,7 +8,7 @@ import io.github.projectunified.craftitem.spigot.modifier.EnchantmentModifier;
 import io.github.projectunified.craftitem.spigot.modifier.ItemFlagModifier;
 import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
 import io.github.projectunified.craftux.common.ActionItem;
-import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -64,21 +64,13 @@ public interface GUIItem {
                         spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
                     } else {
                         String ID = matcher.group("value");
-                        HeadDatabaseAPI api = new HeadDatabaseAPI();
+                        HeadDatabaseItem headDatabaseItem = new HeadDatabaseItem(ID);
                         spigotItemSupplier = user -> {
-                            ItemStack itemStack = api.getItemHead(ID);
-                            if (itemStack != null) {
-                                if (itemStack.hasItemMeta()) {
-                                    ItemMeta itemMeta = itemStack.getItemMeta();
-                                    assert itemMeta != null;
-                                    itemMeta.setDisplayName(null);
-                                    itemMeta.setLore(null);
-                                    itemStack.setItemMeta(itemMeta);
-                                }
-                            } else {
-                                itemStack = new ItemStack(Material.PLAYER_HEAD);
+                            ItemStack item = headDatabaseItem.bukkitItem();
+                            if (item == null) {
+                                item = new ItemStack(Material.PLAYER_HEAD);
                             }
-                            return new SpigotItem(itemStack);
+                            return new SpigotItem(item);
                         };
                     }
                 } else {
