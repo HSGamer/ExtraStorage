@@ -32,11 +32,11 @@
 		<wildstacker.version>2025.2</wildstacker.version>
 		<ultimatestacker.version>1.0.0-20240329.173606-35</ultimatestacker.version>
 		<rosestacker.version>1.5.20</rosestacker.version>
-		<uniitem.version>2.5.0</uniitem.version>
+		<uniitem.version>2.7.0</uniitem.version>
 		<craftitem.version>1.4.1</craftitem.version>
 		<craftux.version>1.6.2</craftux.version>
 	</properties>
-	
+
 	<build>
 		<finalName>${project.name}</finalName>
 		<plugins>
@@ -110,7 +110,7 @@
 			</resource>
 		</resources>
 	</build>
-	
+
 	<repositories>
 		<repository>
 			<id>spigotmc-repo</id>
@@ -145,7 +145,7 @@
 			<url>https://repo.nightexpressdev.com/releases</url>
 		</repository>
 	</repositories>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.spigotmc</groupId>
@@ -158,18 +158,6 @@
 			<artifactId>bstats-bukkit</artifactId>
 			<version>${bstats.version}</version>
 			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.arcaniax</groupId>
-			<artifactId>HeadDatabase-API</artifactId>
-			<version>${headdatabase.version}</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.github.MilkBowl</groupId>
