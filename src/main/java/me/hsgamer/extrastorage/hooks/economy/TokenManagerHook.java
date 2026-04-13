@@ -5,7 +5,6 @@ import me.realized.tokenmanager.api.TokenManager;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public final class TokenManagerHook extends WorthEconomyHook {
@@ -34,7 +33,7 @@ public final class TokenManagerHook extends WorthEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         return api.addTokens(player, (long) price);
     }
 }

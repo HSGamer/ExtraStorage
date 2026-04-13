@@ -2,7 +2,6 @@ package me.hsgamer.extrastorage.hooks.economy;
 
 import org.bstats.charts.SimplePie;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
 import su.nightexpress.coinsengine.api.currency.Currency;
 
@@ -23,13 +22,14 @@ public final class CoinsEngineHook extends WorthEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         String cur = instance.getSetting().getCurrency();
-        Currency currency;
-
-        if (CoinsEngineAPI.hasCurrency(cur)) currency = CoinsEngineAPI.getCurrency(cur);
-        else {
-            instance.getLogger().warning("The currency with ID '" + cur + "' could not be found! Using Vault as default!");
+        boolean hasCurrencySpecified = !cur.isEmpty();
+        Currency currency = hasCurrencySpecified ? CoinsEngineAPI.getCurrency(cur) : null;
+        if (currency == null) {
+            if (hasCurrencySpecified) {
+                instance.getLogger().warning("The currency with ID '" + cur + "' could not be found! Using Vault as default!");
+            }
             Optional<Currency> optional = CoinsEngineAPI.getCurrencyManager().getVaultCurrency();
             if (!optional.isPresent()) {
                 return false;

@@ -6,7 +6,6 @@ import me.TechsCode.UltraEconomy.objects.Account;
 import me.TechsCode.UltraEconomy.objects.Currency;
 import org.bstats.charts.SimplePie;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ public final class UltraEconomyHook extends WorthEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         Optional<Account> optional = api.getAccounts().uuid(player.getUniqueId());
         if (!optional.isPresent()) {
             return false;

@@ -4,7 +4,6 @@ import net.milkbowl.vault.economy.Economy;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public final class VaultHook extends WorthEconomyHook {
@@ -33,7 +32,7 @@ public final class VaultHook extends WorthEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         return econ.depositPlayer(player, price).transactionSuccess();
     }
 }

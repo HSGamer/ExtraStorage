@@ -22,4 +22,11 @@ public abstract class WorthEconomyHook extends AbstractEconomyHook {
 
         return (worth.getPrice() / worth.getQuantity() * amount);
     }
+
+    @Override
+    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+        return deposit(player, price);
+    }
+
+    protected abstract boolean deposit(Player player, double price);
 }

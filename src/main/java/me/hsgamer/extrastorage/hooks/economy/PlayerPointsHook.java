@@ -6,7 +6,6 @@ import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public final class PlayerPointsHook extends WorthEconomyHook {
@@ -35,7 +34,7 @@ public final class PlayerPointsHook extends WorthEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         return api.give(player.getUniqueId(), (int) price);
     }
 }
