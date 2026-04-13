@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.hooks.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -7,7 +8,7 @@ import java.util.function.Consumer;
 
 public class NoneEconomyHook implements EconomyProvider {
     public NoneEconomyHook() {
-        instance.getLogger().info("Using no economy provider.");
+        ExtraStorage.getInstance().getLogger().info("Using no economy provider.");
     }
 
     @Override

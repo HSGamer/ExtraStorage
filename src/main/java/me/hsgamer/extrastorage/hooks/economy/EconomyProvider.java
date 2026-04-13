@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.hooks.economy;
 
-import me.hsgamer.extrastorage.ExtraStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,8 +8,6 @@ import java.util.function.Consumer;
 public interface EconomyProvider {
 
     String NOT_SUPPORTED_MSG = "This feature has not been supported yet!";
-
-    ExtraStorage instance = ExtraStorage.getInstance();
 
     default boolean isHooked() {
         throw new IllegalArgumentException(NOT_SUPPORTED_MSG);

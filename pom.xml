@@ -21,7 +21,7 @@
 		<spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
 		<bstats.version>3.2.1</bstats.version>
 		<vault.version>1.7.1</vault.version>
-		<shopgui.version>3.0.0</shopgui.version>
+		<shopgui.version>3.2.0</shopgui.version>
 		<economyshopgui.version>1.7.0</economyshopgui.version>
 		<playerpoints.version>3.2.6</playerpoints.version>
 		<tokenmanager.version>3.2.4</tokenmanager.version>
