@@ -26,7 +26,7 @@
 		<playerpoints.version>3.2.6</playerpoints.version>
 		<tokenmanager.version>3.2.4</tokenmanager.version>
 		<ultraeconomy.version>1.1.2</ultraeconomy.version>
-		<coinsengine.version>2.4.1</coinsengine.version>
+		<excellenteconomy.version>2.8.0</excellenteconomy.version>
 		<placeholderapi.version>2.11.5</placeholderapi.version>
 		<wildstacker.version>2025.2</wildstacker.version>
 		<ultimatestacker.version>1.0.0-20240329.173606-35</ultimatestacker.version>
@@ -213,9 +213,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>su.nightexpress.coinsengine</groupId>
-			<artifactId>CoinsEngine</artifactId>
-			<version>${coinsengine.version}</version>
+			<groupId>su.nightexpress.excellenteconomy</groupId>
+			<artifactId>ExcellentEconomy</artifactId>
+			<version>${excellenteconomy.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

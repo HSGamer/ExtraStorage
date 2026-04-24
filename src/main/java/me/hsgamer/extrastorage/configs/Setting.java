@@ -84,7 +84,8 @@ public final class Setting
                 this.economyProvider = new UltraEconomyHook();
                 break;
             case "COINSENGINE":
-                this.economyProvider = new CoinsEngineHook();
+            case "EXCELLENTECONOMY":
+                this.economyProvider = new ExcellentEconomyHook();
                 break;
             case "VAULT":
                 this.economyProvider = new VaultHook();
