@@ -33,7 +33,7 @@
 		<rosestacker.version>1.5.39</rosestacker.version>
 		<uniitem.version>2.7.0</uniitem.version>
 		<craftitem.version>1.5.0</craftitem.version>
-		<craftux.version>1.6.2</craftux.version>
+		<craftux.version>1.6.3</craftux.version>
 	</properties>
 
 	<build>
