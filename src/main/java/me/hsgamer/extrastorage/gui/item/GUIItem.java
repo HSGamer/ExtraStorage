@@ -10,6 +10,7 @@ import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
 import io.github.projectunified.craftux.common.ActionItem;
 import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.gui.util.CompatItemUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
@@ -93,7 +94,12 @@ public interface GUIItem {
 
         Integer customModelData = section.contains("CustomModelData") ? section.getInt("CustomModelData") : null;
         if (customModelData != null) {
-            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> meta1.setCustomModelData(customModelData)));
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setCustomModelData(meta1, customModelData)));
+        }
+
+        String itemModel = section.getString("ItemModel");
+        if (!Strings.isNullOrEmpty(itemModel)) {
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setItemModel(meta1, itemModel)));
         }
 
         List<String> flags = section.getStringList("HideFlags");
