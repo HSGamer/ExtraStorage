@@ -21,7 +21,7 @@
 		<spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
 		<bstats.version>3.2.1</bstats.version>
 		<faststats.version>0.22.0</faststats.version>
-		<vault.version>1.7.1</vault.version>
+		<vault.version>2.16</vault.version>
 		<shopgui.version>3.2.0</shopgui.version>
 		<economyshopgui.version>1.9.0</economyshopgui.version>
 		<playerpoints.version>3.3.3</playerpoints.version>
@@ -125,8 +125,8 @@
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
+			<id>codemc-creatorfromhell</id>
+			<url>https://repo.codemc.io/repository/creatorfromhell/</url>
 		</repository>
 		<repository>
 			<id>techscode</id>
@@ -156,6 +156,10 @@
 			<id>faststats-releases</id>
 			<url>https://repo.faststats.dev/releases</url>
 		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -180,16 +184,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.MilkBowl</groupId>
-			<artifactId>VaultAPI</artifactId>
+			<groupId>net.milkbowl.vault</groupId>
+			<artifactId>VaultUnlockedAPI</artifactId>
 			<version>${vault.version}</version>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.github.brcdev-minecraft</groupId>
