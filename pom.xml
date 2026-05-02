@@ -20,6 +20,7 @@
 		<minelib.version>1.3.0</minelib.version>
 		<spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
 		<bstats.version>3.2.1</bstats.version>
+		<faststats.version>0.22.0</faststats.version>
 		<vault.version>1.7.1</vault.version>
 		<shopgui.version>3.2.0</shopgui.version>
 		<economyshopgui.version>1.9.0</economyshopgui.version>
@@ -63,6 +64,10 @@
 								<relocation>
 									<pattern>org.bstats</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.bstats</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>dev.faststats</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.faststats</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>io.github.projectunified.uniitem</pattern>
@@ -147,6 +152,10 @@
 			<id>nightexpress-releases</id>
 			<url>https://repo.nightexpressdev.com/releases</url>
 		</repository>
+		<repository>
+			<id>faststats-releases</id>
+			<url>https://repo.faststats.dev/releases</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -156,12 +165,20 @@
 			<version>${spigot.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.bstats</groupId>
 			<artifactId>bstats-bukkit</artifactId>
 			<version>${bstats.version}</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>dev.faststats.metrics</groupId>
+			<artifactId>bukkit</artifactId>
+			<version>${faststats.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>com.github.MilkBowl</groupId>
 			<artifactId>VaultAPI</artifactId>

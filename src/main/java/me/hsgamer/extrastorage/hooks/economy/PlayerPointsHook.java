@@ -3,7 +3,6 @@ package me.hsgamer.extrastorage.hooks.economy;
 import me.hsgamer.extrastorage.util.Digital;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -18,7 +17,6 @@ public final class PlayerPointsHook extends WorthEconomyHook {
 
         if (this.isHooked()) {
             instance.getLogger().info("Using PlayerPoints as economy provider.");
-            instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "PlayerPoints"));
         } else
             instance.getLogger().severe("Could not find dependency: PlayerPoints. Please install it then try again!");
     }

@@ -3,7 +3,6 @@ package me.hsgamer.extrastorage.hooks.economy;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +20,6 @@ public final class EconomyShopGuiHook extends AbstractEconomyHook {
 
         if (this.isHooked()) {
             instance.getLogger().info("Using EconomyShopGUI (" + (isPaid ? "paid" : "free") + " version) as economy provider.");
-            instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "EconomyShopGUI"));
         } else
             instance.getLogger().severe("Could not find dependency: EconomyShopGUI (free or paid version). Please install it then try again!");
     }

@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage;
 
+import dev.faststats.bukkit.BukkitMetrics;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
@@ -23,7 +24,6 @@ import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,8 +36,6 @@ public final class ExtraStorage extends JavaPlugin {
     private static ExtraStorage instance;
 
     private boolean firstLoad;
-
-    private Metrics metrics;
 
     private Setting setting;
     private Message message;
@@ -75,14 +73,17 @@ public final class ExtraStorage extends JavaPlugin {
             getLogger().warning("Once the player data was loaded, you should use '/esadmin whitelist' command to apply changes to your players' filter (do not configure it manually).");
         }
 
-        this.metrics = new Metrics(this, 18779);
+        new Metrics(this, 18779);
+        BukkitMetrics.factory()
+                .token("22928e7ae69f2235c34393792e676a7f")
+                .create(this)
+                .ready();
 
         this.actionManager = new ActionManager(this);
 
         this.loadConfigs();
         this.userManager = new UserManager(this);
         this.loadGuiFile();
-        this.addExtraMetrics();
 
         this.log = new Log(this);
 
@@ -147,18 +148,6 @@ public final class ExtraStorage extends JavaPlugin {
         new SpigotInventoryUIListener(this).register();
         new ItemListener(this);
         new PickupListener(this);
-    }
-
-    private void addExtraMetrics() {
-        if (instance.getSetting().getDBType().equalsIgnoreCase("mysql")) {
-            metrics.addCustomChart(new SimplePie("database", () -> "MySQL"));
-        } else {
-            metrics.addCustomChart(new SimplePie("database", () -> "SQLite"));
-        }
-    }
-
-    public Metrics getMetrics() {
-        return this.metrics;
     }
 
     public Setting getSetting() {

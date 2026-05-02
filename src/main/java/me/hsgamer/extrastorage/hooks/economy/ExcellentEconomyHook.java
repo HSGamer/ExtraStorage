@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage.hooks.economy;
 
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -16,7 +15,6 @@ public final class ExcellentEconomyHook extends WorthEconomyHook {
     public ExcellentEconomyHook() {
         if (this.isHooked()) {
             instance.getLogger().info("Using ExcellentEconomy as economy provider.");
-            instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "ExcellentEconomy"));
         } else
             instance.getLogger().severe("Could not find dependency: ExcellentEconomy. Please install it then try again!");
     }

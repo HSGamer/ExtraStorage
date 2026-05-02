@@ -5,7 +5,6 @@ import net.brcdev.shopgui.modifier.PriceModifier;
 import net.brcdev.shopgui.modifier.PriceModifierActionType;
 import net.brcdev.shopgui.shop.item.ShopItem;
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,8 +18,9 @@ public final class ShopGuiPlusHook extends AbstractEconomyHook {
     public ShopGuiPlusHook() {
         if (this.isHooked()) {
             instance.getLogger().info("Using ShopGUIPlus as economy provider.");
-            instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "ShopGUIPlus"));
-        } else instance.getLogger().severe("Could not find dependency: ShopGUIPlus. Please install it then try again!");
+        } else {
+            instance.getLogger().severe("Could not find dependency: ShopGUIPlus. Please install it then try again!");
+        }
     }
 
     @Override

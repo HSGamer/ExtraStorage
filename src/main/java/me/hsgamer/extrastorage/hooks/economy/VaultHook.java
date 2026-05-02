@@ -1,7 +1,6 @@
 package me.hsgamer.extrastorage.hooks.economy;
 
 import net.milkbowl.vault.economy.Economy;
-import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -14,8 +13,9 @@ public final class VaultHook extends WorthEconomyHook {
     public VaultHook() {
         if (this.isHooked()) {
             instance.getLogger().info("Using Vault as economy provider.");
-            instance.getMetrics().addCustomChart(new SimplePie("economy_provider", () -> "Vault"));
-        } else instance.getLogger().severe("Could not find dependency: Vault. Please install it then try again!");
+        } else {
+            instance.getLogger().severe("Could not find dependency: Vault. Please install it then try again!");
+        }
     }
 
     @Override
