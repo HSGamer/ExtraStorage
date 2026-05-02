@@ -224,8 +224,17 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
             ItemStack item = GUIItem.get(decorateItemSection, null).getItem(user, s -> s);
             if ((item == null) || (item.getType() == Material.AIR)) continue;
 
+            List<String> actions = decorateItemSection.getStringList("commands");
+            Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
+
             SimpleButtonMask decorateButtonMask = new SimpleButtonMask();
-            SimpleButton decorateButton = new SimpleButton(item);
+            Button decorateButton = (uuid, actionItem) -> {
+                actionItem.setItem(item);
+                if (actionConsumer != null) {
+                    actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));
+                }
+                return true;
+            };
             decorateButtonMask.setButton(slots, decorateButton);
             mask.add(decorateButtonMask);
         }

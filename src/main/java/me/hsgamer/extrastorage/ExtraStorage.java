@@ -3,6 +3,7 @@ package me.hsgamer.extrastorage;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
+import me.hsgamer.extrastorage.action.ActionManager;
 import me.hsgamer.extrastorage.commands.AdminCommands;
 import me.hsgamer.extrastorage.commands.PlayerCommands;
 import me.hsgamer.extrastorage.commands.handler.CommandHandler;
@@ -54,6 +55,8 @@ public final class ExtraStorage extends JavaPlugin {
     private GuiConfig storageGuiConfig;
     private GuiConfig whitelistGuiConfig;
 
+    private ActionManager actionManager;
+
     public static ExtraStorage getInstance() {
         return ExtraStorage.instance;
     }
@@ -73,6 +76,8 @@ public final class ExtraStorage extends JavaPlugin {
         }
 
         this.metrics = new Metrics(this, 18779);
+
+        this.actionManager = new ActionManager(this);
 
         this.loadConfigs();
         this.userManager = new UserManager(this);
@@ -194,5 +199,9 @@ public final class ExtraStorage extends JavaPlugin {
 
     public GuiConfig getWhitelistGuiConfig() {
         return whitelistGuiConfig;
+    }
+
+    public ActionManager getActionManager() {
+        return actionManager;
     }
 }
