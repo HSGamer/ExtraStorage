@@ -6,7 +6,6 @@ import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
 import io.github.projectunified.craftux.mask.HybridMask;
-import io.github.projectunified.craftux.simple.SimpleButton;
 import io.github.projectunified.craftux.simple.SimpleButtonMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUtil;
