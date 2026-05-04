@@ -181,6 +181,20 @@
 			<artifactId>bukkit</artifactId>
 			<version>${faststats.version}</version>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jetbrains</groupId>
+					<artifactId>annotations</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jspecify</groupId>
+					<artifactId>jspecify</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
