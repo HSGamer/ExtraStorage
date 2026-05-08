@@ -45,5 +45,5 @@ jobs:
             purpur
             folia
 
-          POLYMART_KEY: ${{ secrets.POLYMART_KEY }}
-          POLYMART_RESOURCE: 860
+          VOXELSHOP_KEY: ${{ secrets.VOXELSHOP_KEY }}
+          VOXELSHOP_RESOURCE: 860
