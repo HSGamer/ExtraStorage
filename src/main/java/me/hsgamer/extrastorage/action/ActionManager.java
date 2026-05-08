@@ -32,8 +32,9 @@ public class ActionManager extends ActionBuilder<ActionInput> {
     }
 
     public List<Action> buildAll(List<String> list) {
-        List<ActionInput> actionInputs = list.stream().map(ActionInput::create).collect(Collectors.toList());
-        return build(actionInputs, actionInput -> new PlayerAction(plugin, actionInput.getValue()));
+        return list.stream()
+                .map(s -> build(ActionInput.create(s)).orElseGet(() -> new PlayerAction(plugin, s)))
+                .collect(Collectors.toList());
     }
 
     public UnaryOperator<String> getReplacer(UUID uuid) {
