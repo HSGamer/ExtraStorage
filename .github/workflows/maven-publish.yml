@@ -1,0 +1,49 @@
+name: Build & Publish
+
+on:
+  push:
+    tags: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.7.0
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Release
+        uses: HSGamer/MCReleaser@master
+        with:
+          files: target/ExtraStorage.jar
+        env:
+          DESCRIPTION: ${{ steps.changelog.outputs.changelog }}
+          GAME_VERSIONS: "1.16..latest"
+
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT: 4gAxJhPV
+          MODRINTH_LOADERS: |
+            bukkit
+            spigot
+            paper
+            purpur
+            folia
+
+          POLYMART_KEY: ${{ secrets.POLYMART_KEY }}
+          POLYMART_RESOURCE: 860
