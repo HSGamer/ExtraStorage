@@ -47,3 +47,10 @@ jobs:
 
           VOXELSHOP_KEY: ${{ secrets.VOXELSHOP_KEY }}
           VOXELSHOP_RESOURCE: 860
+
+      - name: "GitHub Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
