@@ -1,6 +1,5 @@
 package me.hsgamer.extrastorage;
 
-import dev.faststats.bukkit.BukkitMetrics;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
 import io.github.projectunified.faststats.bukkit.BukkitPlatform;
@@ -26,7 +25,6 @@ import me.hsgamer.hscore.license.common.LicenseStatus;
 import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
