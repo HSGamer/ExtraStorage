@@ -3,6 +3,9 @@ package me.hsgamer.extrastorage;
 import dev.faststats.bukkit.BukkitMetrics;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
+import io.github.projectunified.faststats.bukkit.BukkitPlatform;
+import io.github.projectunified.faststats.gson.GsonSerializer;
+import io.github.projectunified.faststats.net.NetSubmitter;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.action.ActionManager;
 import me.hsgamer.extrastorage.commands.AdminCommands;
@@ -55,6 +58,9 @@ public final class ExtraStorage extends JavaPlugin {
 
     private ActionManager actionManager;
 
+    private org.bstats.bukkit.Metrics bstatsMetrics;
+    private io.github.projectunified.faststats.core.Metrics fastStatsMetrics;
+
     public static ExtraStorage getInstance() {
         return ExtraStorage.instance;
     }
@@ -73,11 +79,13 @@ public final class ExtraStorage extends JavaPlugin {
             getLogger().warning("Once the player data was loaded, you should use '/esadmin whitelist' command to apply changes to your players' filter (do not configure it manually).");
         }
 
-        new Metrics(this, 18779);
-        BukkitMetrics.factory()
-                .token("22928e7ae69f2235c34393792e676a7f")
-                .create(this)
-                .ready();
+        bstatsMetrics = new org.bstats.bukkit.Metrics(this, 18779);
+        fastStatsMetrics = io.github.projectunified.faststats.core.Metrics.builder()
+                .platform(new BukkitPlatform(this))
+                .serializer(new GsonSerializer())
+                .submitter(new NetSubmitter("22928e7ae69f2235c34393792e676a7f"))
+                .build();
+        fastStatsMetrics.start();
 
         this.actionManager = new ActionManager(this);
 
@@ -109,6 +117,12 @@ public final class ExtraStorage extends JavaPlugin {
         if (userManager != null) {
             userManager.stop();
             userManager.save();
+        }
+        if (bstatsMetrics != null) {
+            bstatsMetrics.shutdown();
+        }
+        if (fastStatsMetrics != null) {
+            fastStatsMetrics.shutdown();
         }
     }
 

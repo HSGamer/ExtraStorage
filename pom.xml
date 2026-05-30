@@ -67,7 +67,7 @@
 									<shadedPattern>me.hsgamer.extrastorage.lib.bstats</shadedPattern>
 								</relocation>
 								<relocation>
-									<pattern>dev.faststats</pattern>
+									<pattern>io.github.projectunified.faststats</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.faststats</shadedPattern>
 								</relocation>
 								<relocation>
@@ -158,14 +158,22 @@
 			<url>https://repo.nightexpressdev.com/releases</url>
 		</repository>
 		<repository>
-			<id>faststats-releases</id>
-			<url>https://repo.faststats.dev/releases</url>
-		</repository>
-		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.github.projectunified</groupId>
+				<artifactId>faststats-bom</artifactId>
+				<version>0.3.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -182,24 +190,20 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>dev.faststats.metrics</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>${faststats.version}</version>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.code.gson</groupId>
-					<artifactId>gson</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.jetbrains</groupId>
-					<artifactId>annotations</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.jspecify</groupId>
-					<artifactId>jspecify</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>faststats-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>faststats-gson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>faststats-net</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>faststats-bukkit</artifactId>
 		</dependency>
 
 		<dependency>
