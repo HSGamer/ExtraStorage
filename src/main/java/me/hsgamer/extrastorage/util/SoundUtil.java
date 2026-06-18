@@ -1,6 +1,9 @@
 package me.hsgamer.extrastorage.util;
 
-import org.bukkit.Sound;
+import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.hscore.bukkit.action.SoundAction;
+import me.hsgamer.hscore.common.StringReplacer;
+import me.hsgamer.hscore.task.BatchRunnable;
 import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
@@ -12,12 +15,12 @@ public class SoundUtil {
             soundPlayer = player -> {
             };
         } else {
-            try {
-                Sound parsedSound = Sound.valueOf(soundName.toUpperCase());
-                soundPlayer = player -> player.playSound(player, parsedSound, 4.0f, 2.0f);
-            } catch (IllegalArgumentException e) {
-                soundPlayer = player -> player.playSound(player, soundName, 4.0f, 2.0f);
-            }
+            SoundAction soundAction = new SoundAction(ExtraStorage.getInstance(), soundName, 4f, 2f);
+            soundPlayer = player -> {
+                BatchRunnable runnable = new BatchRunnable();
+                runnable.getTaskPool(0).addLast(process -> soundAction.apply(player.getUniqueId(), process, StringReplacer.DUMMY));
+                runnable.run();
+            };
         }
         return soundPlayer;
     }
