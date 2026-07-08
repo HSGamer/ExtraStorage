@@ -64,7 +64,9 @@ public final class VaultHook extends WorthEconomyHook {
     @Override
     protected boolean deposit(Player player, double price) {
         VaultSession vaultSession = this.vault2Session != null ? vault2Session : this.vaultSession;
-        assert vaultSession != null;
+        if (vaultSession == null) {
+            throw new IllegalStateException("No Vault economy session available");
+        }
         return vaultSession.deposit(player, price);
     }
 

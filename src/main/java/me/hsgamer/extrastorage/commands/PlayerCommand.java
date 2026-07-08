@@ -14,6 +14,7 @@ import me.hsgamer.extrastorage.gui.PartnerGUI;
 import me.hsgamer.extrastorage.gui.SellGUI;
 import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.util.Digital;
+import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -298,37 +299,22 @@ public class PlayerCommand {
             }
             iStack.setAmount(amount);
         }
-        if (item.getType() == me.hsgamer.extrastorage.util.ItemUtil.ItemType.VANILLA) {
+        if (item.getType() == ItemUtil.ItemType.VANILLA) {
             iStack.setItemMeta(null);
         }
 
-        int free = getFreeSpace(player, iStack);
+        int free = ItemUtil.getFreeSpace(player, iStack);
         if (free == -1) {
             throw new CommandException(Message.getMessage("FAIL.inventory-is-full"));
         }
         iStack.setAmount(free);
 
         storage.subtract(materialKey, free);
-        me.hsgamer.extrastorage.util.ItemUtil.giveItem(player, iStack);
+        ItemUtil.giveItem(player, iStack);
 
         player.sendMessage(Message.getMessage("SUCCESS.withdrew-item")
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(free))
                 .replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
-    }
-
-    private int getFreeSpace(Player player, ItemStack item) {
-        ItemStack[] items = player.getInventory().getStorageContents();
-        int empty = 0;
-        for (ItemStack stack : items) {
-            if ((stack == null) || (stack.getType() == org.bukkit.Material.AIR)) {
-                empty += item.getMaxStackSize();
-                continue;
-            }
-            if (!item.isSimilar(stack)) continue;
-            empty += (stack.getMaxStackSize() - stack.getAmount());
-        }
-        if (empty > 0) return Math.min(empty, item.getAmount());
-        return -1;
     }
 
 }

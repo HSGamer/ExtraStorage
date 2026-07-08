@@ -29,7 +29,12 @@ public final class SortUtil {
 
     public static int comparePartnerByName(Partner obj1, Partner obj2) {
         OfflinePlayer p1 = obj1.getOfflinePlayer(), p2 = obj2.getOfflinePlayer();
-        return p1.getName().compareTo(p2.getName());
+        String name1 = p1.getName();
+        String name2 = p2.getName();
+        if (name1 == null && name2 == null) return 0;
+        if (name1 == null) return -1;
+        if (name2 == null) return 1;
+        return name1.compareTo(name2);
     }
 
     public static int comparePartnerByTimestamp(Partner obj1, Partner obj2) {

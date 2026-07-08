@@ -108,19 +108,8 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
         HybridMask mask = new HybridMask();
 
         addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> {
-            String UNKNOWN = Message.getMessage("STATUS.unknown");
-            long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
-            double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
-
-            return s
-                    .replaceAll(Utils.getRegex("player"), player.getName())
-                    .replaceAll(Utils.getRegex("display"), player.getDisplayName())
-                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
-                    .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
-                    .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
-                    .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
-                    .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
-                    .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
+            return applyStoragePlaceholders(s, player.getName())
+                    .replaceAll(Utils.getRegex("display"), player.getDisplayName());
         }, event -> {
             if (storage.getFilteredItems().isEmpty() || (!event.isShiftClick())) return;
 
@@ -148,12 +137,6 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
         addSortMask(mask, sortConfigMap);
 
         return mask;
-    }
-
-    private void putSortConfig(Map<SortType, SortButtonConfig<SortType>> map, SortType type, ConfigurationSection section, String key) {
-        ConfigurationSection subSection = section.getConfigurationSection(key);
-        if (subSection == null) return;
-        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
     }
 
     public enum SortType {

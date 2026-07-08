@@ -60,15 +60,21 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
         }
 
         return itemStream
-                .filter(item -> {
-                    ItemStack sellItem = item.getItem().clone();
-                    int amount = econ.getAmount(sellItem);
-                    return amount >= 1 && econ.getPrice(player, sellItem, amount) != null;
-                })
                 .map(item -> {
                     ItemStack sellItem = item.getItem().clone();
                     int amount = econ.getAmount(sellItem);
                     String price = econ.getPrice(player, sellItem, amount);
+                    return new Object[]{item, amount, price};
+                })
+                .filter(data -> {
+                    int amount = (int) data[1];
+                    String price = (String) data[2];
+                    return amount >= 1 && price != null;
+                })
+                .map(data -> {
+                    Item item = (Item) data[0];
+                    int amount = (int) data[1];
+                    String price = (String) data[2];
 
                     ItemStack iStack = displayModifier.construct(
                             item,
@@ -125,19 +131,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
         HybridMask mask = new HybridMask();
 
         addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> {
-            String UNKNOWN = Message.getMessage("STATUS.unknown");
-
-            long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
-            double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
-
-            return s
-                    .replaceAll(Utils.getRegex("player"), player.getName())
-                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
-                    .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
-                    .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
-                    .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
-                    .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
-                    .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
+            return applyStoragePlaceholders(s, player.getName());
         }, null);
 
         addSwitchButton(mask, Objects.requireNonNull(section.getConfigurationSection("SwitchGui")), event -> {
@@ -152,12 +146,6 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
         addSortMask(mask, sortConfigMap);
 
         return mask;
-    }
-
-    private void putSortConfig(Map<SortType, SortButtonConfig<SortType>> map, SortType type, ConfigurationSection section, String key) {
-        ConfigurationSection subSection = section.getConfigurationSection(key);
-        if (subSection == null) return;
-        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
     }
 
     public enum SortType {

@@ -5,14 +5,21 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class Digital {
 
-    private static final DecimalFormat FORMAT = new DecimalFormat("##.##"), THOUSANDS_FORMAT = new DecimalFormat("###,###");
+    private static final DecimalFormat FORMAT = new DecimalFormat("##.##");
+    private static final DecimalFormat THOUSANDS_FORMAT = new DecimalFormat("###,###");
+    private static final ThreadLocal<DecimalFormat> FORMATS = new ThreadLocal<>();
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
     private Digital() {
     }
 
-    public static boolean isNumber(String input) {
-        return input.matches("\\d+");
+    private static DecimalFormat getFormat(String pattern) {
+        DecimalFormat format = FORMATS.get();
+        if (format == null || !format.toPattern().equals(pattern)) {
+            format = new DecimalFormat(pattern);
+            FORMATS.set(format);
+        }
+        return format;
     }
 
     public static int getBetween(int min, int max, int value) {
@@ -39,18 +46,12 @@ public final class Digital {
         return (RANDOM.nextLong(max - min + 1) + min);
     }
 
-    public static double random(double min, double max) {
-        double rnd = ThreadLocalRandom.current().nextDouble();
-        return (rnd * (max - min) + min);
-    }
-
     public static double formatDouble(double value) {
         return Double.parseDouble(FORMAT.format(value).replace(',', '.'));
     }
 
     public static String formatDouble(String pattern, double value) {
-        DecimalFormat format = new DecimalFormat(pattern);
-        return format.format(value);
+        return getFormat(pattern).format(value);
     }
 
     public static float formatFloat(float value) {
@@ -58,8 +59,7 @@ public final class Digital {
     }
 
     public static float formatFloat(String pattern, float value) {
-        DecimalFormat format = new DecimalFormat(pattern);
-        return Float.parseFloat(format.format(value).replace(',', '.'));
+        return Float.parseFloat(getFormat(pattern).format(value).replace(',', '.'));
     }
 
     public static String formatThousands(long value) {

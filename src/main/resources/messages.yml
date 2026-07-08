@@ -52,21 +52,21 @@ SUCCESS:
   Add:
     self: '{prefix}&7You added &ex{quantity} {item} &7to your storage.'
     sender: '{prefix}&7You added &ex{quantity} {item} &7to &b{player}''s &7storage.'
-    target: '{prefix}&7You have been added &ex{quantity} {item} &7to your storage by &b{player}&7.'
+    target: '{prefix}&7You had &ex{quantity} {item} &7added to your storage by &b{player}&7.'
   Subtract:
     self: '{prefix}&7You subtracted &ex{quantity} {item} &7from your storage.'
     sender: '{prefix}&7You subtracted &ex{quantity} {item} &7from &b{player}''s &7storage.'
-    target: '{prefix}&7You have been subtracted &ex{quantity} {item} &7from your storage by &b{player}&7.'
+    target: '{prefix}&7You had &ex{quantity} {item} &7subtracted from your storage by &b{player}&7.'
   Set:
     self: '{prefix}&7You set &r{item} &7to &ex{quantity} &7in your storage.'
     sender: '{prefix}&7You set &r{item} &7to &ex{quantity} &7in &b{player}''s &7storage.'
-    target: '{prefix}&7You have been set &r{item} &7to &ex{quantity} &7in your storage by &b{player}&7.'
+    target: '{prefix}&7You had &r{item} &7set to &ex{quantity} &7in your storage by &b{player}&7.'
   Reset:
     self: '{prefix}&7You reset &r{item} &7in your storage.'
     all: '{prefix}&7Reset quantity of all items in your storage.'
     all-sender: '{prefix}&7You reset quantity of all items in &b{player}''s &7storage.'
     sender: '{prefix}&7You reset &r{item} &7in &b{player}''s &7storage.'
-    target: '{prefix}&7You have been reset &r{item} &7in your storage by &b{player}&7.'
+    target: '{prefix}&7You had &r{item} &7reset in your storage by &b{player}&7.'
 
 WARN:
   confirm-cleanup: '{prefix}&6Click again to confirm your cleanup!'

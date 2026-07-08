@@ -143,6 +143,20 @@ public class ItemUtil {
         }
     }
 
+    public static int getFreeSpace(Player player, ItemStack item) {
+        int empty = 0;
+        for (ItemStack stack : player.getInventory().getStorageContents()) {
+            if ((stack == null) || (stack.getType() == Material.AIR)) {
+                empty += item.getMaxStackSize();
+                continue;
+            }
+            if (!item.isSimilar(stack)) continue;
+            empty += (stack.getMaxStackSize() - stack.getAmount());
+        }
+        if (empty > 0) return Math.min(empty, item.getAmount());
+        return -1;
+    }
+
     public static Item getItem(String key) {
         try {
             return itemCache.get(key);

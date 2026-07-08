@@ -125,9 +125,11 @@ public final class Setting
         this.limitWhitelist = config.getBoolean("LimitWhitelist", false);
 
         this.name = new HashMap<>();
-        config.getConfigurationSection("FormatName")
-                .getKeys(false)
-                .forEach(key -> name.put(ItemUtil.normalizeMaterialKey(key), config.getString("FormatName." + key)));
+        if (config.isConfigurationSection("FormatName")) {
+            config.getConfigurationSection("FormatName")
+                    .getKeys(false)
+                    .forEach(key -> name.put(ItemUtil.normalizeMaterialKey(key), config.getString("FormatName." + key)));
+        }
 
         Debug.enabled = config.getBoolean("Debug");
     }

@@ -16,8 +16,10 @@ public final class Log {
 
     private final Setting setting;
     private final File logFolder;
-    private Calendar cal;
-    private File logFile;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    private volatile Calendar cal;
+    private volatile File logFile;
 
     public Log(ExtraStorage instance) {
         this.setting = instance.getSetting();
@@ -28,12 +30,17 @@ public final class Log {
         this.initLogFile();
     }
 
-    public boolean initLogFile() {
+    public synchronized boolean initLogFile() {
         if ((!setting.isLogTransfer()) && (!setting.isLogWithdraw()) && (!setting.isLogSales())) return false;
 
-        this.cal = Calendar.getInstance(TimeZone.getDefault());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        this.logFile = new File(logFolder, dateFormat.format(cal.getTime()) + ".txt");
+        Calendar now = Calendar.getInstance(TimeZone.getDefault());
+        String dateKey = dateFormat.format(now.getTime());
+        File newFile = new File(logFolder, dateKey + ".txt");
+
+        if (logFile != null && logFile.equals(newFile)) return true;
+
+        this.cal = now;
+        this.logFile = newFile;
 
         try {
             if (!logFile.exists()) logFile.createNewFile();
@@ -47,26 +54,27 @@ public final class Log {
     public void log(Player player, OfflinePlayer partner, Action action, String key, int amount, double price) {
         if (!this.initLogFile()) return;
 
-        try {
-            FileWriter writer = new FileWriter(logFile, true);
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-            String text, time = timeFormat.format(cal.getTime()), itemName = setting.getNameFormatted(key, true);
-            switch (action) {
-                case SELL:
-                    text = String.format("[%s] %s sold x%d %s for: %.2f", time, player.getName(), amount, itemName, price);
-                    break;
-                case TRANSFER:
-                    text = String.format("[%s] %s transfered x%d %s to %s's storage", time, player.getName(), amount, itemName, partner.getName());
-                    break;
-                case WITHDRAW:
-                    text = String.format("[%s] %s withdrew x%d %s from %s's storage", time, player.getName(), amount, itemName, partner.getName());
-                    break;
-                default:
-                    return;
-            }
+        String text, time = timeFormat.format(cal.getTime()), itemName = setting.getNameFormatted(key, true);
+        switch (action) {
+            case SELL:
+                text = String.format("[%s] %s sold x%d %s for: %.2f", time, player.getName(), amount, itemName, price);
+                break;
+            case TRANSFER:
+                text = String.format("[%s] %s transfered x%d %s to %s's storage", time, player.getName(), amount, itemName, partner.getName());
+                break;
+            case WITHDRAW:
+                text = String.format("[%s] %s withdrew x%d %s from %s's storage", time, player.getName(), amount, itemName, partner.getName());
+                break;
+            default:
+                return;
+        }
+
+        File currentFile = this.logFile;
+        if (currentFile == null) return;
+
+        try (FileWriter writer = new FileWriter(currentFile, true)) {
             writer.write(text + '\n');
             writer.flush();
-            writer.close();
         } catch (IOException error) {
             error.printStackTrace();
         }

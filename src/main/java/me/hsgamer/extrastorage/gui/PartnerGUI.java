@@ -134,12 +134,6 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
         return mask;
     }
 
-    private void putSortConfig(Map<SortType, SortButtonConfig<SortType>> map, SortType type, ConfigurationSection section, String key) {
-        ConfigurationSection subSection = section.getConfigurationSection(key);
-        if (subSection == null) return;
-        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
-    }
-
     public enum SortType {
         NAME, TIME
     }

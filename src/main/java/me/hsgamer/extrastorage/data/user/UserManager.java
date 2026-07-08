@@ -63,9 +63,8 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     }
 
     public void save() {
-        Map<UUID, UserImpl> map = saveMapRef.get();
+        Map<UUID, UserImpl> map = saveMapRef.getAndSet(new ConcurrentHashMap<>());
         if (map.isEmpty()) return;
-        saveMapRef.set(new ConcurrentHashMap<>());
 
         Optional<DataStorage.Modifier<UUID, UserImpl>> optionalModifier = storage.modify();
         if (!optionalModifier.isPresent()) {
@@ -84,10 +83,8 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
     }
 
     public void save(UUID uuid) {
-        Map<UUID, UserImpl> saveMap = saveMapRef.get();
-        UserImpl toSave = saveMap.get(uuid);
+        UserImpl toSave = saveMapRef.get().remove(uuid);
         if (toSave == null) return;
-        saveMap.remove(uuid);
 
         Optional<DataStorage.Modifier<UUID, UserImpl>> optionalModifier = storage.modify();
         if (!optionalModifier.isPresent()) {

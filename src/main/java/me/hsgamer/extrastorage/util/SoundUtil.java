@@ -18,7 +18,10 @@ public class SoundUtil {
             SoundAction soundAction = new SoundAction(ExtraStorage.getInstance(), soundName, 4f, 2f);
             soundPlayer = player -> {
                 BatchRunnable runnable = new BatchRunnable();
-                runnable.getTaskPool(0).addLast(process -> soundAction.apply(player.getUniqueId(), process, StringReplacer.DUMMY));
+                runnable.getTaskPool(0).addLast(process -> {
+                    soundAction.apply(player.getUniqueId(), process, StringReplacer.DUMMY);
+                    process.next();
+                });
                 runnable.run();
             };
         }

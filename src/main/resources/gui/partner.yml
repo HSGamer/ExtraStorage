@@ -94,7 +94,7 @@ ControlItems:
     Name: '&fSorting Partners'
     Lore:
     - ''
-    - '&2→ &aParter''s name'
+    - '&2→ &aPartner''s name'
     - '&8 ● &7Timestamp'
     - ''
     - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'
@@ -107,7 +107,7 @@ ControlItems:
     Name: '&fSorting Partners'
     Lore:
     - ''
-    - '&8 ● &7Parter''s name'
+    - '&8 ● &7Partner''s name'
     - '&2→ &aTimestamp'
     - ''
     - '&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ'

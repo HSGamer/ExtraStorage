@@ -45,31 +45,44 @@ public final class ESPlaceholder
 
         Storage storage = instance.getUserManager().getUser(player).getStorage();
 
+        long space = storage.getSpace();
+        long usedSpace = storage.getUsedSpace();
+        long freeSpace = storage.getFreeSpace();
+        boolean status = storage.getStatus();
+
         switch (argsLowerCase) {
             case "space":
-                return (storage.getSpace() == -1) ? "-1" : Long.toString(storage.getSpace());
+                return (space == -1) ? "-1" : Long.toString(space);
             case "space_formatted":
-                return (storage.getSpace() == -1) ? "-1" : Digital.formatThousands(storage.getSpace());
+                return (space == -1) ? "-1" : Digital.formatThousands(space);
             case "used_space":
-                return Long.toString(storage.getUsedSpace());
+                return Long.toString(usedSpace);
             case "used_space_formatted":
-                return Digital.formatThousands(storage.getUsedSpace());
+                return Digital.formatThousands(usedSpace);
             case "free_space":
-                return (storage.getFreeSpace() == -1) ? "-1" : Long.toString(storage.getFreeSpace());
+                return (freeSpace == -1) ? "-1" : Long.toString(freeSpace);
             case "free_space_formatted":
-                return (storage.getFreeSpace() == -1) ? "-1" : Digital.formatThousands(storage.getFreeSpace());
-            case "used_percent":
-                return (storage.getSpaceAsPercent(true) == -1) ? "-1" : Double.toString(storage.getSpaceAsPercent(true));
-            case "used_percent_formatted":
-                return (storage.getSpaceAsPercent(true) == -1) ? "-1" : (storage.getSpaceAsPercent(true) + "%");
-            case "free_percent":
-                return (storage.getSpaceAsPercent(false) == -1) ? "-1" : Double.toString(storage.getSpaceAsPercent(false));
-            case "free_percent_formatted":
-                return (storage.getSpaceAsPercent(false) == -1) ? "-1" : (storage.getSpaceAsPercent(false) + "%");
+                return (freeSpace == -1) ? "-1" : Digital.formatThousands(freeSpace);
+            case "used_percent": {
+                double usedPercent = storage.getSpaceAsPercent(true);
+                return (usedPercent == -1) ? "-1" : Double.toString(usedPercent);
+            }
+            case "used_percent_formatted": {
+                double usedPercent = storage.getSpaceAsPercent(true);
+                return (usedPercent == -1) ? "-1" : (usedPercent + "%");
+            }
+            case "free_percent": {
+                double freePercent = storage.getSpaceAsPercent(false);
+                return (freePercent == -1) ? "-1" : Double.toString(freePercent);
+            }
+            case "free_percent_formatted": {
+                double freePercent = storage.getSpaceAsPercent(false);
+                return (freePercent == -1) ? "-1" : (freePercent + "%");
+            }
             case "status":
-                return Boolean.toString(storage.getStatus());
+                return Boolean.toString(status);
             case "status_formatted":
-                return Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled"));
+                return Message.getMessage("STATUS." + (status ? "enabled" : "disabled"));
         }
 
         if (argsLowerCase.startsWith("quantity")) {

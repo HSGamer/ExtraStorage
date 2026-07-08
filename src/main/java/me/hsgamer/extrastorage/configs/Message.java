@@ -3,13 +3,13 @@ package me.hsgamer.extrastorage.configs;
 import me.hsgamer.extrastorage.configs.types.BukkitConfig;
 import me.hsgamer.extrastorage.util.Utils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class Message
         extends BukkitConfig {
 
-    public static final Map<String, String> messages = new HashMap<>();
+    public static final Map<String, String> messages = new ConcurrentHashMap<>();
     public static String PREFIX;
 
     public Message() {

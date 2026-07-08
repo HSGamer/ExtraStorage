@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 
 public class UserImpl {
-    public static final UserImpl EMPTY = new UserImpl(Collections.emptyMap(), "", Collections.emptyMap(), 0, true);
+    public static final UserImpl EMPTY = new UserImpl(new HashMap<>(), "", new HashMap<>(), 0, true);
 
     public final Map<UUID, Long> partners;
     public final String texture;
@@ -48,7 +48,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
                             Map<UUID, Long> partners = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 UUID uuid = UUID.fromString(entry.getKey());
@@ -69,7 +69,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
                             Map<String, ItemImpl> items = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 String key = ItemUtil.normalizeMaterialKey(entry.getKey());
@@ -90,7 +90,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
                             Map<String, ItemImpl> items = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 String key = ItemUtil.normalizeMaterialKey(entry.getKey());
@@ -104,19 +104,19 @@ public class UserImpl {
     }
 
     public UserImpl withPartners(Map<UUID, Long> partners) {
-        return new UserImpl(Collections.unmodifiableMap(partners), this.texture, this.items, this.space, this.status);
+        return new UserImpl(new HashMap<>(partners), this.texture, this.items, this.space, this.status);
     }
 
     public UserImpl withPartner(UUID uuid) {
         HashMap<UUID, Long> partners = new HashMap<>(this.partners);
         partners.put(uuid, System.currentTimeMillis());
-        return new UserImpl(Collections.unmodifiableMap(partners), this.texture, this.items, this.space, this.status);
+        return new UserImpl(partners, this.texture, this.items, this.space, this.status);
     }
 
     public UserImpl withPartnerRemoved(UUID uuid) {
         HashMap<UUID, Long> partners = new HashMap<>(this.partners);
         partners.remove(uuid);
-        return new UserImpl(Collections.unmodifiableMap(partners), this.texture, this.items, this.space, this.status);
+        return new UserImpl(partners, this.texture, this.items, this.space, this.status);
     }
 
     public UserImpl withTexture(String texture) {
@@ -124,31 +124,31 @@ public class UserImpl {
     }
 
     public UserImpl withItems(Map<String, ItemImpl> items) {
-        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+        return new UserImpl(this.partners, this.texture, new HashMap<>(items), this.space, this.status);
     }
 
     public UserImpl withAdditionalItems(Map<String, ItemImpl> additionalItems) {
         HashMap<String, ItemImpl> items = new HashMap<>(this.items);
         additionalItems.forEach(items::putIfAbsent);
-        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+        return new UserImpl(this.partners, this.texture, items, this.space, this.status);
     }
 
     public UserImpl withItemIfNotFound(String key, ItemImpl item) {
         HashMap<String, ItemImpl> items = new HashMap<>(this.items);
         items.putIfAbsent(key, item);
-        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+        return new UserImpl(this.partners, this.texture, items, this.space, this.status);
     }
 
     public UserImpl withItemRemoved(String key) {
         HashMap<String, ItemImpl> items = new HashMap<>(this.items);
         items.remove(key);
-        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+        return new UserImpl(this.partners, this.texture, items, this.space, this.status);
     }
 
     public UserImpl withItemModifiedIfFound(String key, UnaryOperator<ItemImpl> modifier) {
         HashMap<String, ItemImpl> items = new HashMap<>(this.items);
         items.computeIfPresent(key, (k, v) -> modifier.apply(v));
-        return new UserImpl(this.partners, this.texture, Collections.unmodifiableMap(items), this.space, this.status);
+        return new UserImpl(this.partners, this.texture, items, this.space, this.status);
     }
 
     public UserImpl withSpace(long space) {

@@ -12,8 +12,11 @@ import io.github.projectunified.craftux.spigot.SpigotInventoryUtil;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
+import me.hsgamer.extrastorage.gui.util.GuiUtil;
+import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -137,7 +140,7 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
     }
 
     protected void browseGUI(boolean forward) {
-        me.hsgamer.extrastorage.gui.util.GuiUtil.browseGUI(player, this, forward);
+        GuiUtil.browseGUI(player, this, forward);
     }
 
     protected void setup() {
@@ -308,6 +311,26 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
                 return map;
             }
         });
+    }
+
+    protected String applyStoragePlaceholders(String s, String playerName) {
+        String UNKNOWN = Message.getMessage("STATUS.unknown");
+        long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
+        double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
+        return s
+                .replaceAll(Utils.getRegex("player"), playerName)
+                .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
+                .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
+                .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
+                .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
+                .replaceAll(Utils.getRegex("used(\\_|\\-)percent"), (usedPercent == -1) ? UNKNOWN : (usedPercent + "%"))
+                .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
+    }
+
+    protected <T extends Enum<T>> void putSortConfig(Map<T, SortButtonConfig<T>> map, T type, ConfigurationSection section, String key) {
+        ConfigurationSection subSection = section.getConfigurationSection(key);
+        if (subSection == null) return;
+        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
     }
 
     public static class SortButtonConfig<S extends Enum<S>> {
