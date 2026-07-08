@@ -7,9 +7,9 @@ import io.github.projectunified.faststats.gson.GsonSerializer;
 import io.github.projectunified.faststats.net.NetSubmitter;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.action.ActionManager;
-import me.hsgamer.extrastorage.commands.AdminCommands;
-import me.hsgamer.extrastorage.commands.PlayerCommands;
-import me.hsgamer.extrastorage.commands.handler.CommandHandler;
+import io.github.projectunified.craftcommand.bukkit.BukkitCommandManager;
+import me.hsgamer.extrastorage.commands.AdminCommand;
+import me.hsgamer.extrastorage.commands.PlayerCommand;
 import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.configs.types.BukkitConfigChecker;
@@ -55,6 +55,7 @@ public final class ExtraStorage extends JavaPlugin {
     private GuiConfig whitelistGuiConfig;
 
     private ActionManager actionManager;
+    private BukkitCommandManager commandManager;
 
     private org.bstats.bukkit.Metrics bstatsMetrics;
     private io.github.projectunified.faststats.core.Metrics fastStatsMetrics;
@@ -108,6 +109,7 @@ public final class ExtraStorage extends JavaPlugin {
     @Override
     public void onDisable() {
         if ((placeholder != null) && placeholder.isRegistered()) placeholder.unregister();
+        if (commandManager != null) commandManager.unregisterAll();
         Bukkit.getServer().getOnlinePlayers().forEach(player -> {
             InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder();
             if (holder instanceof SpigotInventoryUI) player.closeInventory();
@@ -150,9 +152,10 @@ public final class ExtraStorage extends JavaPlugin {
     }
 
     private void registerCommands() {
-        final CommandHandler handler = new CommandHandler();
-        handler.addPrimaryCommand(new AdminCommands());
-        handler.addPrimaryCommand(new PlayerCommands());
+        this.commandManager = new BukkitCommandManager(this);
+        commandManager.register(new PlayerCommand());
+        commandManager.register(new AdminCommand());
+        commandManager.syncCommand();
     }
 
     private void registerEvents() {

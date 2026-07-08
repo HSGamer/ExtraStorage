@@ -19,14 +19,6 @@ softdepend:
   - RoseStacker
   - CommandSpy
 
-commands:
-  extrastorage:
-    description: 'Commands for players.'
-    aliases: [ exstorage, storage, es, kho ]
-  esadmin:
-    description: 'Commands for administrators.'
-    aliases: [ ]
-
 permissions:
   exstorage.*:
     default: op

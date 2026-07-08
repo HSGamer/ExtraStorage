@@ -48,6 +48,12 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
+					<annotationProcessorPaths>
+						<annotationProcessorPath>
+							<groupId>io.github.projectunified</groupId>
+							<artifactId>craftcommand-bukkit-processor</artifactId>
+						</annotationProcessorPath>
+					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -89,6 +95,10 @@
 								<relocation>
 									<pattern>io.github.projectunified.maptemplate</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.maptemplate</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>io.github.projectunified.craftcommand</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.craftcommand</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>me.hsgamer.hscore</pattern>
@@ -172,6 +182,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>io.github.projectunified</groupId>
+				<artifactId>craftcommand-bom</artifactId>
+				<version>0.7.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -204,6 +221,21 @@
 		<dependency>
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>faststats-bukkit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftcommand-annotations</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftcommand-bukkit-annotations</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftcommand-bukkit-runtime</artifactId>
 		</dependency>
 
 		<dependency>
