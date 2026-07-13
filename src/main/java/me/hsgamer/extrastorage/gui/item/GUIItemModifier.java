@@ -6,6 +6,7 @@ import io.github.projectunified.craftitem.spigot.core.SpigotItemModifier;
 import io.github.projectunified.craftitem.spigot.modifier.LoreModifier;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
+import me.hsgamer.extrastorage.gui.config.ItemConfig;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,6 +15,40 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 public interface GUIItemModifier {
+    static GUIItemModifier getDisplayItemModifier(ItemConfig itemConfig, boolean additionalLore) {
+        List<ItemModifier> itemModifiers = new ArrayList<>();
+        String name = itemConfig.name();
+        if (name != null && !name.isEmpty()) {
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta -> meta.setDisplayName(translator.apply(name))));
+        }
+        List<String> lore = itemConfig.lore();
+        if (!lore.isEmpty()) {
+            if (additionalLore) {
+                itemModifiers.add(
+                        (SpigotItemModifier) (item, translator) -> item.editMeta(meta -> {
+                            List<String> itemLore = meta.getLore();
+                            if (!meta.hasLore() || itemLore == null) {
+                                itemLore = new ArrayList<>();
+                            }
+                            for (String loreLine : lore) {
+                                itemLore.add(translator.apply(loreLine));
+                            }
+                            meta.setLore(itemLore);
+                        })
+                );
+            } else {
+                itemModifiers.add(
+                        new LoreModifier(lore)
+                );
+            }
+        }
+        return (spigotItem, translator) -> {
+            for (ItemModifier itemModifier : itemModifiers) {
+                itemModifier.modify(spigotItem, translator);
+            }
+        };
+    }
+
     static GUIItemModifier getDisplayItemModifier(ConfigurationSection section, boolean additionalLore) {
         List<ItemModifier> itemModifiers = new ArrayList<>();
         String name = section.getString("Name");

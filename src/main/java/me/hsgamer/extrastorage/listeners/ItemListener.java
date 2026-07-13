@@ -6,7 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.Message;
+
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.util.ActionBar;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -39,7 +39,7 @@ public class ItemListener extends BaseListener {
     }
 
     private boolean canStore(Player player, ItemStack item) {
-        if (!instance.getSetting().isOnlyStoreWhenInvFull()) return true;
+        if (!instance.getSetting().onlyStoreWhenInvFull()) return true;
 
         ItemStack[] items = player.getInventory().getStorageContents();
         int count = item.getAmount();
@@ -70,16 +70,16 @@ public class ItemListener extends BaseListener {
         Location location = event.getBlock().getLocation();
         String locToString = locToString(location);
 
-        if (instance.getSetting().getBlacklistWorlds().contains(location.getWorld().getName()) || (!storage.getStatus())) {
+        if (instance.getSetting().blacklistWorlds().contains(location.getWorld().getName()) || (!storage.getStatus())) {
             locCache.invalidate(locToString);
             return;
         }
 
-        if (instance.getSetting().isBlockedMining() && storage.isMaxSpace()) {
+        if (instance.getSetting().blockedMining() && storage.isMaxSpace()) {
             event.setCancelled(true);
             locCache.invalidate(locToString);
 
-            String msg = Message.getMessage("WARN.StorageIsFull");
+            String msg = ExtraStorage.getInstance().getMessage().getMessage("WARN.StorageIsFull");
             if (!Strings.isNullOrEmpty(msg)) ActionBar.send(player, msg);
             return;
         }
@@ -90,7 +90,7 @@ public class ItemListener extends BaseListener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemSpawn(ItemSpawnEvent event) {
-        if (!instance.getSetting().isAutoStoreItem()) return;
+        if (!instance.getSetting().autoStoreItem()) return;
 
         Location loc = event.getLocation();
         String locToString = this.locToString(loc);
@@ -103,7 +103,7 @@ public class ItemListener extends BaseListener {
         ItemStack item = event.getEntity().getItemStack();
 
         String validKey = ItemUtil.toMaterialKey(item);
-        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey)))
+        if (instance.getSetting().getNormalizedBlacklist().contains(validKey) || (instance.getSetting().limitWhitelist() && !instance.getSetting().getNormalizedWhitelist().contains(validKey)))
             return;
 
         if (storage.isMaxSpace() || (!this.canStore(user.getPlayer(), item)) || (!storage.canStore(item))) return;

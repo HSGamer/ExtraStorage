@@ -33,7 +33,7 @@ public abstract class AbstractEconomyHook implements EconomyProvider {
             return;
         }
 
-        if (instance.getSetting().isLogSales()) {
+        if (instance.getSetting().log().sales()) {
             instance.getLog().log(player, null, Log.Action.SELL, ItemUtil.toMaterialKey(item), amount, price);
         }
 

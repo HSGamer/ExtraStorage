@@ -4,10 +4,9 @@ import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.Message;
-import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
@@ -46,7 +45,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
 
     @Override
     protected List<Button> getRepresentItems(ConfigurationSection section) {
-        Setting setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
         if (sort == SortType.UNFILTER) {
@@ -77,7 +76,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                     ItemStack iStack = displayModifier.construct(
                             item,
                             s -> s
-                                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
+                                    .replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                     );
 
@@ -91,15 +90,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                             if (click == ClickType.SHIFT_RIGHT) {
                                 // Chuyển tất cả vật phẩm trong kho đồ của người chơi vào kho chứa:
                                 if (storage.isMaxSpace()) {
-                                    player.sendMessage(Message.getMessage("FAIL.storage-is-full"));
+                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.storage-is-full"));
                                     return;
                                 }
                                 if (!item.isFiltered()) {
-                                    player.sendMessage(Message.getMessage("FAIL.item-not-filtered"));
+                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-not-filtered"));
                                     return;
                                 }
-                                if (setting.getBlacklist().contains(key) || (setting.isLimitWhitelist() && !setting.getWhitelist().contains(key))) {
-                                    player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
+                                if (setting.getNormalizedBlacklist().contains(key) || (setting.limitWhitelist() && !setting.getNormalizedWhitelist().contains(key))) {
+                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-blacklisted"));
                                     return;
                                 }
 
@@ -133,15 +132,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                                     break;
                                 }
                                 if (count == 0) {
-                                    player.sendMessage(Message.getMessage("FAIL.not-enough-item-in-inventory").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.not-enough-item-in-inventory").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                     return;
                                 }
 
-                                if (setting.isLogTransfer()) {
+                                if (setting.log().transfer()) {
                                     ExtraStorage.getInstance().getLog().log(player, partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
                                 }
 
-                                player.sendMessage(Message.getMessage("SUCCESS.moved-items-to-storage")
+                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.moved-items-to-storage")
                                         .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(count))
                                         .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 if (!partner.isOnline()) partner.save();
@@ -153,7 +152,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
 
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current <= 0) {
-                                player.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 return;
                             }
 
@@ -177,7 +176,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                             int free = ItemUtil.getFreeSpace(player, vanillaItem);
                             if (free == -1) {
                                 // Nếu kho đồ đã đầy:
-                                player.sendMessage(Message.getMessage("FAIL.inventory-is-full"));
+                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.inventory-is-full"));
                                 return;
                             }
                             vanillaItem.setAmount(free);
@@ -185,13 +184,13 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                             ItemUtil.giveItem(player, vanillaItem);
                             storage.subtract(item.getKey(), free);
 
-                            if (setting.isLogWithdraw()) {
+                            if (setting.log().withdraw()) {
                                 ExtraStorage.getInstance().getLog().log(player, partner.getOfflinePlayer(), Log.Action.WITHDRAW, item.getKey(), free, -1);
                             }
 
                             if (!partner.isOnline()) partner.save();
 
-                            player.sendMessage(Message.getMessage("SUCCESS.withdrew-item")
+                            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.withdrew-item")
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(free))
                                     .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
@@ -217,7 +216,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
             boolean status = !storage.getStatus();
             storage.setStatus(status);
 
-            player.sendMessage(Message.getMessage("SUCCESS.storage-usage-toggled").replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (status ? "enabled" : "disabled"))));
+            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.storage-usage-toggled").replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (status ? "enabled" : "disabled"))));
             update();
         });
 

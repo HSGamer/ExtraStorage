@@ -32,7 +32,7 @@ public class StubStorage implements Storage {
     @Override
     public long getSpace() {
         long space = user.entry.getValue().space;
-        if ((instance.getSetting().getMaxSpace() == -1) || user.hasPermission(Constants.STORAGE_UNLIMITED_PERMISSION) || (space < 0))
+        if ((instance.getSetting().maxSpace() == -1) || user.hasPermission(Constants.STORAGE_UNLIMITED_PERMISSION) || (space < 0))
             return -1;
         return Digital.getBetween(0, Long.MAX_VALUE, space);
     }

@@ -125,6 +125,10 @@
 									<pattern>me.hsgamer.topper</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.topper</shadedPattern>
 								</relocation>
+								<relocation>
+									<pattern>io.github.projectunified.craftconfig</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.craftconfig</shadedPattern>
+								</relocation>
 							</relocations>
 							<!-- Disable PaperMC's PluginRemapper -->
 							<transformers>
@@ -203,6 +207,13 @@
 				<groupId>io.github.projectunified</groupId>
 				<artifactId>craftcommand-bom</artifactId>
 				<version>0.9.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.github.projectunified</groupId>
+				<artifactId>craftconfig-bom</artifactId>
+				<version>0.3.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -462,6 +473,15 @@
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>map-template</artifactId>
 			<version>${maptemplate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftconfig-proxy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.projectunified</groupId>
+			<artifactId>craftconfig-bukkit</artifactId>
 		</dependency>
 	</dependencies>
 	

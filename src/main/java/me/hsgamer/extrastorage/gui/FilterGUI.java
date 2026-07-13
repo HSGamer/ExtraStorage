@@ -5,7 +5,6 @@ import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
-import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
@@ -43,13 +42,13 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
 
             final String validKey = ItemUtil.toMaterialKey(clickedItem);
             if (validKey.equals(Constants.INVALID)) {
-                player.sendMessage(Message.getMessage("FAIL.invalid-item"));
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.invalid-item"));
                 return false;
             }
             if (storage.canStore(validKey)) return false;
 
-            if (ExtraStorage.getInstance().getSetting().getBlacklist().contains(validKey) || (ExtraStorage.getInstance().getSetting().isLimitWhitelist() && !ExtraStorage.getInstance().getSetting().getWhitelist().contains(validKey))) {
-                player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
+            if (ExtraStorage.getInstance().getSetting().getNormalizedBlacklist().contains(validKey) || (ExtraStorage.getInstance().getSetting().limitWhitelist() && !ExtraStorage.getInstance().getSetting().getNormalizedWhitelist().contains(validKey))) {
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-blacklisted"));
                 return false;
             }
 
@@ -115,12 +114,12 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
 
             if (!confirm) {
                 confirm = true;
-                player.sendMessage(Message.getMessage("WARN.confirm-cleanup"));
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("WARN.confirm-cleanup"));
                 return;
             }
 
             for (String key : storage.getFilteredItems().keySet()) storage.unfilter(key);
-            player.sendMessage(Message.getMessage("SUCCESS.filter-cleaned-up"));
+            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.filter-cleaned-up"));
 
             updateRepresentItems();
             update();

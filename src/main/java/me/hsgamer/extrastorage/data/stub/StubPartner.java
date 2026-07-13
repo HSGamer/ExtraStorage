@@ -30,7 +30,7 @@ public class StubPartner implements Partner {
 
     @Override
     public String getTimeFormatted() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(ExtraStorage.getInstance().getSetting().getDateFormat());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ExtraStorage.getInstance().getSetting().dateFormat());
         return dateFormat.format(new Date(timestamp));
     }
 }

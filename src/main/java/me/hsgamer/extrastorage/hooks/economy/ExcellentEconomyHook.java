@@ -34,7 +34,7 @@ public final class ExcellentEconomyHook extends WorthEconomyHook {
 
     @Override
     protected boolean deposit(Player player, double price) {
-        String cur = instance.getSetting().getCurrency();
+        String cur = instance.getSetting().economy().currency();
         boolean hasCurrencySpecified = !cur.isEmpty();
         ExcellentCurrency currency = hasCurrencySpecified ? api.getCurrency(cur) : null;
         if (currency == null) {

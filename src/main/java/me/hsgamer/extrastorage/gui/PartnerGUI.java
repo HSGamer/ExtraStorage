@@ -6,7 +6,6 @@ import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
@@ -71,10 +70,10 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 actionItem.setItem(item);
                 actionItem.setAction(InventoryClickEvent.class, event -> {
                     user.removePartner(pnPlayer.getUniqueId());
-                    player.sendMessage(Message.getMessage("SUCCESS.removed-partner").replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
+                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.removed-partner").replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
                     if (pnPlayer.isOnline()) {
                         Player p = pnPlayer.getPlayer();
-                        p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
+                        p.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
                         InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                         if (holder instanceof StorageGUI) {
                             StorageGUI gui = (StorageGUI) holder;
@@ -99,7 +98,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
 
             if (!confirm) {
                 confirm = true;
-                player.sendMessage(Message.getMessage("WARN.confirm-cleanup"));
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("WARN.confirm-cleanup"));
                 return;
             }
 
@@ -108,7 +107,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 if (!offPlayer.isOnline()) continue;
 
                 Player p = offPlayer.getPlayer();
-                p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
+                p.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
                 InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                 if (holder instanceof StorageGUI) {
                     StorageGUI gui = (StorageGUI) holder;
@@ -116,7 +115,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 }
             }
             user.clearPartners();
-            player.sendMessage(Message.getMessage("SUCCESS.cleanup-partners-list"));
+            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.cleanup-partners-list"));
 
             updateRepresentItems();
             update();

@@ -4,7 +4,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
-import me.hsgamer.extrastorage.configs.Message;
+
 import me.hsgamer.extrastorage.util.Digital;
 import org.bukkit.OfflinePlayer;
 
@@ -82,7 +82,7 @@ public final class ESPlaceholder
             case "status":
                 return Boolean.toString(status);
             case "status_formatted":
-                return Message.getMessage("STATUS." + (status ? "enabled" : "disabled"));
+                return ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (status ? "enabled" : "disabled"));
         }
 
         if (argsLowerCase.startsWith("quantity")) {

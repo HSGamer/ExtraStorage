@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage;
 
+import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
 import io.github.projectunified.faststats.bukkit.BukkitPlatform;
@@ -10,13 +11,17 @@ import me.hsgamer.extrastorage.action.ActionManager;
 import io.github.projectunified.craftcommand.bukkit.BukkitCommandManager;
 import me.hsgamer.extrastorage.commands.AdminCommand;
 import me.hsgamer.extrastorage.commands.PlayerCommand;
-import me.hsgamer.extrastorage.configs.Message;
-import me.hsgamer.extrastorage.configs.Setting;
-import me.hsgamer.extrastorage.configs.types.BukkitConfigChecker;
+import me.hsgamer.extrastorage.configs.MessageConfig;
+import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.data.worth.WorthManager;
+import me.hsgamer.extrastorage.gui.config.FilterGuiConfig;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
+import me.hsgamer.extrastorage.gui.config.PartnerGuiConfig;
+import me.hsgamer.extrastorage.gui.config.SellGuiConfig;
+import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
+import me.hsgamer.extrastorage.gui.config.WhitelistGuiConfig;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PickupListener;
@@ -38,8 +43,8 @@ public final class ExtraStorage extends JavaPlugin {
 
     private boolean firstLoad;
 
-    private Setting setting;
-    private Message message;
+    private SettingConfig setting;
+    private MessageConfig message;
 
     private UserManager userManager;
     private WorthManager worthManager;
@@ -136,19 +141,21 @@ public final class ExtraStorage extends JavaPlugin {
     }
 
     private void loadConfigs() {
-        this.setting = new Setting();
-        this.message = new Message();
-        this.worthManager = new WorthManager();
+        io.github.projectunified.craftconfig.bukkit.BukkitConfig settingConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, "config.yml");
+        this.setting = ConfigGenerator.newInstance(SettingConfig.class, settingConfig);
 
-        new BukkitConfigChecker(setting, message).startTracking();
+        io.github.projectunified.craftconfig.bukkit.BukkitConfig messageConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, "messages.yml");
+        this.message = ConfigGenerator.newInstance(MessageConfig.class, messageConfig);
+
+        this.worthManager = new WorthManager();
     }
 
     public void loadGuiFile() {
-        this.filterGuiConfig = new GuiConfig("gui/filter");
-        this.partnerGuiConfig = new GuiConfig("gui/partner");
-        this.sellGuiConfig = new GuiConfig("gui/sell");
-        this.storageGuiConfig = new GuiConfig("gui/storage");
-        this.whitelistGuiConfig = new GuiConfig("gui/whitelist");
+        this.filterGuiConfig = new GuiConfig(this, "gui/filter.yml", FilterGuiConfig.class);
+        this.partnerGuiConfig = new GuiConfig(this, "gui/partner.yml", PartnerGuiConfig.class);
+        this.sellGuiConfig = new GuiConfig(this, "gui/sell.yml", SellGuiConfig.class);
+        this.storageGuiConfig = new GuiConfig(this, "gui/storage.yml", StorageGuiConfig.class);
+        this.whitelistGuiConfig = new GuiConfig(this, "gui/whitelist.yml", WhitelistGuiConfig.class);
     }
 
     private void registerCommands() {
@@ -165,11 +172,11 @@ public final class ExtraStorage extends JavaPlugin {
         new PickupListener(this);
     }
 
-    public Setting getSetting() {
+    public SettingConfig getSetting() {
         return this.setting;
     }
 
-    public Message getMessage() {
+    public MessageConfig getMessage() {
         return this.message;
     }
 

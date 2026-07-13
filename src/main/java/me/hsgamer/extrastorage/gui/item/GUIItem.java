@@ -10,6 +10,7 @@ import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
 import io.github.projectunified.craftux.common.ActionItem;
 import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.gui.config.ItemConfig;
 import me.hsgamer.extrastorage.gui.util.CompatItemUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -29,6 +30,103 @@ import java.util.regex.Pattern;
 
 public interface GUIItem {
     Pattern HDB_PATTERN = Pattern.compile("(?ium)(hdb)-(?<value>[a-zA-Z0-9]+)");
+
+    static GUIItem get(ItemConfig itemConfig, BiConsumer<User, ItemMeta> meta) {
+        Function<User, SpigotItem> spigotItemSupplier;
+        List<ItemModifier> itemModifiers = new ArrayList<>();
+
+        String model = itemConfig.model();
+        String texture = itemConfig.texture();
+        if (!Strings.isNullOrEmpty(model)) {
+            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
+            spigotItemSupplier = user -> {
+                ItemStack itemStack = item.tryBukkitItem(user.getPlayer());
+                if (itemStack == null) {
+                    itemStack = new ItemStack(Material.STONE);
+                } else {
+                    itemStack = itemStack.clone();
+                }
+                return new SpigotItem(itemStack);
+            };
+        } else if (!Strings.isNullOrEmpty(texture)) {
+            if (texture.matches(Utils.getRegex("viewer", "player"))) {
+                spigotItemSupplier = user -> {
+                    SpigotItem spigotItem = new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                    if (user != null) {
+                        String userTexture = user.getTexture();
+                        SkullModifier skullModifier = new SkullModifier(userTexture.isEmpty() || user.isOnline() ? user.getUUID().toString() : userTexture);
+                        skullModifier.modify(spigotItem);
+                    }
+                    return spigotItem;
+                };
+            } else {
+                Matcher matcher = HDB_PATTERN.matcher(texture);
+                if (matcher.find()) {
+                    if (!Bukkit.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) {
+                        spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                    } else {
+                        String ID = matcher.group("value");
+                        HeadDatabaseItem headDatabaseItem = new HeadDatabaseItem(ID);
+                        spigotItemSupplier = user -> {
+                            ItemStack item = headDatabaseItem.bukkitItem();
+                            if (item == null) {
+                                item = new ItemStack(Material.PLAYER_HEAD);
+                            }
+                            return new SpigotItem(item);
+                        };
+                    }
+                } else {
+                    spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                    itemModifiers.add(new SkullModifier(texture));
+                }
+            }
+        } else {
+            String materialName = itemConfig.material();
+            Material material = Material.matchMaterial(materialName);
+            if (material == null) {
+                spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
+            } else {
+                spigotItemSupplier = user -> new SpigotItem(new ItemStack(material));
+            }
+        }
+
+        int amount = itemConfig.amount();
+        itemModifiers.add((item, translator) -> item.setAmount(Math.max(1, amount)));
+
+        int customModelData = itemConfig.customModelData();
+        if (customModelData != 0) {
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setCustomModelData(meta1, customModelData)));
+        }
+
+        String itemModel = itemConfig.itemModel();
+        if (!Strings.isNullOrEmpty(itemModel)) {
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setItemModel(meta1, itemModel)));
+        }
+
+        List<String> flags = itemConfig.hideFlags();
+        if (!flags.isEmpty()) {
+            itemModifiers.add(new ItemFlagModifier(flags));
+        }
+
+        List<String> enchants = itemConfig.enchantments();
+        if (!enchants.isEmpty()) {
+            itemModifiers.add(new EnchantmentModifier(enchants, ','));
+        }
+
+        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(itemConfig, false);
+
+        return (user, translator) -> {
+            SpigotItem spigotItem = spigotItemSupplier.apply(user);
+            for (ItemModifier itemModifier : itemModifiers) {
+                itemModifier.modify(spigotItem, translator);
+            }
+            displayModifier.modify(spigotItem, translator);
+            if (meta != null) {
+                spigotItem.editMeta(meta1 -> meta.accept(user, meta1));
+            }
+            return spigotItem.getItemStack();
+        };
+    }
 
     static GUIItem get(ConfigurationSection section, BiConsumer<User, ItemMeta> meta) {
         Function<User, SpigotItem> spigotItemSupplier;

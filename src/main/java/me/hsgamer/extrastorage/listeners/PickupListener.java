@@ -122,20 +122,20 @@ public class PickupListener implements Listener {
     }
 
     private void onEntityPickupItem(EntityPickupItemEvent event) {
-        if ((!instance.getSetting().isPickupToStorage()) || (!(event.getEntity() instanceof Player))) return;
+        if ((!instance.getSetting().pickupToStorage()) || (!(event.getEntity() instanceof Player))) return;
         Player player = (Player) event.getEntity();
 
         if (pickupHandler.hasProblem()) return;
 
         Item entity = event.getItem();
-        if (instance.getSetting().getBlacklistWorlds().contains(entity.getWorld().getName())) return;
+        if (instance.getSetting().blacklistWorlds().contains(entity.getWorld().getName())) return;
         ItemStack item = entity.getItemStack().clone();
 
         User user = instance.getUserManager().getUser(player);
         if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
 
         String validKey = ItemUtil.toMaterialKey(item);
-        if (instance.getSetting().getBlacklist().contains(validKey) || (instance.getSetting().isLimitWhitelist() && !instance.getSetting().getWhitelist().contains(validKey)))
+        if (instance.getSetting().getNormalizedBlacklist().contains(validKey) || (instance.getSetting().limitWhitelist() && !instance.getSetting().getNormalizedWhitelist().contains(validKey)))
             return;
 
         Storage storage = user.getStorage();

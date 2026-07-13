@@ -1,7 +1,7 @@
 package me.hsgamer.extrastorage.data.log;
 
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.configs.Setting;
+import me.hsgamer.extrastorage.configs.SettingConfig;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -14,7 +14,7 @@ import java.util.TimeZone;
 
 public final class Log {
 
-    private final Setting setting;
+    private final SettingConfig setting;
     private final File logFolder;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -31,7 +31,7 @@ public final class Log {
     }
 
     public synchronized boolean initLogFile() {
-        if ((!setting.isLogTransfer()) && (!setting.isLogWithdraw()) && (!setting.isLogSales())) return false;
+        if ((!setting.log().transfer()) && (!setting.log().withdraw()) && (!setting.log().sales())) return false;
 
         Calendar now = Calendar.getInstance(TimeZone.getDefault());
         String dateKey = dateFormat.format(now.getTime());

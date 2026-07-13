@@ -33,7 +33,7 @@ public final class UltraEconomyHook extends WorthEconomyHook {
             return false;
         }
 
-        String cur = instance.getSetting().getCurrency();
+        String cur = instance.getSetting().economy().currency();
         Currency currency;
         if (!cur.isEmpty()) {
             Optional<Currency> curOptional = api.getCurrencies().name(cur);

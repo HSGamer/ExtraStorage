@@ -41,7 +41,7 @@ public final class VaultHook extends WorthEconomyHook {
                     net.milkbowl.vault2.economy.Economy econ = (rsp != null) ? rsp.getProvider() : null;
                     if (econ != null) {
                         if (econ.hasMultiCurrencySupport()) {
-                            String currency = instance.getSetting().getCurrency();
+                            String currency = instance.getSetting().economy().currency();
                             if (econ.hasCurrency(currency)) {
                                 vault2Session = (player, price) -> econ.deposit(instance.getName(), player.getUniqueId(), player.getWorld().getName(), BigDecimal.valueOf(price)).transactionSuccess();
                             } else {

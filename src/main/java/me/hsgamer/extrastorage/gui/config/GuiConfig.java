@@ -1,35 +1,32 @@
 package me.hsgamer.extrastorage.gui.config;
 
-import me.hsgamer.extrastorage.configs.types.BukkitConfig;
+import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.SoundUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
 
-public class GuiConfig extends BukkitConfig {
+public class GuiConfig {
 
-    public String title;
-    public int rows;
-    public Consumer<Player> soundPlayer;
+    public final String title;
+    public final int rows;
+    public final Consumer<Player> soundPlayer;
+    private final io.github.projectunified.craftconfig.bukkit.BukkitConfig bukkitConfig;
 
-    public GuiConfig(String fileName) {
-        super(fileName + ".yml");
-
-        this.config = YamlConfiguration.loadConfiguration(file);
-
-        this.colorize(config);
-        this.setup();
-    }
-
-    @Override
-    public void setup() {
-        this.title = this.config.getString("Settings.Title", "§lNo Title");
-        this.rows = Digital.getBetween(9, 54, this.config.getInt("Settings.Rows") * 9);
-
-        String soundName = this.config.getString("Settings.Sound", "unknown");
+    public GuiConfig(Plugin plugin, String fileName, Class<?> configInterface) {
+        this.bukkitConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(plugin, fileName);
+        ConfigGenerator.newInstance(configInterface, this.bukkitConfig);
+        YamlConfiguration config = this.bukkitConfig.getOriginal();
+        this.title = config.getString("Settings.Title", "§lNo Title");
+        this.rows = Digital.getBetween(9, 54, config.getInt("Settings.Rows") * 9);
+        String soundName = config.getString("Settings.Sound", "unknown");
         this.soundPlayer = SoundUtil.getSoundPlayer(soundName);
     }
 
+    public YamlConfiguration getConfig() {
+        return bukkitConfig.getOriginal();
+    }
 }

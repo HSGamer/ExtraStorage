@@ -5,7 +5,6 @@ import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
-import me.hsgamer.extrastorage.configs.Message;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
@@ -33,7 +32,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
 
     @Override
     protected List<Button> getRepresentItems(ConfigurationSection section) {
-        EconomyProvider econ = ExtraStorage.getInstance().getSetting().getEconomyProvider();
+        EconomyProvider econ = ExtraStorage.getInstance().getSetting().resolveEconomyProvider();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
         if (sort == SortType.UNFILTER) {
@@ -79,7 +78,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
                     ItemStack iStack = displayModifier.construct(
                             item,
                             s -> s
-                                    .replaceAll(Utils.getRegex("status"), Message.getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
+                                    .replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                                     .replaceAll(Utils.getRegex("price"), price)
                                     .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(amount))
@@ -90,7 +89,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current < 1) {
-                                player.sendMessage(Message.getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true)));
+                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true)));
                                 return;
                             }
 
@@ -104,14 +103,14 @@ public class SellGUI extends BaseGUI<SellGUI.SortType> {
                             else return;
 
                             ExtraStorage.getInstance().getSetting()
-                                    .getEconomyProvider()
+                                    .resolveEconomyProvider()
                                     .sellItem(player, item.getItem(), sellAmount, rs -> {
                                         if (!rs.isSuccess()) {
-                                            player.sendMessage(Message.getMessage("FAIL.cannot-be-sold"));
+                                            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.cannot-be-sold"));
                                             return;
                                         }
                                         storage.subtract(item.getKey(), rs.getAmount());
-                                        player.sendMessage(Message.getMessage("SUCCESS.item-sold")
+                                        player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.item-sold")
                                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(rs.getAmount()))
                                                 .replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true))
                                                 .replaceAll(Utils.getRegex("price"), Digital.formatDouble("###,###.##", rs.getPrice())));

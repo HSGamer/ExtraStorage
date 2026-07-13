@@ -7,7 +7,7 @@ import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.Message;
+import me.hsgamer.extrastorage.configs.MessageConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.FilterGUI;
 import me.hsgamer.extrastorage.gui.PartnerGUI;
@@ -46,7 +46,7 @@ public class PlayerCommand {
         if (sender instanceof Player) {
             return instance.getUserManager().getUser((Player) sender);
         }
-        throw new CommandException(Message.getMessage("FAIL.only-players"));
+        throw new CommandException(instance.getMessage().getMessage("FAIL.only-players"));
     }
 
     @Default
@@ -61,16 +61,16 @@ public class PlayerCommand {
 
         OfflinePlayer targetPlayer = Bukkit.getServer().getOfflinePlayer(target);
         if (!targetPlayer.hasPlayedBefore()) {
-            throw new CommandException(Message.getMessage("FAIL.player-not-found"));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.player-not-found"));
         }
         User targetUser = instance.getUserManager().getUser(targetPlayer);
 
         if (target.equals(player.getName())) {
-            throw new CommandException(Message.getMessage("FAIL.not-yourself"));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.not-yourself"));
         }
 
         if (!targetUser.isPartner(player.getUniqueId())) {
-            throw new CommandException(Message.getMessage("FAIL.player-not-partner").replaceAll(PLAYER_REGEX, target));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.player-not-partner").replaceAll(PLAYER_REGEX, target));
         }
 
         new StorageGUI(player, targetUser).open();
@@ -79,27 +79,27 @@ public class PlayerCommand {
     @Command(value = "help", aliases = {"?"})
     @Permission(Constants.PLAYER_HELP_PERMISSION)
     public void help(CommandSender sender) {
-        sender.sendMessage(Message.getMessage("HELP.header").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
-        sender.sendMessage(Message.getMessage("HELP.Player.help").replaceAll(LABEL_REGEX, "extrastorage"));
+        sender.sendMessage(instance.getMessage().getMessage("HELP.header").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
+        sender.sendMessage(instance.getMessage().getMessage("HELP.Player.help").replaceAll(LABEL_REGEX, "extrastorage"));
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_OPEN_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.open").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.open").replaceAll(LABEL_REGEX, "extrastorage"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.toggle").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.toggle").replaceAll(LABEL_REGEX, "extrastorage"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_FILTER_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.filter").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.filter").replaceAll(LABEL_REGEX, "extrastorage"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_PARTNER_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.partner").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.partner").replaceAll(LABEL_REGEX, "extrastorage"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_SELL_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.sell").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.sell").replaceAll(LABEL_REGEX, "extrastorage"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_WITHDRAW_PERMISSION)) {
-            sender.sendMessage(Message.getMessage("HELP.Player.withdraw").replaceAll(LABEL_REGEX, "extrastorage"));
+            sender.sendMessage(instance.getMessage().getMessage("HELP.Player.withdraw").replaceAll(LABEL_REGEX, "extrastorage"));
         }
-        sender.sendMessage(Message.getMessage("HELP.footer").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
+        sender.sendMessage(instance.getMessage().getMessage("HELP.footer").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
     }
 
     @Command("toggle")
@@ -109,8 +109,8 @@ public class PlayerCommand {
         boolean toggled = !storage.getStatus();
         storage.setStatus(toggled);
 
-        user.getPlayer().sendMessage(Message.getMessage("SUCCESS.storage-usage-toggled")
-                .replaceAll(STATUS_REGEX, Message.getMessage("STATUS." + (toggled ? "enabled" : "disabled"))));
+        user.getPlayer().sendMessage(instance.getMessage().getMessage("SUCCESS.storage-usage-toggled")
+                .replaceAll(STATUS_REGEX, instance.getMessage().getMessage("STATUS." + (toggled ? "enabled" : "disabled"))));
     }
 
     @Command("filter")
@@ -138,19 +138,19 @@ public class PlayerCommand {
 
             OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
             if (!target.hasPlayedBefore()) {
-                throw new CommandException(Message.getMessage("FAIL.player-not-found"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.player-not-found"));
             }
             if (targetName.equals(player.getName())) {
-                throw new CommandException(Message.getMessage("FAIL.not-yourself"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.not-yourself"));
             }
             if (user.isPartner(target.getUniqueId())) {
-                throw new CommandException(Message.getMessage("FAIL.already-partner"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.already-partner"));
             }
 
             user.addPartner(target.getUniqueId());
-            player.sendMessage(Message.getMessage("SUCCESS.made-partner").replaceAll(PLAYER_REGEX, target.getName()));
+            player.sendMessage(instance.getMessage().getMessage("SUCCESS.made-partner").replaceAll(PLAYER_REGEX, target.getName()));
             if (target.isOnline()) {
-                target.getPlayer().sendMessage(Message.getMessage("SUCCESS.being-partner")
+                target.getPlayer().sendMessage(instance.getMessage().getMessage("SUCCESS.being-partner")
                         .replaceAll(PLAYER_REGEX, player.getName())
                         .replaceAll(LABEL_REGEX, "extrastorage"));
             }
@@ -162,20 +162,20 @@ public class PlayerCommand {
 
             OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
             if (!target.hasPlayedBefore()) {
-                throw new CommandException(Message.getMessage("FAIL.player-not-found"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.player-not-found"));
             }
             if (targetName.equals(player.getName())) {
-                throw new CommandException(Message.getMessage("FAIL.not-yourself"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.not-yourself"));
             }
             if (!user.isPartner(target.getUniqueId())) {
-                throw new CommandException(Message.getMessage("FAIL.not-partner"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.not-partner"));
             }
 
             user.removePartner(target.getUniqueId());
-            player.sendMessage(Message.getMessage("SUCCESS.removed-partner").replaceAll(PLAYER_REGEX, target.getName()));
+            player.sendMessage(instance.getMessage().getMessage("SUCCESS.removed-partner").replaceAll(PLAYER_REGEX, target.getName()));
             if (target.isOnline()) {
                 Player p = target.getPlayer();
-                p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(PLAYER_REGEX, player.getName()));
+                p.sendMessage(instance.getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(PLAYER_REGEX, player.getName()));
                 InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                 if (holder instanceof StorageGUI) {
                     StorageGUI gui = (StorageGUI) holder;
@@ -189,14 +189,14 @@ public class PlayerCommand {
             Player player = user.getPlayer();
             Collection<Partner> partners = user.getPartners();
             if (partners.isEmpty()) {
-                throw new CommandException(Message.getMessage("FAIL.partners-list-empty"));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.partners-list-empty"));
             }
             for (Partner pn : partners) {
                 OfflinePlayer offPlayer = pn.getOfflinePlayer();
                 if (!offPlayer.isOnline()) continue;
 
                 Player p = offPlayer.getPlayer();
-                p.sendMessage(Message.getMessage("SUCCESS.no-longer-partner").replaceAll(PLAYER_REGEX, player.getName()));
+                p.sendMessage(instance.getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(PLAYER_REGEX, player.getName()));
                 InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                 if (holder instanceof StorageGUI) {
                     StorageGUI gui = (StorageGUI) holder;
@@ -204,7 +204,7 @@ public class PlayerCommand {
                 }
             }
             user.clearPartners();
-            player.sendMessage(Message.getMessage("SUCCESS.cleanup-partners-list"));
+            player.sendMessage(instance.getMessage().getMessage("SUCCESS.cleanup-partners-list"));
         }
     }
 
@@ -221,24 +221,24 @@ public class PlayerCommand {
         Storage storage = user.getStorage();
         Optional<Item> optional = storage.getItem(materialKey);
         if (!optional.isPresent()) {
-            throw new CommandException(Message.getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
         }
 
         Item item = optional.get();
         int quantity = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (quantity < 1) {
-            throw new CommandException(Message.getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
         }
 
         if (amountStr == null) {
             instance.getSetting()
-                    .getEconomyProvider()
+                    .resolveEconomyProvider()
                     .sellItem(player, item.getItem(), quantity, result -> {
                         if (!result.isSuccess()) {
-                            throw new CommandException(Message.getMessage("FAIL.cannot-be-sold"));
+                            throw new CommandException(instance.getMessage().getMessage("FAIL.cannot-be-sold"));
                         }
                         storage.subtract(materialKey, quantity);
-                        player.sendMessage(Message.getMessage("SUCCESS.item-sold")
+                        player.sendMessage(instance.getMessage().getMessage("SUCCESS.item-sold")
                                 .replaceAll(AMOUNT_REGEX, Digital.formatThousands(quantity))
                                 .replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true))
                                 .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
@@ -250,17 +250,17 @@ public class PlayerCommand {
         try {
             amount = Digital.getBetween(1, quantity, Integer.parseInt(amountStr));
         } catch (NumberFormatException ignored) {
-            throw new CommandException(Message.getMessage("FAIL.not-number").replaceAll(VALUE_REGEX, amountStr));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.not-number").replaceAll(VALUE_REGEX, amountStr));
         }
 
         instance.getSetting()
-                .getEconomyProvider()
+                .resolveEconomyProvider()
                 .sellItem(player, item.getItem(), amount, result -> {
                     if (!result.isSuccess()) {
-                        throw new CommandException(Message.getMessage("FAIL.cannot-be-sold"));
+                        throw new CommandException(instance.getMessage().getMessage("FAIL.cannot-be-sold"));
                     }
                     storage.subtract(materialKey, amount);
-                    player.sendMessage(Message.getMessage("SUCCESS.item-sold")
+                    player.sendMessage(instance.getMessage().getMessage("SUCCESS.item-sold")
                             .replaceAll(AMOUNT_REGEX, Digital.formatThousands(amount))
                             .replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true))
                             .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
@@ -275,16 +275,16 @@ public class PlayerCommand {
 
         Optional<Item> optional = storage.getItem(materialKey);
         if (!optional.isPresent()) {
-            throw new CommandException(Message.getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
         }
         Item item = optional.get();
         if (!item.isLoaded()) {
-            throw new CommandException(Message.getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
         }
 
         int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (current < 1) {
-            throw new CommandException(Message.getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
         }
         ItemStack iStack = item.getItem().clone();
 
@@ -295,7 +295,7 @@ public class PlayerCommand {
             try {
                 amount = Digital.getBetween(1, current, Integer.parseInt(amountStr));
             } catch (NumberFormatException ignored) {
-                throw new CommandException(Message.getMessage("FAIL.not-number").replaceAll(VALUE_REGEX, amountStr));
+                throw new CommandException(instance.getMessage().getMessage("FAIL.not-number").replaceAll(VALUE_REGEX, amountStr));
             }
             iStack.setAmount(amount);
         }
@@ -305,14 +305,14 @@ public class PlayerCommand {
 
         int free = ItemUtil.getFreeSpace(player, iStack);
         if (free == -1) {
-            throw new CommandException(Message.getMessage("FAIL.inventory-is-full"));
+            throw new CommandException(instance.getMessage().getMessage("FAIL.inventory-is-full"));
         }
         iStack.setAmount(free);
 
         storage.subtract(materialKey, free);
         ItemUtil.giveItem(player, iStack);
 
-        player.sendMessage(Message.getMessage("SUCCESS.withdrew-item")
+        player.sendMessage(instance.getMessage().getMessage("SUCCESS.withdrew-item")
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(free))
                 .replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
     }

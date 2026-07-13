@@ -4,11 +4,10 @@ import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.Message;
-import me.hsgamer.extrastorage.configs.Setting;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
@@ -43,16 +42,16 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
 
             final String validKey = ItemUtil.toMaterialKey(item);
             if (validKey.equals(Constants.INVALID)) {
-                player.sendMessage(Message.getMessage("FAIL.invalid-item"));
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.invalid-item"));
                 return false;
             }
-            Setting setting = ExtraStorage.getInstance().getSetting();
-            if (setting.getBlacklist().contains(validKey)) {
-                player.sendMessage(Message.getMessage("FAIL.item-blacklisted"));
+            SettingConfig setting = ExtraStorage.getInstance().getSetting();
+            if (setting.getNormalizedBlacklist().contains(validKey)) {
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-blacklisted"));
                 return false;
             }
-            if (setting.getWhitelist().contains(validKey)) {
-                player.sendMessage(Message.getMessage("FAIL.item-already-whitelisted"));
+            if (setting.getNormalizedWhitelist().contains(validKey)) {
+                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-already-whitelisted"));
                 return false;
             }
 
@@ -63,7 +62,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
                 if (!optional.isPresent()) storage.addNewItem(validKey);
             }
 
-            player.sendMessage(Message.getMessage("SUCCESS.item-added-to-whitelist").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
+            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.item-added-to-whitelist").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
 
             updateRepresentItems();
             update();
@@ -73,9 +72,9 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
 
     @Override
     protected List<Button> getRepresentItems(ConfigurationSection section) {
-        Setting setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
-        List<String> whitelist = new ArrayList<>(setting.getWhitelist());
+        List<String> whitelist = new ArrayList<>(setting.getNormalizedWhitelist());
 
         Comparator<String> comparator;
         switch (sort) {
@@ -105,7 +104,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType> {
                                 Optional<Item> optional = storage.getItem(key);
                                 if (optional.isPresent()) storage.unfilter(key);
                             }
-                            player.sendMessage(Message.getMessage("SUCCESS.item-removed-from-whitelist").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.item-removed-from-whitelist").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
                             updateRepresentItems();
                             update();

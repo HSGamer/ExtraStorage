@@ -32,12 +32,12 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
 
     public UserManager(ExtraStorage instance) {
         this.instance = instance;
-        boolean isMySql = instance.getSetting().getDBType().equalsIgnoreCase("mysql");
+        boolean isMySql = instance.getSetting().database().type().equalsIgnoreCase("mysql");
         SqlDataStorageSupplier supplier = isMySql
                 ? new MySqlDataStorageSupplier(instance.getSetting().getSqlDatabaseSetting(), JavaSqlClient::new)
                 : new SqliteDataStorageSupplier(instance.getDataFolder(), instance.getSetting().getSqlDatabaseSetting(), JavaSqlClient::new);
         this.storage = supplier.getStorage(
-                instance.getSetting().getDBTable(),
+                instance.getSetting().database().table(),
                 new UUIDSqlValueConverter("uuid"),
                 UserImpl.getConverter(isMySql),
                 SqlDataStorageSupplier.options().setIncrementalKey("id")
@@ -56,8 +56,8 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
 
         this.autoSaveTask = AsyncScheduler.get(instance).runTimer(
                 () -> save(),
-                instance.getSetting().getAutoUpdateTime(),
-                instance.getSetting().getAutoUpdateTime(),
+                instance.getSetting().autoUpdateTime(),
+                instance.getSetting().autoUpdateTime(),
                 TimeUnit.SECONDS
         );
     }
@@ -108,7 +108,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
 
     @Override
     public void onCreate(DataEntry<UUID, UserImpl> entry) {
-        Map<String, ItemImpl> map = instance.getSetting().getWhitelist().stream()
+        Map<String, ItemImpl> map = instance.getSetting().getNormalizedWhitelist().stream()
                 .map(ItemUtil::normalizeMaterialKey)
                 .filter(key -> !key.trim().isEmpty())
                 .distinct()
@@ -116,7 +116,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> {
                         key -> key,
                         key -> ItemImpl.EMPTY.withFiltered(true)
                 ));
-        entry.setValue(user -> user.withItems(map).withSpace(instance.getSetting().getMaxSpace()), false);
+        entry.setValue(user -> user.withItems(map).withSpace(instance.getSetting().maxSpace()), false);
     }
 
     @Override
