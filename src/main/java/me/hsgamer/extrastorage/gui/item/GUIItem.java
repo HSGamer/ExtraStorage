@@ -10,18 +10,18 @@ import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
 import io.github.projectunified.craftux.common.ActionItem;
 import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.gui.config.ItemConfig;
 import me.hsgamer.extrastorage.gui.util.CompatItemUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -31,12 +31,12 @@ import java.util.regex.Pattern;
 public interface GUIItem {
     Pattern HDB_PATTERN = Pattern.compile("(?ium)(hdb)-(?<value>[a-zA-Z0-9]+)");
 
-    static GUIItem get(ItemConfig itemConfig, BiConsumer<User, ItemMeta> meta) {
+    static GUIItem get(Map<String, Object> itemConfig, BiConsumer<User, ItemMeta> meta) {
         Function<User, SpigotItem> spigotItemSupplier;
         List<ItemModifier> itemModifiers = new ArrayList<>();
 
-        String model = itemConfig.model();
-        String texture = itemConfig.texture();
+        String model = (String) itemConfig.getOrDefault("Model", "");
+        String texture = (String) itemConfig.getOrDefault("Texture", "");
         if (!Strings.isNullOrEmpty(model)) {
             io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
             spigotItemSupplier = user -> {
@@ -81,7 +81,7 @@ public interface GUIItem {
                 }
             }
         } else {
-            String materialName = itemConfig.material();
+            String materialName = (String) itemConfig.getOrDefault("Material", "STONE");
             Material material = Material.matchMaterial(materialName);
             if (material == null) {
                 spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
@@ -90,127 +90,30 @@ public interface GUIItem {
             }
         }
 
-        int amount = itemConfig.amount();
+        int amount = itemConfig.containsKey("Amount") ? ((Number) itemConfig.get("Amount")).intValue() : 1;
         itemModifiers.add((item, translator) -> item.setAmount(Math.max(1, amount)));
 
-        int customModelData = itemConfig.customModelData();
+        int customModelData = itemConfig.containsKey("CustomModelData") ? ((Number) itemConfig.get("CustomModelData")).intValue() : 0;
         if (customModelData != 0) {
             itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setCustomModelData(meta1, customModelData)));
         }
 
-        String itemModel = itemConfig.itemModel();
+        String itemModel = (String) itemConfig.getOrDefault("ItemModel", "");
         if (!Strings.isNullOrEmpty(itemModel)) {
             itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setItemModel(meta1, itemModel)));
         }
 
-        List<String> flags = itemConfig.hideFlags();
+        List<String> flags = itemConfig.get("HideFlags") instanceof List ? (List<String>) itemConfig.get("HideFlags") : Collections.emptyList();
         if (!flags.isEmpty()) {
             itemModifiers.add(new ItemFlagModifier(flags));
         }
 
-        List<String> enchants = itemConfig.enchantments();
+        List<String> enchants = itemConfig.get("Enchantments") instanceof List ? (List<String>) itemConfig.get("Enchantments") : Collections.emptyList();
         if (!enchants.isEmpty()) {
             itemModifiers.add(new EnchantmentModifier(enchants, ','));
         }
 
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(itemConfig, false);
-
-        return (user, translator) -> {
-            SpigotItem spigotItem = spigotItemSupplier.apply(user);
-            for (ItemModifier itemModifier : itemModifiers) {
-                itemModifier.modify(spigotItem, translator);
-            }
-            displayModifier.modify(spigotItem, translator);
-            if (meta != null) {
-                spigotItem.editMeta(meta1 -> meta.accept(user, meta1));
-            }
-            return spigotItem.getItemStack();
-        };
-    }
-
-    static GUIItem get(ConfigurationSection section, BiConsumer<User, ItemMeta> meta) {
-        Function<User, SpigotItem> spigotItemSupplier;
-        List<ItemModifier> itemModifiers = new ArrayList<>();
-
-        String model = section.getString("Model");
-        String texture = section.getString("Texture");
-        if (!Strings.isNullOrEmpty(model)) {
-            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
-            spigotItemSupplier = user -> {
-                ItemStack itemStack = item.tryBukkitItem(user.getPlayer());
-                if (itemStack == null) {
-                    itemStack = new ItemStack(Material.STONE);
-                } else {
-                    itemStack = itemStack.clone();
-                }
-                return new SpigotItem(itemStack);
-            };
-        } else if (!Strings.isNullOrEmpty(texture)) {
-            if (texture.matches(Utils.getRegex("viewer", "player"))) {
-                spigotItemSupplier = user -> {
-                    SpigotItem spigotItem = new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
-                    if (user != null) {
-                        String userTexture = user.getTexture();
-                        SkullModifier skullModifier = new SkullModifier(userTexture.isEmpty() || user.isOnline() ? user.getUUID().toString() : userTexture);
-                        skullModifier.modify(spigotItem);
-                    }
-                    return spigotItem;
-                };
-            } else {
-                Matcher matcher = HDB_PATTERN.matcher(texture);
-                if (matcher.find()) {
-                    if (!Bukkit.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) {
-                        spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
-                    } else {
-                        String ID = matcher.group("value");
-                        HeadDatabaseItem headDatabaseItem = new HeadDatabaseItem(ID);
-                        spigotItemSupplier = user -> {
-                            ItemStack item = headDatabaseItem.bukkitItem();
-                            if (item == null) {
-                                item = new ItemStack(Material.PLAYER_HEAD);
-                            }
-                            return new SpigotItem(item);
-                        };
-                    }
-                } else {
-                    spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
-                    itemModifiers.add(new SkullModifier(texture));
-                }
-            }
-        } else {
-            String materialName = section.getString("Material", "");
-            Material material = Material.matchMaterial(materialName);
-            if (material == null) {
-                spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
-            } else {
-                spigotItemSupplier = user -> new SpigotItem(new ItemStack(material));
-            }
-        }
-
-        int amount = section.getInt("Amount");
-        itemModifiers.add((item, translator) -> item.setAmount(Math.max(1, amount)));
-
-        Integer customModelData = section.contains("CustomModelData") ? section.getInt("CustomModelData") : null;
-        if (customModelData != null) {
-            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setCustomModelData(meta1, customModelData)));
-        }
-
-        String itemModel = section.getString("ItemModel");
-        if (!Strings.isNullOrEmpty(itemModel)) {
-            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta1 -> CompatItemUtil.setItemModel(meta1, itemModel)));
-        }
-
-        List<String> flags = section.getStringList("HideFlags");
-        if (!flags.isEmpty()) {
-            itemModifiers.add(new ItemFlagModifier(flags));
-        }
-
-        List<String> enchants = section.getStringList("Enchantments");
-        if (!enchants.isEmpty()) {
-            itemModifiers.add(new EnchantmentModifier(enchants, ','));
-        }
-
-        GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, false);
 
         return (user, translator) -> {
             SpigotItem spigotItem = spigotItemSupplier.apply(user);

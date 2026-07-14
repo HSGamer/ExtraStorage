@@ -10,6 +10,7 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.util.ActionBar;
 import me.hsgamer.extrastorage.util.ItemUtil;
+import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -79,7 +80,7 @@ public class ItemListener extends BaseListener {
             event.setCancelled(true);
             locCache.invalidate(locToString);
 
-            String msg = ExtraStorage.getInstance().getMessage().getMessage("WARN.StorageIsFull");
+            String msg = Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().storageIsFull());
             if (!Strings.isNullOrEmpty(msg)) ActionBar.send(player, msg);
             return;
         }

@@ -16,9 +16,9 @@ import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.util.Digital;
+import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -31,58 +31,48 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
+public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends SpigotInventoryUI {
 
     protected final Player player;
     protected final User user;
-    protected final GuiConfig config;
+    protected final C config;
     private final HybridMask mask;
     private final AtomicReference<List<Button>> representItemsRef = new AtomicReference<>();
-    private final ConfigurationSection decorateItemSection;
-    private final ConfigurationSection representItemSection;
-    private final ConfigurationSection controlItemSection;
     protected Storage storage;
     protected S sort;
     protected boolean orderSort = true;
 
-    public BaseGUI(Player player, GuiConfig config, Class<S> sortClass) {
-        super(player.getUniqueId(), config.title, config.rows);
+    public BaseGUI(Player player, C config, Class<S> sortClass) {
+        super(player.getUniqueId(), config.settings().title(), Digital.getBetween(9, 54, config.settings().rows() * 9));
         this.player = player;
         this.user = ExtraStorage.getInstance().getUserManager().getUser(player);
         this.config = config;
         this.storage = user.getStorage();
         this.sort = getDefaultSort(config, sortClass);
 
-        decorateItemSection = Objects.requireNonNull(config.getConfig().getConfigurationSection("DecorateItems"), "DecorateItems must not be null!");
-        representItemSection = Objects.requireNonNull(config.getConfig().getConfigurationSection("RepresentItem"), "RepresentItem must not be null!");
-        controlItemSection = Objects.requireNonNull(config.getConfig().getConfigurationSection("ControlItems"), "ControlItems must not be null!");
-
         mask = new HybridMask();
         setMask(mask);
     }
 
-    protected static List<Position> getSlots(ConfigurationSection config) {
-        Set<Integer> slotSet = new LinkedHashSet<>();
-        if (config.contains("Slot")) {
-            slotSet.add(config.getInt("Slot") - 1);
+    @SuppressWarnings("unchecked")
+    protected static List<Position> getSlots(Map<String, Object> itemConfig) {
+        Object slots = itemConfig.get("Slots");
+        if (slots instanceof List) {
+            return parseSlots((List<String>) slots);
         }
-        if (config.contains("Slots")) {
-            for (String slotStr : config.getStringList("Slots")) {
-                parseSlot(slotStr, slotSet);
+        Object slot = itemConfig.get("Slot");
+        if (slot instanceof Number) {
+            int s = ((Number) slot).intValue() - 1;
+            if (s >= 0 && s < 54) {
+                return Collections.singletonList(SpigotInventoryUtil.toPosition(s, InventoryType.CHEST));
             }
         }
-        if (slotSet.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return slotSet.stream()
-                .filter(slot -> slot >= 0 && slot < 54)
-                .map(slot -> SpigotInventoryUtil.toPosition(slot, InventoryType.CHEST))
-                .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 
-    protected static List<Position> getSlots(List<String> slotList) {
+    private static List<Position> parseSlots(List<String> slotStrs) {
         Set<Integer> slotSet = new LinkedHashSet<>();
-        for (String slotStr : slotList) {
+        for (String slotStr : slotStrs) {
             parseSlot(slotStr, slotSet);
         }
         if (slotSet.isEmpty()) {
@@ -112,17 +102,18 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
                 }
             }
         } catch (NumberFormatException ignored) {
-            // Ignore
         }
     }
 
     protected static List<Position> getSlots(String slot) {
-        return getSlots(Collections.singletonList(slot));
+        return parseSlots(Collections.singletonList(slot));
     }
 
-    private S getDefaultSort(GuiConfig config, Class<S> sortClass) {
+    private S getDefaultSort(C config, Class<S> sortClass) {
+        String sort = config.settings().defaultSort();
+        if (sort == null) return null;
         try {
-            return Enum.valueOf(sortClass, config.getConfig().getString("Settings.DefaultSort", "__INVALID__").toUpperCase());
+            return Enum.valueOf(sortClass, sort.toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -130,7 +121,7 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
 
     @Override
     protected boolean onClick(InventoryClickEvent event) {
-        config.soundPlayer.accept(player);
+        SoundUtil.getSoundPlayer(config.settings().sound()).accept(player);
         return super.onClick(event);
     }
 
@@ -143,10 +134,15 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
     }
 
     protected void setup() {
-        Mask decorateItemMask = getDecorateItems(decorateItemSection);
-        mask.add(decorateItemMask);
+        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
+        if (decorateItems != null) {
+            for (Map<String, Object> itemConfig : decorateItems.values()) {
+                processDecorateItem(mask, itemConfig);
+            }
+        }
 
-        List<Position> representItemSlots = getSlots(representItemSection);
+        Map<String, Object> representConfig = config.representItem();
+        List<Position> representItemSlots = getSlots(representConfig);
         ButtonPaginatedMask representItemMask = new ButtonPaginatedMask(u -> representItemSlots) {
             @Override
             public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
@@ -156,16 +152,16 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
         };
         mask.add(representItemMask);
 
-        Mask controlItemMask = getControlItems(controlItemSection);
+        Mask controlItemMask = getControlItems(config.controlItems());
         mask.add(controlItemMask);
 
-        ConfigurationSection nextPageSection = Objects.requireNonNull(controlItemSection.getConfigurationSection("NextPage"), "NextPage must not be null!");
-        ConfigurationSection previousPageSection = Objects.requireNonNull(controlItemSection.getConfigurationSection("PreviousPage"), "PreviousPage must not be null!");
-
-        GUIItem nextPageItem = GUIItem.get(nextPageSection, null);
-        List<Position> nextPageSlots = getSlots(nextPageSection);
-        GUIItem previousPageItem = GUIItem.get(previousPageSection, null);
-        List<Position> previousPageSlots = getSlots(previousPageSection);
+        GuiConfig.ControlItemsConfig controlConfig = config.controlItems();
+        Map<String, Object> nextPageConfig = controlConfig.nextPage();
+        GUIItem nextPageItem = GUIItem.get(nextPageConfig, null);
+        List<Position> nextPageSlots = getSlots(nextPageConfig);
+        Map<String, Object> previousPageConfig = controlConfig.previousPage();
+        GUIItem previousPageItem = GUIItem.get(previousPageConfig, null);
+        List<Position> previousPageSlots = getSlots(previousPageConfig);
 
         mask.add(new Mask() {
             @Override
@@ -205,46 +201,40 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
     }
 
     protected void updateRepresentItems() {
-        representItemsRef.set(getRepresentItems(representItemSection));
+        representItemsRef.set(getRepresentItems(config.representItem()));
     }
 
-    protected abstract List<Button> getRepresentItems(ConfigurationSection section);
+    protected abstract List<Button> getRepresentItems(Map<String, Object> section);
 
-    protected abstract Mask getControlItems(ConfigurationSection section);
+    protected abstract Mask getControlItems(GuiConfig.ControlItemsConfig section);
 
-    protected Mask getDecorateItems(ConfigurationSection section) {
-        HybridMask mask = new HybridMask();
-        for (Map.Entry<String, Object> entry : section.getValues(false).entrySet()) {
-            Object value = entry.getValue();
-            if (!(value instanceof ConfigurationSection)) continue;
-            ConfigurationSection decorateItemSection = (ConfigurationSection) value;
+    @SuppressWarnings("unchecked")
+    private void processDecorateItem(HybridMask mask, Map<String, Object> itemConfig) {
+        List<Position> slots = getSlots(itemConfig);
+        if (slots.isEmpty()) return;
 
-            List<Position> slots = getSlots(decorateItemSection);
-            if (slots.isEmpty()) continue;
+        ItemStack item = GUIItem.get(itemConfig, null).getItem(user, s -> s);
+        if ((item == null) || (item.getType() == Material.AIR)) return;
 
-            ItemStack item = GUIItem.get(decorateItemSection, null).getItem(user, s -> s);
-            if ((item == null) || (item.getType() == Material.AIR)) continue;
+        Object commands = itemConfig.get("Commands");
+        List<String> actions = (commands instanceof List) ? (List<String>) commands : Collections.emptyList();
+        Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
 
-            List<String> actions = decorateItemSection.getStringList("commands");
-            Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
-
-            SimpleButtonMask decorateButtonMask = new SimpleButtonMask();
-            Button decorateButton = (uuid, actionItem) -> {
-                actionItem.setItem(item);
-                if (actionConsumer != null) {
-                    actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));
-                }
-                return true;
-            };
-            decorateButtonMask.setButton(slots, decorateButton);
-            mask.add(decorateButtonMask);
-        }
-        return mask;
+        SimpleButtonMask decorateButtonMask = new SimpleButtonMask();
+        Button decorateButton = (uuid, actionItem) -> {
+            actionItem.setItem(item);
+            if (actionConsumer != null) {
+                actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));
+            }
+            return true;
+        };
+        decorateButtonMask.setButton(slots, decorateButton);
+        mask.add(decorateButtonMask);
     }
 
-    protected void addAboutButton(HybridMask mask, ConfigurationSection section, UnaryOperator<String> loreReplacer, Consumer<InventoryClickEvent> action) {
-        GUIItem aboutItem = GUIItem.get(section, null);
-        List<Position> aboutItemSlots = getSlots(section);
+    protected void addAboutButton(HybridMask mask, Map<String, Object> aboutConfig, UnaryOperator<String> loreReplacer, Consumer<InventoryClickEvent> action) {
+        GUIItem aboutItem = GUIItem.get(aboutConfig, null);
+        List<Position> aboutItemSlots = getSlots(aboutConfig);
         SimpleButtonMask aboutMask = new SimpleButtonMask();
         mask.add(aboutMask);
         aboutMask.setButton(aboutItemSlots, (uuid, actionItem) -> {
@@ -256,9 +246,9 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
         });
     }
 
-    protected void addSwitchButton(HybridMask mask, ConfigurationSection section, Consumer<InventoryClickEvent> action) {
-        GUIItem switchItem = GUIItem.get(section, null);
-        List<Position> switchSlots = getSlots(section);
+    protected void addSwitchButton(HybridMask mask, Map<String, Object> switchConfig, Consumer<InventoryClickEvent> action) {
+        GUIItem switchItem = GUIItem.get(switchConfig, null);
+        List<Position> switchSlots = getSlots(switchConfig);
         SimpleButtonMask switchMask = new SimpleButtonMask();
         mask.add(switchMask);
         switchMask.setButton(switchSlots, (uuid, actionItem) -> {
@@ -313,12 +303,12 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
     }
 
     protected String applyStoragePlaceholders(String s, String playerName) {
-        String UNKNOWN = ExtraStorage.getInstance().getMessage().getMessage("STATUS.unknown");
+        String UNKNOWN = Utils.formatMessage(ExtraStorage.getInstance().getMessage().status().unknown());
         long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
         double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
         return s
                 .replaceAll(Utils.getRegex("player"), playerName)
-                .replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (storage.getStatus() ? "enabled" : "disabled")))
+                .replaceAll(Utils.getRegex("status"), Utils.formatMessage(storage.getStatus() ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled()))
                 .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
                 .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
                 .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
@@ -326,10 +316,9 @@ public abstract class BaseGUI<S extends Enum<S>> extends SpigotInventoryUI {
                 .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
     }
 
-    protected <T extends Enum<T>> void putSortConfig(Map<T, SortButtonConfig<T>> map, T type, ConfigurationSection section, String key) {
-        ConfigurationSection subSection = section.getConfigurationSection(key);
-        if (subSection == null) return;
-        map.put(type, new SortButtonConfig<>(GUIItem.get(subSection, null), getSlots(subSection)));
+    protected <T extends Enum<T>> void putSortConfig(Map<T, SortButtonConfig<T>> map, T type, Map<String, Object> itemConfig) {
+        if (itemConfig == null) return;
+        map.put(type, new SortButtonConfig<>(GUIItem.get(itemConfig, null), getSlots(itemConfig)));
     }
 
     public static class SortButtonConfig<S extends Enum<S>> {

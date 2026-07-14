@@ -1,32 +1,56 @@
 package me.hsgamer.extrastorage.gui.config;
 
-import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
-import me.hsgamer.extrastorage.util.Digital;
-import me.hsgamer.extrastorage.util.SoundUtil;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import io.github.projectunified.craftconfig.annotation.Comment;
+import io.github.projectunified.craftconfig.annotation.ConfigPath;
+import me.hsgamer.extrastorage.configs.converters.MapConverter;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class GuiConfig {
+public interface GuiConfig {
 
-    public final String title;
-    public final int rows;
-    public final Consumer<Player> soundPlayer;
-    private final io.github.projectunified.craftconfig.bukkit.BukkitConfig bukkitConfig;
+    SettingsConfig settings();
 
-    public GuiConfig(Plugin plugin, String fileName, Class<?> configInterface) {
-        this.bukkitConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(plugin, fileName);
-        ConfigGenerator.newInstance(configInterface, this.bukkitConfig);
-        YamlConfiguration config = this.bukkitConfig.getOriginal();
-        this.title = config.getString("Settings.Title", "§lNo Title");
-        this.rows = Digital.getBetween(9, 54, config.getInt("Settings.Rows") * 9);
-        String soundName = config.getString("Settings.Sound", "unknown");
-        this.soundPlayer = SoundUtil.getSoundPlayer(soundName);
+    Map<String, Object> representItem();
+
+    GuiConfig.ControlItemsConfig controlItems();
+
+    Map<String, Map<String, Object>> decorateItems();
+
+    interface SettingsConfig {
+        String title();
+
+        int rows();
+
+        String sound();
+
+        default String defaultSort() {
+            return null;
+        }
     }
 
-    public YamlConfiguration getConfig() {
-        return bukkitConfig.getOriginal();
+    interface ControlItemsConfig {
+        @Comment("Back to previous page:")
+        @ConfigPath(value = "PreviousPage", priority = 10, converter = MapConverter.class)
+        default Map<String, Object> previousPage() {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("Material", "ARROW");
+            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ");
+            map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
+            map.put("Slot", 48);
+            return map;
+        }
+
+        @Comment("Go to next page:")
+        @ConfigPath(value = "NextPage", priority = 20, converter = MapConverter.class)
+        default Map<String, Object> nextPage() {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("Material", "ARROW");
+            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ");
+            map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
+            map.put("Slot", 52);
+            return map;
+        }
     }
 }

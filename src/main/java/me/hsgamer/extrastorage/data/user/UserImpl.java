@@ -9,7 +9,6 @@ import me.hsgamer.topper.storage.sql.converter.NumberSqlValueConverter;
 import me.hsgamer.topper.storage.sql.converter.StringSqlValueConverter;
 import me.hsgamer.topper.storage.sql.core.SqlValueConverter;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

@@ -25,7 +25,7 @@ public final class GuiUtil {
     private GuiUtil() {
     }
 
-    public static void browseGUI(Player player, BaseGUI<?> current, boolean forward) {
+    public static void browseGUI(Player player, BaseGUI<?, ?> current, boolean forward) {
         int currentIndex = -1;
         for (int i = 0; i < GUI_SEQUENCE.size(); i++) {
             if (GUI_SEQUENCE.get(i).guiClass.isInstance(current)) {
@@ -50,10 +50,10 @@ public final class GuiUtil {
 
     private static class GuiEntry {
         private final String permission;
-        private final Function<Player, BaseGUI<?>> opener;
-        private final Class<? extends BaseGUI<?>> guiClass;
+        private final Function<Player, BaseGUI<?, ?>> opener;
+        private final Class<? extends BaseGUI<?, ?>> guiClass;
 
-        private GuiEntry(String permission, Function<Player, BaseGUI<?>> opener, Class<? extends BaseGUI<?>> guiClass) {
+        private GuiEntry(String permission, Function<Player, BaseGUI<?, ?>> opener, Class<? extends BaseGUI<?, ?>> guiClass) {
             this.permission = permission;
             this.opener = opener;
             this.guiClass = guiClass;

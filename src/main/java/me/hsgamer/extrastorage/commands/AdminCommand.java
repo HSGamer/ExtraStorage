@@ -1,13 +1,13 @@
 package me.hsgamer.extrastorage.commands;
 
-import io.github.projectunified.craftcommand.annotation.*;
+import io.github.projectunified.craftcommand.annotation.Command;
+import io.github.projectunified.craftcommand.annotation.Default;
 import io.github.projectunified.craftcommand.bukkit.annotation.Permission;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.MessageConfig;
 import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.user.UserManager;
@@ -27,10 +27,6 @@ import java.util.regex.Pattern;
 @Command(value = "esadmin", description = "Commands for administrators")
 public class AdminCommand {
 
-    private final ExtraStorage instance = ExtraStorage.getInstance();
-    private final UserManager manager = instance.getUserManager();
-    private final SettingConfig setting = instance.getSetting();
-
     private static final String VERSION_REGEX = Utils.getRegex("ver(sion)?");
     private static final String LABEL_REGEX = Utils.getRegex("label");
     private static final String PLAYER_REGEX = Utils.getRegex("player");
@@ -38,38 +34,41 @@ public class AdminCommand {
     private static final String QUANTITY_REGEX = Utils.getRegex("quantity");
     private static final String SPACE_REGEX = Utils.getRegex("space");
     private static final Pattern ALL_PATTERN = Pattern.compile("(?ium)(\\*|-all)");
+    private final ExtraStorage instance = ExtraStorage.getInstance();
+    private final UserManager manager = instance.getUserManager();
+    private final SettingConfig setting = instance.getSetting();
 
     @Default
     @Permission(Constants.ADMIN_HELP_PERMISSION)
     public void execute(CommandSender sender) {
-        sender.sendMessage(instance.getMessage().getMessage("HELP.header").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
-        sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.help").replaceAll(LABEL_REGEX, "esadmin"));
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().help().header()).replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().help()).replaceAll(LABEL_REGEX, "esadmin"));
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_OPEN_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.open").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().open()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_SPACE_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.space").replaceAll(LABEL_REGEX, "esadmin"));
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.addspace").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().space()).replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().addspace()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_ADD_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.add").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().add()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_SUBTRACT_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.subtract").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().subtract()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_SET_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.set").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().set()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_RESET_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.reset").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().reset()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_WHITELIST_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.whitelist").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().whitelist()).replaceAll(LABEL_REGEX, "esadmin"));
         }
         if (sender.isOp() || sender.hasPermission(Constants.ADMIN_RELOAD_PERMISSION)) {
-            sender.sendMessage(instance.getMessage().getMessage("HELP.Admin.reload").replaceAll(LABEL_REGEX, "esadmin"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().help().admin().reload()).replaceAll(LABEL_REGEX, "esadmin"));
         }
-        sender.sendMessage(instance.getMessage().getMessage("HELP.footer").replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().help().footer()).replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
     }
 
     @Command("open")
@@ -83,13 +82,13 @@ public class AdminCommand {
     @Permission(Constants.ADMIN_SPACE_PERMISSION)
     public void space(Player sender, long amount, @Default String target) {
         if (setting.maxSpace() == -1) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.max-space-not-used"));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
         if (target == null) {
             User user = manager.getUser(sender);
             user.getStorage().setSpace(amount);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.space-changed").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
             return;
         }
 
@@ -97,7 +96,7 @@ public class AdminCommand {
             AsyncScheduler.get(instance).run(() -> {
                 for (User user : manager.getUsers()) {
                     user.getStorage().setSpace(amount);
-                    notifyOnline(user, instance.getMessage().getMessage("SUCCESS.space-changed").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+                    notifyOnline(user, Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
                 }
             });
             return;
@@ -105,25 +104,25 @@ public class AdminCommand {
 
         User user = resolveTargetUser(target);
         user.getStorage().setSpace(amount);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.space-changed").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.space-changed").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
     }
 
     @Command("addspace")
     @Permission(Constants.ADMIN_SPACE_PERMISSION)
     public void addSpace(Player sender, long amount, @Default String target) {
         if (setting.maxSpace() == -1) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.max-space-not-used"));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
         if (target == null) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
             if (checkIntLimit(storage.getSpace(), amount)) {
-                throw new CommandException(instance.getMessage().getMessage("FAIL.space-exceeded"));
+                throw new CommandException(Utils.formatMessage(instance.getMessage().fail().spaceExceeded()));
             }
             storage.addSpace(amount);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.space-increased").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
             return;
         }
 
@@ -133,7 +132,7 @@ public class AdminCommand {
                     Storage storage = user.getStorage();
                     if (checkIntLimit(storage.getSpace(), amount)) continue;
                     storage.addSpace(amount);
-                    notifyOnline(user, instance.getMessage().getMessage("SUCCESS.space-increased").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+                    notifyOnline(user, Utils.formatMessage(instance.getMessage().success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
                 }
             });
             return;
@@ -142,11 +141,11 @@ public class AdminCommand {
         User user = resolveTargetUser(target);
         Storage storage = user.getStorage();
         if (checkIntLimit(storage.getSpace(), amount)) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.space-exceeded"));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().spaceExceeded()));
         }
         storage.addSpace(amount);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.space-increased").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.space-increased").replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
     }
 
     @Command("add")
@@ -159,7 +158,7 @@ public class AdminCommand {
             Item item = requireItem(storage, materialKey, sender);
             long freeSpace = clampFreeSpace(storage, amount);
             storage.add(materialKey, freeSpace);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.self")
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().self())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                     .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
@@ -172,11 +171,11 @@ public class AdminCommand {
         Item item = requireItem(storage, materialKey, player);
         long freeSpace = clampFreeSpace(storage, amount);
         storage.add(materialKey, freeSpace);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.sender")
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().sender())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Add.target")
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().add().target())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, sender.getName()));
@@ -193,9 +192,9 @@ public class AdminCommand {
                 String[] keys = storage.getItems().keySet().toArray(new String[0]);
                 long total = addQuantity(storage, keys);
                 if (total < 1) {
-                    throw new CommandException(instance.getMessage().getMessage("FAIL.storage-is-full"));
+                    throw new CommandException(Utils.formatMessage(instance.getMessage().fail().storageIsFull()));
                 }
-                sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.self")
+                sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().self())
                         .replaceAll(QUANTITY_REGEX, Digital.formatThousands(total))
                         .replaceAll(ITEM_REGEX, "all"));
                 return;
@@ -205,7 +204,7 @@ public class AdminCommand {
             long amount = Digital.random(1000, 100000);
             long freeSpace = clampFreeSpace(storage, amount);
             storage.add(materialKey, freeSpace);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.self")
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().self())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                     .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
@@ -219,13 +218,13 @@ public class AdminCommand {
             String[] keys = storage.getItems().keySet().toArray(new String[0]);
             long total = addQuantity(storage, keys);
             if (total < 1) {
-                throw new CommandException(instance.getMessage().getMessage("FAIL.storage-is-full"));
+                throw new CommandException(Utils.formatMessage(instance.getMessage().fail().storageIsFull()));
             }
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.sender")
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().sender())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(total))
                     .replaceAll(ITEM_REGEX, "all")
                     .replaceAll(PLAYER_REGEX, player.getName()));
-            notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Add.target")
+            notifyOnline(user, Utils.formatMessage(instance.getMessage().success().add().target())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(total))
                     .replaceAll(ITEM_REGEX, "all")
                     .replaceAll(PLAYER_REGEX, sender.getName()));
@@ -236,11 +235,11 @@ public class AdminCommand {
         long amount = Digital.random(1000, 100000);
         long freeSpace = clampFreeSpace(storage, amount);
         storage.add(materialKey, freeSpace);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Add.sender")
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().add().sender())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Add.target")
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().add().target())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(freeSpace))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, sender.getName()));
@@ -256,11 +255,11 @@ public class AdminCommand {
             Item item = requireItem(storage, materialKey, sender);
             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
             if (current < 1) {
-                throw new CommandException(instance.getMessage().getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
+                throw new CommandException(Utils.formatMessage(instance.getMessage().fail().notEnoughItem()).replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             }
             int subtractAmount = (int) Math.min(amount, current);
             storage.subtract(materialKey, subtractAmount);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Subtract.self")
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().subtract().self())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                     .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
@@ -273,15 +272,15 @@ public class AdminCommand {
         Item item = requireItem(storage, materialKey, player);
         int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
         if (current < 1) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.not-enough-item").replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().notEnoughItem()).replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
         }
         int subtractAmount = (int) Math.min(amount, current);
         storage.subtract(materialKey, subtractAmount);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Subtract.sender")
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().subtract().sender())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Subtract.target")
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().subtract().target())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(subtractAmount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, sender.getName()));
@@ -299,12 +298,12 @@ public class AdminCommand {
             if (space != -1) {
                 long usedSpace = storage.getUsedSpace() - item.getQuantity();
                 if ((storage.getUsedSpace() == usedSpace) && storage.isMaxSpace()) {
-                    throw new CommandException(instance.getMessage().getMessage("FAIL.storage-is-full"));
+                    throw new CommandException(Utils.formatMessage(instance.getMessage().fail().storageIsFull()));
                 }
                 if ((usedSpace + amount) > space) amount = (space - usedSpace);
             }
             storage.set(materialKey, amount);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Set.self")
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().set().self())
                     .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
                     .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
@@ -319,16 +318,16 @@ public class AdminCommand {
         if (space != -1) {
             long usedSpace = storage.getUsedSpace() - item.getQuantity();
             if ((storage.getUsedSpace() == usedSpace) && storage.isMaxSpace()) {
-                throw new CommandException(instance.getMessage().getMessage("FAIL.storage-is-full"));
+                throw new CommandException(Utils.formatMessage(instance.getMessage().fail().storageIsFull()));
             }
             if ((usedSpace + amount) > space) amount = (space - usedSpace);
         }
         storage.set(materialKey, amount);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Set.sender")
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().set().sender())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Set.target")
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().set().target())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(amount))
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, sender.getName()));
@@ -345,13 +344,13 @@ public class AdminCommand {
 
             if (isAll) {
                 storage.reset(null);
-                sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Reset.all"));
+                sender.sendMessage(Utils.formatMessage(instance.getMessage().success().reset().all()));
                 return;
             }
 
             requireItem(storage, materialKey, sender);
             storage.reset(materialKey);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Reset.self").replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().reset().self()).replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
         }
 
@@ -361,17 +360,17 @@ public class AdminCommand {
 
         if (isAll) {
             storage.reset(null);
-            sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Reset.all-sender").replaceAll(PLAYER_REGEX, player.getName()));
-            notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Reset.all"));
+            sender.sendMessage(Utils.formatMessage(instance.getMessage().success().reset().allSender()).replaceAll(PLAYER_REGEX, player.getName()));
+            notifyOnline(user, Utils.formatMessage(instance.getMessage().success().reset().all()));
             return;
         }
 
         requireItem(storage, materialKey, player);
         storage.reset(materialKey);
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.Reset.sender")
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().reset().sender())
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, player.getName()));
-        notifyOnline(user, instance.getMessage().getMessage("SUCCESS.Reset.target")
+        notifyOnline(user, Utils.formatMessage(instance.getMessage().success().reset().target())
                 .replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true))
                 .replaceAll(PLAYER_REGEX, sender.getName()));
     }
@@ -388,13 +387,14 @@ public class AdminCommand {
         instance.getSetting().reload();
         instance.getMessage().reload();
         instance.loadGuiFile();
-        sender.sendMessage(instance.getMessage().getMessage("SUCCESS.config-reload"));
+        instance.refreshCache();
+        sender.sendMessage(Utils.formatMessage(instance.getMessage().success().configReload()));
     }
 
     private User resolveTargetUser(String target) {
         OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         if (!player.hasPlayedBefore()) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.player-not-found"));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().playerNotFound()));
         }
         return manager.getUser(player);
     }
@@ -402,7 +402,7 @@ public class AdminCommand {
     private Item requireItem(Storage storage, String materialKey, OfflinePlayer player) {
         Optional<Item> optional = storage.getItem(materialKey);
         if (!optional.isPresent()) {
-            throw new CommandException(instance.getMessage().getMessage("FAIL.item-not-in-storage").replaceAll(PLAYER_REGEX, player.getName()));
+            throw new CommandException(Utils.formatMessage(instance.getMessage().fail().itemNotInStorage()).replaceAll(PLAYER_REGEX, player.getName()));
         }
         return optional.get();
     }
@@ -411,7 +411,7 @@ public class AdminCommand {
         long freeSpace = storage.getFreeSpace();
         if (freeSpace != -1) {
             if (freeSpace < 1) {
-                throw new CommandException(instance.getMessage().getMessage("FAIL.storage-is-full"));
+                throw new CommandException(Utils.formatMessage(instance.getMessage().fail().storageIsFull()));
             }
             if (amount > freeSpace) amount = freeSpace;
         }

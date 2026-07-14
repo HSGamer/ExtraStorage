@@ -6,6 +6,7 @@ import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 
 import me.hsgamer.extrastorage.util.Digital;
+import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.OfflinePlayer;
 
 import java.util.Optional;
@@ -82,7 +83,7 @@ public final class ESPlaceholder
             case "status":
                 return Boolean.toString(status);
             case "status_formatted":
-                return ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (status ? "enabled" : "disabled"));
+                return Utils.formatMessage(status ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled());
         }
 
         if (argsLowerCase.startsWith("quantity")) {

@@ -4,20 +4,20 @@ import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.mask.HybridMask;
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
-import me.hsgamer.extrastorage.gui.item.GUIItem;
+import me.hsgamer.extrastorage.gui.config.GuiConfig;
+import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
+public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
     private final User partner;
 
     public StorageGUI(Player player, User partner) {
@@ -42,9 +42,8 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
         return partner;
     }
 
-
     @Override
-    protected List<Button> getRepresentItems(ConfigurationSection section) {
+    protected List<Button> getRepresentItems(Map<String, Object> section) {
         SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
@@ -76,7 +75,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                     ItemStack iStack = displayModifier.construct(
                             item,
                             s -> s
-                                    .replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (item.isFiltered() ? "filtered" : "unfiltered")))
+                                    .replaceAll(Utils.getRegex("status"), Utils.formatMessage(item.isFiltered() ? ExtraStorage.getInstance().getMessage().status().filtered() : ExtraStorage.getInstance().getMessage().status().unfiltered()))
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                     );
 
@@ -90,15 +89,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                             if (click == ClickType.SHIFT_RIGHT) {
                                 // Chuyển tất cả vật phẩm trong kho đồ của người chơi vào kho chứa:
                                 if (storage.isMaxSpace()) {
-                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.storage-is-full"));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().storageIsFull()));
                                     return;
                                 }
                                 if (!item.isFiltered()) {
-                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-not-filtered"));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemNotFiltered()));
                                     return;
                                 }
                                 if (setting.getNormalizedBlacklist().contains(key) || (setting.limitWhitelist() && !setting.getNormalizedWhitelist().contains(key))) {
-                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-blacklisted"));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemBlacklisted()));
                                     return;
                                 }
 
@@ -132,7 +131,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                                     break;
                                 }
                                 if (count == 0) {
-                                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.not-enough-item-in-inventory").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                     return;
                                 }
 
@@ -140,7 +139,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                                     ExtraStorage.getInstance().getLog().log(player, partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
                                 }
 
-                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.moved-items-to-storage")
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().movedItemsToStorage())
                                         .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(count))
                                         .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 if (!partner.isOnline()) partner.save();
@@ -152,7 +151,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
 
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current <= 0) {
-                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.not-enough-item").replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 return;
                             }
 
@@ -176,7 +175,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
                             int free = ItemUtil.getFreeSpace(player, vanillaItem);
                             if (free == -1) {
                                 // Nếu kho đồ đã đầy:
-                                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.inventory-is-full"));
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().inventoryIsFull()));
                                 return;
                             }
                             vanillaItem.setAmount(free);
@@ -190,7 +189,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
 
                             if (!partner.isOnline()) partner.save();
 
-                            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.withdrew-item")
+                            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().withdrewItem())
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(free))
                                     .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
@@ -204,10 +203,11 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
     }
 
     @Override
-    protected Mask getControlItems(ConfigurationSection section) {
+    protected Mask getControlItems(GuiConfig.ControlItemsConfig section) {
+        StorageGuiConfig.StorageControlItemsConfig controlConfig = (StorageGuiConfig.StorageControlItemsConfig) section;
         HybridMask mask = new HybridMask();
 
-        addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> {
+        addAboutButton(mask, controlConfig.about(), s -> {
             return applyStoragePlaceholders(s, partner.getName());
         }, event -> {
             boolean isAdminOrSelf = (this.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || partner.getUUID().equals(player.getUniqueId()));
@@ -216,19 +216,19 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType> {
             boolean status = !storage.getStatus();
             storage.setStatus(status);
 
-            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.storage-usage-toggled").replaceAll(Utils.getRegex("status"), ExtraStorage.getInstance().getMessage().getMessage("STATUS." + (status ? "enabled" : "disabled"))));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().storageUsageToggled()).replaceAll(Utils.getRegex("status"), Utils.formatMessage(status ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled())));
             update();
         });
 
-        addSwitchButton(mask, Objects.requireNonNull(section.getConfigurationSection("SwitchGui")), event -> {
+        addSwitchButton(mask, controlConfig.switchGui(), event -> {
             browseGUI(event.isLeftClick());
         });
 
         Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.MATERIAL, section, "SortByMaterial");
-        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
-        putSortConfig(sortConfigMap, SortType.QUANTITY, section, "SortByQuantity");
-        putSortConfig(sortConfigMap, SortType.UNFILTER, section, "SortByUnfilter");
+        putSortConfig(sortConfigMap, SortType.MATERIAL, controlConfig.sortByMaterial());
+        putSortConfig(sortConfigMap, SortType.NAME, controlConfig.sortByName());
+        putSortConfig(sortConfigMap, SortType.QUANTITY, controlConfig.sortByQuantity());
+        putSortConfig(sortConfigMap, SortType.UNFILTER, controlConfig.sortByUnfilter());
         addSortMask(mask, sortConfigMap);
 
         return mask;

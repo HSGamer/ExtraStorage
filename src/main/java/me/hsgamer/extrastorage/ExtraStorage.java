@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage;
 
+import io.github.projectunified.craftcommand.bukkit.BukkitCommandManager;
 import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
@@ -8,7 +9,6 @@ import io.github.projectunified.faststats.gson.GsonSerializer;
 import io.github.projectunified.faststats.net.NetSubmitter;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.action.ActionManager;
-import io.github.projectunified.craftcommand.bukkit.BukkitCommandManager;
 import me.hsgamer.extrastorage.commands.AdminCommand;
 import me.hsgamer.extrastorage.commands.PlayerCommand;
 import me.hsgamer.extrastorage.configs.MessageConfig;
@@ -16,12 +16,8 @@ import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.data.worth.WorthManager;
-import me.hsgamer.extrastorage.gui.config.FilterGuiConfig;
-import me.hsgamer.extrastorage.gui.config.GuiConfig;
-import me.hsgamer.extrastorage.gui.config.PartnerGuiConfig;
-import me.hsgamer.extrastorage.gui.config.SellGuiConfig;
-import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
-import me.hsgamer.extrastorage.gui.config.WhitelistGuiConfig;
+import me.hsgamer.extrastorage.gui.config.*;
+import me.hsgamer.extrastorage.hooks.economy.EconomyProvider;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PickupListener;
@@ -31,11 +27,13 @@ import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public final class ExtraStorage extends JavaPlugin {
 
@@ -45,6 +43,8 @@ public final class ExtraStorage extends JavaPlugin {
 
     private SettingConfig setting;
     private MessageConfig message;
+    private EconomyProvider economyProvider;
+    private Consumer<Player> pickupSoundPlayer;
 
     private UserManager userManager;
     private WorthManager worthManager;
@@ -53,11 +53,11 @@ public final class ExtraStorage extends JavaPlugin {
 
     private ESPlaceholder placeholder;
 
-    private GuiConfig filterGuiConfig;
-    private GuiConfig partnerGuiConfig;
-    private GuiConfig sellGuiConfig;
-    private GuiConfig storageGuiConfig;
-    private GuiConfig whitelistGuiConfig;
+    private FilterGuiConfig filterGuiConfig;
+    private PartnerGuiConfig partnerGuiConfig;
+    private SellGuiConfig sellGuiConfig;
+    private StorageGuiConfig storageGuiConfig;
+    private WhitelistGuiConfig whitelistGuiConfig;
 
     private ActionManager actionManager;
     private BukkitCommandManager commandManager;
@@ -148,14 +148,25 @@ public final class ExtraStorage extends JavaPlugin {
         this.message = ConfigGenerator.newInstance(MessageConfig.class, messageConfig);
 
         this.worthManager = new WorthManager();
+        this.refreshCache();
+    }
+
+    public void refreshCache() {
+        this.economyProvider = this.setting.resolveEconomyProvider();
+        this.pickupSoundPlayer = this.setting.getPickupSoundPlayer();
     }
 
     public void loadGuiFile() {
-        this.filterGuiConfig = new GuiConfig(this, "gui/filter.yml", FilterGuiConfig.class);
-        this.partnerGuiConfig = new GuiConfig(this, "gui/partner.yml", PartnerGuiConfig.class);
-        this.sellGuiConfig = new GuiConfig(this, "gui/sell.yml", SellGuiConfig.class);
-        this.storageGuiConfig = new GuiConfig(this, "gui/storage.yml", StorageGuiConfig.class);
-        this.whitelistGuiConfig = new GuiConfig(this, "gui/whitelist.yml", WhitelistGuiConfig.class);
+        this.filterGuiConfig = createGuiConfig("gui/filter.yml", FilterGuiConfig.class);
+        this.partnerGuiConfig = createGuiConfig("gui/partner.yml", PartnerGuiConfig.class);
+        this.sellGuiConfig = createGuiConfig("gui/sell.yml", SellGuiConfig.class);
+        this.storageGuiConfig = createGuiConfig("gui/storage.yml", StorageGuiConfig.class);
+        this.whitelistGuiConfig = createGuiConfig("gui/whitelist.yml", WhitelistGuiConfig.class);
+    }
+
+    private <C extends GuiConfig> C createGuiConfig(String fileName, Class<C> clazz) {
+        io.github.projectunified.craftconfig.bukkit.BukkitConfig bukkitConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, fileName);
+        return ConfigGenerator.newInstance(clazz, bukkitConfig);
     }
 
     private void registerCommands() {
@@ -180,6 +191,14 @@ public final class ExtraStorage extends JavaPlugin {
         return this.message;
     }
 
+    public EconomyProvider getEconomyProvider() {
+        return this.economyProvider;
+    }
+
+    public Consumer<Player> getPickupSoundPlayer() {
+        return this.pickupSoundPlayer;
+    }
+
     public UserManager getUserManager() {
         return this.userManager;
     }
@@ -192,23 +211,23 @@ public final class ExtraStorage extends JavaPlugin {
         return this.log;
     }
 
-    public GuiConfig getFilterGuiConfig() {
+    public FilterGuiConfig getFilterGuiConfig() {
         return filterGuiConfig;
     }
 
-    public GuiConfig getPartnerGuiConfig() {
+    public PartnerGuiConfig getPartnerGuiConfig() {
         return partnerGuiConfig;
     }
 
-    public GuiConfig getSellGuiConfig() {
+    public SellGuiConfig getSellGuiConfig() {
         return sellGuiConfig;
     }
 
-    public GuiConfig getStorageGuiConfig() {
+    public StorageGuiConfig getStorageGuiConfig() {
         return storageGuiConfig;
     }
 
-    public GuiConfig getWhitelistGuiConfig() {
+    public WhitelistGuiConfig getWhitelistGuiConfig() {
         return whitelistGuiConfig;
     }
 

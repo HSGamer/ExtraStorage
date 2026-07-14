@@ -1,13 +1,12 @@
 package me.hsgamer.extrastorage.util;
 
+import me.hsgamer.extrastorage.ExtraStorage;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public final class Utils {
 
@@ -64,9 +63,10 @@ public final class Utils {
         return ChatColor.translateAlternateColorCodes('&', input);
     }
 
-    public static List<?> colorize(List<?> input) {
-        if ((input == null) || input.isEmpty()) return input;
-        return input.stream().map(key -> colorize(String.valueOf(key))).collect(Collectors.toList());
+    public static String formatMessage(String raw) {
+        if (raw == null) return "";
+        String prefix = ExtraStorage.getInstance().getMessage().prefix();
+        return colorize(raw.replace("{prefix}", prefix));
     }
 
 }

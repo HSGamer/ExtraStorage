@@ -7,21 +7,25 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
+import me.hsgamer.extrastorage.gui.config.GuiConfig;
+import me.hsgamer.extrastorage.gui.config.PartnerGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
+public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
     private boolean confirm;
 
     public PartnerGUI(Player player) {
@@ -31,9 +35,8 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
         setup();
     }
 
-
     @Override
-    protected List<Button> getRepresentItems(ConfigurationSection section) {
+    protected List<Button> getRepresentItems(Map<String, Object> section) {
         Stream<Partner> partnerStream = user.getPartners().stream();
 
         Comparator<Partner> comparator = null;
@@ -70,10 +73,10 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 actionItem.setItem(item);
                 actionItem.setAction(InventoryClickEvent.class, event -> {
                     user.removePartner(pnPlayer.getUniqueId());
-                    player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.removed-partner").replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
+                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
                     if (pnPlayer.isOnline()) {
                         Player p = pnPlayer.getPlayer();
-                        p.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
+                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), player.getName()));
                         InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                         if (holder instanceof StorageGUI) {
                             StorageGUI gui = (StorageGUI) holder;
@@ -90,15 +93,16 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
     }
 
     @Override
-    protected Mask getControlItems(ConfigurationSection section) {
+    protected Mask getControlItems(GuiConfig.ControlItemsConfig section) {
+        PartnerGuiConfig.PartnerControlItemsConfig controlConfig = (PartnerGuiConfig.PartnerControlItemsConfig) section;
         HybridMask mask = new HybridMask();
 
-        addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> s.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(user.getPartners().size())), event -> {
+        addAboutButton(mask, controlConfig.about(), s -> s.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(user.getPartners().size())), event -> {
             if (user.getPartners().isEmpty() || (!event.isShiftClick())) return;
 
             if (!confirm) {
                 confirm = true;
-                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("WARN.confirm-cleanup"));
+                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
                 return;
             }
 
@@ -107,7 +111,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 if (!offPlayer.isOnline()) continue;
 
                 Player p = offPlayer.getPlayer();
-                p.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.no-longer-partner").replaceAll(Utils.getRegex("player"), player.getName()));
+                p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), player.getName()));
                 InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
                 if (holder instanceof StorageGUI) {
                     StorageGUI gui = (StorageGUI) holder;
@@ -115,19 +119,19 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType> {
                 }
             }
             user.clearPartners();
-            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.cleanup-partners-list"));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().cleanupPartnersList()));
 
             updateRepresentItems();
             update();
         });
 
-        addSwitchButton(mask, Objects.requireNonNull(section.getConfigurationSection("SwitchGui")), event -> {
+        addSwitchButton(mask, controlConfig.switchGui(), event -> {
             browseGUI(event.isLeftClick());
         });
 
         Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
-        putSortConfig(sortConfigMap, SortType.TIME, section, "SortByTime");
+        putSortConfig(sortConfigMap, SortType.NAME, controlConfig.sortByName());
+        putSortConfig(sortConfigMap, SortType.TIME, controlConfig.sortByTime());
         addSortMask(mask, sortConfigMap);
 
         return mask;

@@ -7,14 +7,14 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
-import me.hsgamer.extrastorage.gui.item.GUIItem;
+import me.hsgamer.extrastorage.gui.config.FilterGuiConfig;
+import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
+public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig> {
     private boolean confirm;
 
     public FilterGUI(Player player) {
@@ -33,7 +33,6 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
         setup();
     }
 
-
     @Override
     protected boolean onClick(InventoryClickEvent event) {
         if (event.getClickedInventory() == event.getWhoClicked().getOpenInventory().getBottomInventory()) {
@@ -42,13 +41,13 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
 
             final String validKey = ItemUtil.toMaterialKey(clickedItem);
             if (validKey.equals(Constants.INVALID)) {
-                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.invalid-item"));
+                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().invalidItem()));
                 return false;
             }
             if (storage.canStore(validKey)) return false;
 
             if (ExtraStorage.getInstance().getSetting().getNormalizedBlacklist().contains(validKey) || (ExtraStorage.getInstance().getSetting().limitWhitelist() && !ExtraStorage.getInstance().getSetting().getNormalizedWhitelist().contains(validKey))) {
-                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("FAIL.item-blacklisted"));
+                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemBlacklisted()));
                 return false;
             }
 
@@ -63,7 +62,7 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
     }
 
     @Override
-    protected List<Button> getRepresentItems(ConfigurationSection section) {
+    protected List<Button> getRepresentItems(Map<String, Object> section) {
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = storage.getFilteredItems().values().stream()
                 .filter(item -> item != null && item.isLoaded());
@@ -103,10 +102,11 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
     }
 
     @Override
-    protected Mask getControlItems(ConfigurationSection section) {
+    protected Mask getControlItems(GuiConfig.ControlItemsConfig section) {
+        FilterGuiConfig.FilterControlItemsConfig controlConfig = (FilterGuiConfig.FilterControlItemsConfig) section;
         HybridMask mask = new HybridMask();
 
-        addAboutButton(mask, Objects.requireNonNull(section.getConfigurationSection("About")), s -> {
+        addAboutButton(mask, controlConfig.about(), s -> {
             return applyStoragePlaceholders(s, player.getName())
                     .replaceAll(Utils.getRegex("display"), player.getDisplayName());
         }, event -> {
@@ -114,25 +114,25 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType> {
 
             if (!confirm) {
                 confirm = true;
-                player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("WARN.confirm-cleanup"));
+                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
                 return;
             }
 
             for (String key : storage.getFilteredItems().keySet()) storage.unfilter(key);
-            player.sendMessage(ExtraStorage.getInstance().getMessage().getMessage("SUCCESS.filter-cleaned-up"));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().filterCleanedUp()));
 
             updateRepresentItems();
             update();
         });
 
-        addSwitchButton(mask, Objects.requireNonNull(section.getConfigurationSection("SwitchGui")), event -> {
+        addSwitchButton(mask, controlConfig.switchGui(), event -> {
             browseGUI(event.isLeftClick());
         });
 
         Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.MATERIAL, section, "SortByMaterial");
-        putSortConfig(sortConfigMap, SortType.NAME, section, "SortByName");
-        putSortConfig(sortConfigMap, SortType.QUANTITY, section, "SortByQuantity");
+        putSortConfig(sortConfigMap, SortType.MATERIAL, controlConfig.sortByMaterial());
+        putSortConfig(sortConfigMap, SortType.NAME, controlConfig.sortByName());
+        putSortConfig(sortConfigMap, SortType.QUANTITY, controlConfig.sortByQuantity());
         addSortMask(mask, sortConfigMap);
 
         return mask;

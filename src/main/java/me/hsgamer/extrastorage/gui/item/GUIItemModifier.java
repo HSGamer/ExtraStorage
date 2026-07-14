@@ -6,23 +6,29 @@ import io.github.projectunified.craftitem.spigot.core.SpigotItemModifier;
 import io.github.projectunified.craftitem.spigot.modifier.LoreModifier;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
-import me.hsgamer.extrastorage.gui.config.ItemConfig;
-import org.bukkit.configuration.ConfigurationSection;
+import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.UnaryOperator;
 
 public interface GUIItemModifier {
-    static GUIItemModifier getDisplayItemModifier(ItemConfig itemConfig, boolean additionalLore) {
+    static GUIItemModifier getDisplayItemModifier(Map<String, Object> itemConfig, boolean additionalLore) {
         List<ItemModifier> itemModifiers = new ArrayList<>();
-        String name = itemConfig.name();
+        String name = (String) itemConfig.getOrDefault("Name", "");
         if (name != null && !name.isEmpty()) {
-            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta -> meta.setDisplayName(translator.apply(name))));
+            String colorizedName = Utils.colorize(name);
+            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta -> meta.setDisplayName(translator.apply(colorizedName))));
         }
-        List<String> lore = itemConfig.lore();
-        if (!lore.isEmpty()) {
+        List<String> rawLore = (itemConfig.get("Lore") instanceof List) ? (List<String>) itemConfig.get("Lore") : Collections.emptyList();
+        List<String> colorizedLore = new ArrayList<>();
+        for (String line : rawLore) {
+            colorizedLore.add(Utils.colorize(line));
+        }
+        if (!colorizedLore.isEmpty()) {
             if (additionalLore) {
                 itemModifiers.add(
                         (SpigotItemModifier) (item, translator) -> item.editMeta(meta -> {
@@ -30,7 +36,7 @@ public interface GUIItemModifier {
                             if (!meta.hasLore() || itemLore == null) {
                                 itemLore = new ArrayList<>();
                             }
-                            for (String loreLine : lore) {
+                            for (String loreLine : colorizedLore) {
                                 itemLore.add(translator.apply(loreLine));
                             }
                             meta.setLore(itemLore);
@@ -38,41 +44,7 @@ public interface GUIItemModifier {
                 );
             } else {
                 itemModifiers.add(
-                        new LoreModifier(lore)
-                );
-            }
-        }
-        return (spigotItem, translator) -> {
-            for (ItemModifier itemModifier : itemModifiers) {
-                itemModifier.modify(spigotItem, translator);
-            }
-        };
-    }
-
-    static GUIItemModifier getDisplayItemModifier(ConfigurationSection section, boolean additionalLore) {
-        List<ItemModifier> itemModifiers = new ArrayList<>();
-        String name = section.getString("Name");
-        if (name != null && !name.isEmpty()) {
-            itemModifiers.add((SpigotItemModifier) (item, translator) -> item.editMeta(meta -> meta.setDisplayName(translator.apply(name))));
-        }
-        List<String> lore = section.getStringList("Lore");
-        if (!lore.isEmpty()) {
-            if (additionalLore) {
-                itemModifiers.add(
-                        (SpigotItemModifier) (item, translator) -> item.editMeta(meta -> {
-                            List<String> itemLore = meta.getLore();
-                            if (!meta.hasLore() || itemLore == null) {
-                                itemLore = new ArrayList<>();
-                            }
-                            for (String loreLine : lore) {
-                                itemLore.add(translator.apply(loreLine));
-                            }
-                            meta.setLore(itemLore);
-                        })
-                );
-            } else {
-                itemModifiers.add(
-                        new LoreModifier(lore)
+                        new LoreModifier(colorizedLore)
                 );
             }
         }

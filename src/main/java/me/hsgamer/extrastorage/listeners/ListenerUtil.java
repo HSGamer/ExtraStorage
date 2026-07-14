@@ -15,10 +15,11 @@ interface ListenerUtil {
         storage.add(item, amount);
 
         SettingConfig setting = ExtraStorage.getInstance().getSetting();
-        setting.getPickupSoundPlayer().accept(player);
+        ExtraStorage.getInstance().getPickupSoundPlayer().accept(player);
 
-        if (!Strings.isNullOrEmpty(ExtraStorage.getInstance().getMessage().getMessage("WARN.Stored.ActionBar"))) {
-            ActionBar.send(player, ExtraStorage.getInstance().getMessage().getMessage("WARN.Stored.ActionBar")
+        String actionBarMsg = Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().stored().actionBar());
+        if (!Strings.isNullOrEmpty(actionBarMsg)) {
+            ActionBar.send(player, actionBarMsg
                     .replaceAll(Utils.getRegex("current"), Digital.formatThousands(storage.getItem(item).get().getQuantity()))
                     .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
                     .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(item, true)));
