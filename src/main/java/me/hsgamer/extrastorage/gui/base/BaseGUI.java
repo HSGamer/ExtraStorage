@@ -43,7 +43,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
     protected boolean orderSort = true;
 
     public BaseGUI(Player player, C config, Class<S> sortClass) {
-        super(player.getUniqueId(), config.settings().title(), Digital.getBetween(9, 54, config.settings().rows() * 9));
+        super(player.getUniqueId(), Utils.colorize(config.settings().title()), Digital.getBetween(9, 54, config.settings().rows() * 9));
         this.player = player;
         this.user = ExtraStorage.getInstance().getUserManager().getUser(player);
         this.config = config;
@@ -103,10 +103,6 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
             }
         } catch (NumberFormatException ignored) {
         }
-    }
-
-    protected static List<Position> getSlots(String slot) {
-        return parseSlots(Collections.singletonList(slot));
     }
 
     private S getDefaultSort(C config, Class<S> sortClass) {
