@@ -67,7 +67,7 @@ public interface FilterGuiConfig extends GuiConfig {
         @Comment("The title of GUI:")
         @ConfigPath(value = "Title", priority = 0)
         default String title() {
-            return "§0sᴛᴏʀᴀɢᴇ ꜰɪʟᴛᴇʀ";
+            return "          &0sᴛᴏʀᴀɢᴇ ꜰɪʟᴛᴇʀ";
         }
 
         @Comment(value = {"Rows on GUI:", "* The value can only be from 1 to 6."})

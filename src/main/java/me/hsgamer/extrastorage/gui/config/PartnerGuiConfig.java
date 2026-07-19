@@ -66,7 +66,7 @@ public interface PartnerGuiConfig extends GuiConfig {
         @Comment("The title of GUI:")
         @ConfigPath(value = "Title", priority = 0)
         default String title() {
-            return "§0sᴛᴏʀᴀɢᴇ ᴘᴀʀᴛɴᴇʀ";
+            return "         &0sᴛᴏʀᴀɢᴇ ᴘᴀʀᴛɴᴇʀ";
         }
 
         @Comment(value = {"Rows on GUI:", "* The value can only be from 1 to 6."})

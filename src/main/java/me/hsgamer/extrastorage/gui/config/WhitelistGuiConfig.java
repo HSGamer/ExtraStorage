@@ -61,7 +61,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
         @Comment("The title of GUI:")
         @ConfigPath(value = "Title", priority = 0)
         default String title() {
-            return "§0ᴡʜɪᴛᴇʟɪꜱᴛ ꜰɪʟᴛᴇʀ";
+            return "         &0ᴡʜɪᴛᴇʟɪꜱᴛ ꜰɪʟᴛᴇʀ";
         }
 
         @Comment(value = {"Rows on GUI:", "* The value can only be from 1 to 6."})

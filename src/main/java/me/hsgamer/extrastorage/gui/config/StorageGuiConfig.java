@@ -65,7 +65,7 @@ public interface StorageGuiConfig extends GuiConfig {
         @Comment("The title of GUI:")
         @ConfigPath(value = "Title", priority = 0)
         default String title() {
-            return "§0ʏᴏᴜʀ sᴛᴏʀᴀɢᴇ";
+            return "           &0ʏᴏᴜʀ sᴛᴏʀᴀɢᴇ";
         }
 
         @Comment(value = {"Rows on GUI:", "* The value can only be from 1 to 6."})
