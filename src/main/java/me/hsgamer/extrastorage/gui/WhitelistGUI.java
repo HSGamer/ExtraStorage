@@ -42,7 +42,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     public void openFor(Player player) {
-        sessions.computeIfAbsent(player.getUniqueId(), k -> new WhitelistData());
+        sessions.computeIfAbsent(player.getUniqueId(), WhitelistData::new);
         SpigotInventoryUI inv = getInventory(player);
         inv.update();
         inv.open();
@@ -115,14 +115,14 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
                 (uuid, s) -> sessions.get(uuid).sort = s,
                 uuid -> sessions.get(uuid).orderSort,
                 (uuid, b) -> sessions.get(uuid).orderSort = b,
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
 
         Map<String, Object> nextPageCfg = ctrl.nextPage();
         Map<String, Object> prevPageCfg = ctrl.previousPage();
         addPageNavMask(mask, repMask,
                 GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
                 GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
     }
 
     private List<Button> getRepresentItems(WhitelistData session, Map<String, Object> section) {
@@ -158,7 +158,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
                                 Optional<Item> optional = storage.getItem(key);
                                 if (optional.isPresent()) storage.unfilter(key);
                             }
-                            Bukkit.getPlayer(uuid).sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
                             updateInventory(uuid);
                         });
@@ -174,10 +174,16 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     public class WhitelistData {
+        private final UUID uuid;
         public SortType sort;
         public boolean orderSort = true;
 
-        private WhitelistData() {
+        private WhitelistData(UUID uuid) {
+            this.uuid = uuid;
+        }
+
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
         }
     }
 }

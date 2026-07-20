@@ -93,14 +93,14 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
                 (uuid, s) -> sessions.get(uuid).sort = s,
                 uuid -> sessions.get(uuid).orderSort,
                 (uuid, b) -> sessions.get(uuid).orderSort = b,
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
 
         Map<String, Object> nextPageCfg = ctrl.nextPage();
         Map<String, Object> prevPageCfg = ctrl.previousPage();
         addPageNavMask(mask, repMask,
                 GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
                 GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
     }
 
     private List<Button> getRepresentItems(SellData session, Map<String, Object> section) {
