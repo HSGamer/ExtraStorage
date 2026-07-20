@@ -50,12 +50,11 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
     }
 
     public void openFor(Player player, User partner) {
-        StorageData data = sessions.computeIfAbsent(player.getUniqueId(), k -> {
-            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
-            return new StorageData(user);
-        });
-        data.setPartner(partner == null ? data.user : partner);
-        getInventory(player).open();
+        StorageData data = sessions.computeIfAbsent(player.getUniqueId(), k -> new StorageData(k));
+        data.setPartner(partner);
+        SpigotInventoryUI inv = getInventory(player);
+        inv.update();
+        inv.open();
     }
 
     @Override
@@ -88,7 +87,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                 },
                 (uuid, event) -> {
                     StorageData s = sessions.get(uuid);
-                    Player p = s.user.getPlayer();
+                    Player p = s.getPlayer();
                     boolean isAdminOrSelf = (p.isOp() || p.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || s.partner.getUUID().equals(uuid));
                     if (!p.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION) || !isAdminOrSelf) return;
                     boolean status = !s.storage.getStatus();
@@ -115,18 +114,17 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                 (uuid, s) -> sessions.get(uuid).sort = s,
                 uuid -> sessions.get(uuid).orderSort,
                 (uuid, b) -> sessions.get(uuid).orderSort = b,
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
 
         Map<String, Object> nextPageCfg = ctrl.nextPage();
         Map<String, Object> prevPageCfg = ctrl.previousPage();
         addPageNavMask(mask, repMask,
                 GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
                 GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                uuid -> updateInventory(uuid));
+                this::updateInventory);
     }
 
     private List<Button> getRepresentItems(StorageData session, Map<String, Object> section) {
-        Player player = session.user.getPlayer();
         SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = session.storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
@@ -165,6 +163,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                     return (Button) (uuid, actionItem) -> {
                         actionItem.setItem(iStack);
                         actionItem.setAction(InventoryClickEvent.class, event -> {
+                            Player player = session.getPlayer();
                             ItemStack clicked = event.getCurrentItem();
                             if ((clicked == null) || (clicked.getType() == Material.AIR)) return;
 
@@ -280,18 +279,27 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
     }
 
     public class StorageData {
-        public final User user;
+        public final UUID uuid;
         public User partner;
         public Storage storage;
         public SortType sort;
         public boolean orderSort = true;
 
-        private StorageData(User user) {
-            this.user = user;
+        private StorageData(UUID uuid) {
+            this.uuid = uuid;
             this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
         }
 
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
+        }
+
+        public User getUser() {
+            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
+        }
+
         void setPartner(User partner) {
+            if (partner == null) partner = getUser();
             this.partner = partner;
             this.storage = partner.getStorage();
         }

@@ -38,12 +38,11 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
     }
 
     public void openFor(Player player) {
-        PartnerData data = sessions.computeIfAbsent(player.getUniqueId(), k -> {
-            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
-            return new PartnerData(player, user);
-        });
+        PartnerData data = sessions.computeIfAbsent(player.getUniqueId(), PartnerData::new);
         data.confirm = false;
-        getInventory(player).open();
+        SpigotInventoryUI inv = getInventory(player);
+        inv.update();
+        inv.open();
     }
 
     @Override
@@ -72,26 +71,26 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
         addAboutButton(mask, ctrl.about(),
                 (uuid, text) -> {
                     PartnerData d = sessions.get(uuid);
-                    return text.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(d.user.getPartners().size()));
+                    return text.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(d.getUser().getPartners().size()));
                 },
                 (uuid, event) -> {
                     PartnerData d = sessions.get(uuid);
-                    if (d.user.getPartners().isEmpty() || !event.isShiftClick()) return;
+                    if (d.getUser().getPartners().isEmpty() || !event.isShiftClick()) return;
                     if (!d.confirm) {
                         d.confirm = true;
-                        d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
+                        d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
                         return;
                     }
-                    for (Partner pn : d.user.getPartners()) {
+                    for (Partner pn : d.getUser().getPartners()) {
                         OfflinePlayer offPlayer = pn.getOfflinePlayer();
                         if (!offPlayer.isOnline()) continue;
                         Player p = offPlayer.getPlayer();
-                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), d.player.getName()));
+                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), d.getPlayer().getName()));
                         StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
-                        if (sd != null && sd.partner.getUUID().equals(d.player.getUniqueId())) p.closeInventory();
+                        if (sd != null && sd.partner.getUUID().equals(d.uuid)) p.closeInventory();
                     }
-                    d.user.clearPartners();
-                    d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().cleanupPartnersList()));
+                    d.getUser().clearPartners();
+                    d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().cleanupPartnersList()));
                     updateInventory(uuid);
                 });
 
@@ -121,7 +120,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
     }
 
     private List<Button> getRepresentItems(PartnerData session, Map<String, Object> section) {
-        Stream<Partner> partnerStream = session.user.getPartners().stream();
+        Stream<Partner> partnerStream = session.getUser().getPartners().stream();
 
         Comparator<Partner> comparator = null;
         switch (session.sort) {
@@ -156,13 +155,13 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
             return (Button) (uuid, actionItem) -> {
                 actionItem.setItem(item);
                 actionItem.setAction(InventoryClickEvent.class, event -> {
-                    session.user.removePartner(pnPlayer.getUniqueId());
-                    session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
+                    session.getUser().removePartner(pnPlayer.getUniqueId());
+                    session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
                     if (pnPlayer.isOnline()) {
                         Player p = pnPlayer.getPlayer();
-                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), session.player.getName()));
+                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), session.getPlayer().getName()));
                         StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
-                        if (sd != null && sd.partner.getUUID().equals(session.player.getUniqueId())) p.closeInventory();
+                        if (sd != null && sd.partner.getUUID().equals(session.uuid)) p.closeInventory();
                     }
 
                     updateInventory(uuid);
@@ -177,16 +176,22 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
     }
 
     public class PartnerData {
-        public final Player player;
-        public final User user;
+        public final UUID uuid;
         public SortType sort;
         public boolean orderSort = true;
         public boolean confirm;
 
-        private PartnerData(Player player, User user) {
-            this.player = player;
-            this.user = user;
+        private PartnerData(UUID uuid) {
+            this.uuid = uuid;
             this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
+        }
+
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
+        }
+
+        public User getUser() {
+            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
         }
     }
 }

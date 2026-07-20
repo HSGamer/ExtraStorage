@@ -17,6 +17,7 @@ import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -41,8 +42,10 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     public void openFor(Player player) {
-        sessions.computeIfAbsent(player.getUniqueId(), k -> new WhitelistData(player));
-        getInventory(player).open();
+        sessions.computeIfAbsent(player.getUniqueId(), k -> new WhitelistData());
+        SpigotInventoryUI inv = getInventory(player);
+        inv.update();
+        inv.open();
     }
 
     @Override
@@ -155,7 +158,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
                                 Optional<Item> optional = storage.getItem(key);
                                 if (optional.isPresent()) storage.unfilter(key);
                             }
-                            session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                            Bukkit.getPlayer(uuid).sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
                             updateInventory(uuid);
                         });
@@ -171,12 +174,10 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     public class WhitelistData {
-        public final Player player;
         public SortType sort;
         public boolean orderSort = true;
 
-        private WhitelistData(Player player) {
-            this.player = player;
+        private WhitelistData() {
         }
     }
 }

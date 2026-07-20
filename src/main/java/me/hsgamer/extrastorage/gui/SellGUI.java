@@ -40,11 +40,10 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
     }
 
     public void openFor(Player player) {
-        sessions.computeIfAbsent(player.getUniqueId(), k -> {
-            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
-            return new SellData(player, user);
-        });
-        getInventory(player).open();
+        sessions.computeIfAbsent(player.getUniqueId(), SellData::new);
+        SpigotInventoryUI inv = getInventory(player);
+        inv.update();
+        inv.open();
     }
 
     @Override
@@ -73,7 +72,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
         addAboutButton(mask, ctrl.about(),
                 (uuid, text) -> {
                     SellData d = sessions.get(uuid);
-                    return applyStoragePlaceholders(d.user.getStorage(), d.player.getName(), text);
+                    return applyStoragePlaceholders(d.getUser().getStorage(), d.getPlayer().getName(), text);
                 },
                 null);
 
@@ -107,7 +106,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
     private List<Button> getRepresentItems(SellData session, Map<String, Object> section) {
         EconomyProvider econ = ExtraStorage.getInstance().getEconomyProvider();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
-        Stream<Item> itemStream = session.user.getStorage().getItems().values().stream().filter(item -> item != null && item.isLoaded());
+        Stream<Item> itemStream = session.getUser().getStorage().getItems().values().stream().filter(item -> item != null && item.isLoaded());
         if (session.sort == SortType.UNFILTER) {
             itemStream = itemStream.filter(item -> !item.isFiltered());
         } else {
@@ -135,7 +134,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
                 .map(item -> {
                     ItemStack sellItem = item.getItem().clone();
                     int amount = econ.getAmount(sellItem);
-                    String price = econ.getPrice(session.player, sellItem, amount);
+                    String price = econ.getPrice(session.getPlayer(), sellItem, amount);
                     return new Object[]{item, amount, price};
                 })
                 .filter(data -> {
@@ -162,7 +161,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current < 1) {
-                                session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true)));
+                                session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true)));
                                 return;
                             }
 
@@ -176,13 +175,13 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
                             else return;
 
                             ExtraStorage.getInstance().getEconomyProvider()
-                                    .sellItem(session.player, item.getItem(), sellAmount, rs -> {
+                                    .sellItem(session.getPlayer(), item.getItem(), sellAmount, rs -> {
                                         if (!rs.isSuccess()) {
-                                            session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().cannotBeSold()));
+                                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().cannotBeSold()));
                                             return;
                                         }
-                                        session.user.getStorage().subtract(item.getKey(), rs.getAmount());
-                                        session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemSold())
+                                        session.getUser().getStorage().subtract(item.getKey(), rs.getAmount());
+                                        session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemSold())
                                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(rs.getAmount()))
                                                 .replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true))
                                                 .replaceAll(Utils.getRegex("price"), Digital.formatDouble("###,###.##", rs.getPrice())));
@@ -201,15 +200,21 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig> {
     }
 
     public class SellData {
-        public final Player player;
-        public final User user;
+        public final UUID uuid;
         public SortType sort;
         public boolean orderSort = true;
 
-        private SellData(Player player, User user) {
-            this.player = player;
-            this.user = user;
+        private SellData(UUID uuid) {
+            this.uuid = uuid;
             this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
+        }
+
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
+        }
+
+        public User getUser() {
+            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
         }
     }
 }

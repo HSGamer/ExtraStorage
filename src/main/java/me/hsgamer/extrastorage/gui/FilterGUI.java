@@ -43,12 +43,11 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig> {
     }
 
     public void openFor(Player player) {
-        FilterData data = sessions.computeIfAbsent(player.getUniqueId(), k -> {
-            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
-            return new FilterData(player, user);
-        });
+        FilterData data = sessions.computeIfAbsent(player.getUniqueId(), FilterData::new);
         data.confirm = false;
-        getInventory(player).open();
+        SpigotInventoryUI inv = getInventory(player);
+        inv.update();
+        inv.open();
     }
 
     @Override
@@ -105,21 +104,21 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig> {
         addAboutButton(mask, ctrl.about(),
                 (uuid, text) -> {
                     FilterData d = sessions.get(uuid);
-                    return applyStoragePlaceholders(d.storage, d.player.getName(), text)
-                            .replaceAll(Utils.getRegex("display"), d.player.getDisplayName());
+                    return applyStoragePlaceholders(d.storage, d.getPlayer().getName(), text)
+                            .replaceAll(Utils.getRegex("display"), d.getPlayer().getDisplayName());
                 },
                 (uuid, event) -> {
                     FilterData d = sessions.get(uuid);
                     if (d.storage.getFilteredItems().isEmpty() || !event.isShiftClick()) return;
                     if (!d.confirm) {
                         d.confirm = true;
-                        d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
+                        d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
                         return;
                     }
                     for (String key : d.storage.getFilteredItems().keySet()) {
                         d.storage.unfilter(key);
                     }
-                    d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().filterCleanedUp()));
+                    d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().filterCleanedUp()));
                     updateInventory(uuid);
                 });
 
@@ -191,16 +190,25 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig> {
     }
 
     public class FilterData {
-        public final Player player;
+        public final UUID uuid;
         public final Storage storage;
         public SortType sort;
         public boolean orderSort = true;
         public boolean confirm;
 
-        private FilterData(Player player, User user) {
-            this.player = player;
+        private FilterData(UUID uuid) {
+            this.uuid = uuid;
+            User user = ExtraStorage.getInstance().getUserManager().getUser(uuid);
             this.storage = user.getStorage();
             this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
+        }
+
+        public Player getPlayer() {
+            return Bukkit.getPlayer(uuid);
+        }
+
+        public User getUser() {
+            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
         }
     }
 }
