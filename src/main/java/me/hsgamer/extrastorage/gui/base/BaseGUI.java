@@ -58,22 +58,34 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
     protected static List<Position> getSlots(Map<String, Object> itemConfig) {
         Object slots = itemConfig.get("Slots");
         if (slots instanceof List) {
-            return parseSlots((List<String>) slots);
+            return parseSlots((List<Object>) slots);
         }
-        Object slot = itemConfig.get("Slot");
-        if (slot instanceof Number) {
-            int s = ((Number) slot).intValue() - 1;
-            if (s >= 0 && s < 54) {
-                return Collections.singletonList(SpigotInventoryUtil.toPosition(s, InventoryType.CHEST));
+        Object rawSlot = itemConfig.get("Slot");
+        int slot;
+        if (rawSlot instanceof Number) {
+            slot = ((Number) rawSlot).intValue();
+        } else {
+            try {
+                slot = Integer.parseInt(Objects.toString(rawSlot));
+            } catch (Exception ignored) {
+                return Collections.emptyList();
             }
+        }
+        int s = slot - 1;
+        if (s >= 0 && s < 54) {
+            return Collections.singletonList(SpigotInventoryUtil.toPosition(s, InventoryType.CHEST));
         }
         return Collections.emptyList();
     }
 
-    private static List<Position> parseSlots(List<String> slotStrs) {
+    private static List<Position> parseSlots(List<Object> slotStrs) {
         Set<Integer> slotSet = new LinkedHashSet<>();
-        for (String slotStr : slotStrs) {
-            parseSlot(slotStr, slotSet);
+        for (Object slot : slotStrs) {
+            if (slot instanceof Number) {
+                slotSet.add(((Number) slot).intValue() - 1);
+            } else {
+                parseSlot(Objects.toString(slot), slotSet);
+            }
         }
         if (slotSet.isEmpty()) {
             return Collections.emptyList();
