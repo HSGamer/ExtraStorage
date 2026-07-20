@@ -3,6 +3,7 @@ package me.hsgamer.extrastorage.gui.base;
 import io.github.projectunified.craftconfig.bukkit.BukkitConfig;
 import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import io.github.projectunified.craftux.common.ActionItem;
+import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
@@ -11,6 +12,7 @@ import io.github.projectunified.craftux.simple.SimpleButtonMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUtil;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
@@ -29,13 +31,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> {
+public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
 
     protected final String configFile;
     protected final Class<C> configClass;
     protected final Class<S> sortClass;
     protected final Map<UUID, SpigotInventoryUI> openInventories = new HashMap<>();
+    protected final Map<UUID, D> sessions = new HashMap<>();
     protected C config;
     protected HybridMask mask;
 
@@ -135,7 +139,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> {
 
     public void reload() {
         loadAndBuild();
-        clearSessions();
+        sessions.clear();
         openInventories.clear();
     }
 
@@ -147,8 +151,6 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> {
     }
 
     protected abstract void buildMask();
-
-    protected abstract void clearSessions();
 
     protected SpigotInventoryUI createInventory(Player player) {
         SpigotInventoryUI inv = new SpigotInventoryUI(
@@ -187,9 +189,63 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> {
         if (inv != null) inv.update();
     }
 
+    protected void processDecorateItems() {
+        Map<String, Map<String, Object>> items = config.decorateItems();
+        if (items != null) {
+            for (Map<String, Object> cfg : items.values()) {
+                processDecorateItem(mask, cfg);
+            }
+        }
+    }
+
+    protected ButtonPaginatedMask createRepresentItemsMask(Function<UUID, List<Button>> buttonSupplier) {
+        Map<String, Object> representConfig = config.representItem();
+        List<Position> slots = getSlots(representConfig);
+        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> slots) {
+            @Override
+            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
+                return buttonSupplier.apply(uuid);
+            }
+        };
+        mask.add(repMask);
+        return repMask;
+    }
+
+    protected void addPageNav(ButtonPaginatedMask repMask) {
+        Map<String, Object> nextPageCfg = config.controlItems().nextPage();
+        Map<String, Object> prevPageCfg = config.controlItems().previousPage();
+        addPageNavMask(mask, repMask,
+                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
+                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
+                this::updateInventory);
+    }
+
+    protected Stream<Item> sortRepresentItems(Stream<Item> stream, S sort, S unfilterSentinel, Function<S, Comparator<Item>> comparatorFactory) {
+        if (unfilterSentinel != null && sort == unfilterSentinel) {
+            return stream.filter(item -> !item.isFiltered());
+        }
+        stream = stream.filter(item -> item.isFiltered() || item.getQuantity() > 0);
+        Comparator<Item> comparator = comparatorFactory.apply(sort);
+        if (comparator != null) stream = stream.sorted(comparator);
+        return stream;
+    }
+
     protected <T extends Enum<T>> void putSortConfig(Map<T, SortButtonConfig<T>> map, T type, Map<String, Object> itemConfig) {
         if (itemConfig == null) return;
         map.put(type, new SortButtonConfig<>(GUIItem.get(itemConfig, null), getSlots(itemConfig)));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Enum<T>> void addSortControls(
+            Consumer<Map<T, SortButtonConfig<T>>> configurator,
+            Function<UUID, T> sortAccessor,
+            BiConsumer<UUID, T> sortMutator,
+            Function<UUID, Boolean> orderAccessor,
+            BiConsumer<UUID, Boolean> orderMutator
+    ) {
+        Map<T, SortButtonConfig<T>> sortMap = new EnumMap<>((Class<T>) sortClass);
+        configurator.accept(sortMap);
+        addSortMask(mask, sortMap, sortAccessor, sortMutator, orderAccessor, orderMutator, this::updateInventory);
     }
 
     protected void processDecorateItem(HybridMask mask, Map<String, Object> itemConfig) {

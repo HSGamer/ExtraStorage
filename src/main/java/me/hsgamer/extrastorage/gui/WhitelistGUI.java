@@ -1,7 +1,6 @@
 package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
-import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import me.hsgamer.extrastorage.ExtraStorage;
@@ -12,7 +11,6 @@ import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.WhitelistGuiConfig;
-import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -22,23 +20,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiConfig> {
-
-    private final Map<UUID, WhitelistData> sessions = new HashMap<>();
+public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiConfig, WhitelistGUI.WhitelistData> {
 
     public WhitelistGUI() {
         super("gui/whitelist.yml", WhitelistGuiConfig.class, SortType.class);
-    }
-
-    @Override
-    protected void clearSessions() {
-        sessions.clear();
     }
 
     public void openFor(Player player) {
@@ -86,43 +76,25 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
 
     @Override
     protected void buildMask() {
-        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
-        if (decorateItems != null) {
-            for (Map<String, Object> itemConfig : decorateItems.values()) {
-                processDecorateItem(mask, itemConfig);
-            }
-        }
+        processDecorateItems();
 
-        Map<String, Object> representConfig = config.representItem();
-        List<Position> representSlots = getSlots(representConfig);
-        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> representSlots) {
-            @Override
-            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
-                WhitelistData d = sessions.get(uuid);
-                if (d == null) return Collections.emptyList();
-                return getRepresentItems(d, representConfig);
-            }
-        };
-        mask.add(repMask);
+        ButtonPaginatedMask repMask = createRepresentItemsMask(uuid -> {
+            WhitelistData d = sessions.get(uuid);
+            return d == null ? Collections.emptyList() : getRepresentItems(d, config.representItem());
+        });
 
         WhitelistGuiConfig.WhitelistControlItemsConfig ctrl = config.controlItems();
 
-        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.NAME_NATURAL, ctrl.sortByName());
-        putSortConfig(sortConfigMap, SortType.NAME_REVERSE, ctrl.sortByName());
-        addSortMask(mask, sortConfigMap,
-                uuid -> sessions.get(uuid).sort,
-                (uuid, s) -> sessions.get(uuid).sort = s,
-                uuid -> sessions.get(uuid).orderSort,
-                (uuid, b) -> sessions.get(uuid).orderSort = b,
-                this::updateInventory);
+        addSortControls(
+                sortMap -> {
+                    putSortConfig(sortMap, SortType.NAME_NATURAL, ctrl.sortByName());
+                    putSortConfig(sortMap, SortType.NAME_REVERSE, ctrl.sortByName());
+                },
+                uuid -> sessions.get(uuid).sort, (uuid, s) -> sessions.get(uuid).sort = s,
+                uuid -> sessions.get(uuid).orderSort, (uuid, b) -> sessions.get(uuid).orderSort = b
+        );
 
-        Map<String, Object> nextPageCfg = ctrl.nextPage();
-        Map<String, Object> prevPageCfg = ctrl.previousPage();
-        addPageNavMask(mask, repMask,
-                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
-                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                this::updateInventory);
+        addPageNav(repMask);
     }
 
     private List<Button> getRepresentItems(WhitelistData session, Map<String, Object> section) {

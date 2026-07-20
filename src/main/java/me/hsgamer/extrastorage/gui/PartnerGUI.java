@@ -1,7 +1,6 @@
 package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
-import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import me.hsgamer.extrastorage.ExtraStorage;
@@ -18,23 +17,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
-
-    private final Map<UUID, PartnerData> sessions = new HashMap<>();
+public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, PartnerGUI.PartnerData> {
 
     public PartnerGUI() {
         super("gui/partner.yml", PartnerGuiConfig.class, SortType.class);
-    }
-
-    @Override
-    protected void clearSessions() {
-        sessions.clear();
     }
 
     public void openFor(Player player) {
@@ -47,24 +38,12 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
 
     @Override
     protected void buildMask() {
-        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
-        if (decorateItems != null) {
-            for (Map<String, Object> itemConfig : decorateItems.values()) {
-                processDecorateItem(mask, itemConfig);
-            }
-        }
+        processDecorateItems();
 
-        Map<String, Object> representConfig = config.representItem();
-        List<Position> representSlots = getSlots(representConfig);
-        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> representSlots) {
-            @Override
-            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
-                PartnerData d = sessions.get(uuid);
-                if (d == null) return Collections.emptyList();
-                return getRepresentItems(d, representConfig);
-            }
-        };
-        mask.add(repMask);
+        ButtonPaginatedMask repMask = createRepresentItemsMask(uuid -> {
+            PartnerData d = sessions.get(uuid);
+            return d == null ? Collections.emptyList() : getRepresentItems(d, config.representItem());
+        });
 
         PartnerGuiConfig.PartnerControlItemsConfig ctrl = config.controlItems();
 
@@ -101,22 +80,16 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
                     GuiUtil.browseGUI(p, PartnerGUI.this, event.isLeftClick());
                 });
 
-        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.NAME, ctrl.sortByName());
-        putSortConfig(sortConfigMap, SortType.TIME, ctrl.sortByTime());
-        addSortMask(mask, sortConfigMap,
-                uuid -> sessions.get(uuid).sort,
-                (uuid, s) -> sessions.get(uuid).sort = s,
-                uuid -> sessions.get(uuid).orderSort,
-                (uuid, b) -> sessions.get(uuid).orderSort = b,
-                this::updateInventory);
+        addSortControls(
+                sortMap -> {
+                    putSortConfig(sortMap, SortType.NAME, ctrl.sortByName());
+                    putSortConfig(sortMap, SortType.TIME, ctrl.sortByTime());
+                },
+                uuid -> sessions.get(uuid).sort, (uuid, s) -> sessions.get(uuid).sort = s,
+                uuid -> sessions.get(uuid).orderSort, (uuid, b) -> sessions.get(uuid).orderSort = b
+        );
 
-        Map<String, Object> nextPageCfg = ctrl.nextPage();
-        Map<String, Object> prevPageCfg = ctrl.previousPage();
-        addPageNavMask(mask, repMask,
-                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
-                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                this::updateInventory);
+        addPageNav(repMask);
     }
 
     private List<Button> getRepresentItems(PartnerData session, Map<String, Object> section) {

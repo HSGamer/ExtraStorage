@@ -1,7 +1,6 @@
 package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
-import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import me.hsgamer.extrastorage.ExtraStorage;
@@ -13,7 +12,6 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
-import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
@@ -26,23 +24,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
-
-    final Map<UUID, StorageData> sessions = new HashMap<>();
+public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, StorageGUI.StorageData> {
 
     public StorageGUI() {
         super("gui/storage.yml", StorageGuiConfig.class, SortType.class);
-    }
-
-    @Override
-    protected void clearSessions() {
-        sessions.clear();
     }
 
     public StorageData getSessionData(UUID uuid) {
@@ -59,24 +49,12 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
 
     @Override
     protected void buildMask() {
-        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
-        if (decorateItems != null) {
-            for (Map<String, Object> itemConfig : decorateItems.values()) {
-                processDecorateItem(mask, itemConfig);
-            }
-        }
+        processDecorateItems();
 
-        Map<String, Object> representConfig = config.representItem();
-        List<Position> representSlots = getSlots(representConfig);
-        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> representSlots) {
-            @Override
-            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
-                StorageData s = sessions.get(uuid);
-                if (s == null) return Collections.emptyList();
-                return getRepresentItems(s, representConfig);
-            }
-        };
-        mask.add(repMask);
+        ButtonPaginatedMask repMask = createRepresentItemsMask(uuid -> {
+            StorageData s = sessions.get(uuid);
+            return s == null ? Collections.emptyList() : getRepresentItems(s, config.representItem());
+        });
 
         StorageGuiConfig.StorageControlItemsConfig ctrl = config.controlItems();
 
@@ -104,52 +82,36 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                     GuiUtil.browseGUI(p, StorageGUI.this, event.isLeftClick());
                 });
 
-        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.MATERIAL, ctrl.sortByMaterial());
-        putSortConfig(sortConfigMap, SortType.NAME, ctrl.sortByName());
-        putSortConfig(sortConfigMap, SortType.QUANTITY, ctrl.sortByQuantity());
-        putSortConfig(sortConfigMap, SortType.UNFILTER, ctrl.sortByUnfilter());
-        addSortMask(mask, sortConfigMap,
-                uuid -> sessions.get(uuid).sort,
-                (uuid, s) -> sessions.get(uuid).sort = s,
-                uuid -> sessions.get(uuid).orderSort,
-                (uuid, b) -> sessions.get(uuid).orderSort = b,
-                this::updateInventory);
+        addSortControls(
+                sortMap -> {
+                    putSortConfig(sortMap, SortType.MATERIAL, ctrl.sortByMaterial());
+                    putSortConfig(sortMap, SortType.NAME, ctrl.sortByName());
+                    putSortConfig(sortMap, SortType.QUANTITY, ctrl.sortByQuantity());
+                    putSortConfig(sortMap, SortType.UNFILTER, ctrl.sortByUnfilter());
+                },
+                uuid -> sessions.get(uuid).sort, (uuid, s) -> sessions.get(uuid).sort = s,
+                uuid -> sessions.get(uuid).orderSort, (uuid, b) -> sessions.get(uuid).orderSort = b
+        );
 
-        Map<String, Object> nextPageCfg = ctrl.nextPage();
-        Map<String, Object> prevPageCfg = ctrl.previousPage();
-        addPageNavMask(mask, repMask,
-                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
-                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
-                this::updateInventory);
+        addPageNav(repMask);
     }
 
     private List<Button> getRepresentItems(StorageData session, Map<String, Object> section) {
         SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = session.storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
-        if (session.sort == SortType.UNFILTER) {
-            itemStream = itemStream.filter(item -> !item.isFiltered());
-        } else {
-            itemStream = itemStream.filter(item -> item.isFiltered() || (item.getQuantity() > 0));
-            Comparator<Item> comparator = null;
-            switch (session.sort) {
+        itemStream = sortRepresentItems(itemStream, session.sort, SortType.UNFILTER, sort -> {
+            switch (sort) {
                 case MATERIAL:
-                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
-                    break;
+                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
                 case NAME:
-                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
-                    break;
+                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
                 case QUANTITY:
-                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByQuantity);
-                    break;
+                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByQuantity);
                 default:
-                    break;
+                    return null;
             }
-            if (comparator != null) {
-                itemStream = itemStream.sorted(comparator);
-            }
-        }
+        });
         return itemStream
                 .map(item -> {
                     String key = item.getKey();

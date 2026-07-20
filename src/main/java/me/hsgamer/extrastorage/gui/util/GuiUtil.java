@@ -26,7 +26,7 @@ public final class GuiUtil {
     private GuiUtil() {
     }
 
-    public static void browseGUI(Player player, BaseGUI<?, ?> current, boolean forward) {
+    public static void browseGUI(Player player, BaseGUI<?, ?, ?> current, boolean forward) {
         int currentIndex = findIndex(current);
         if (currentIndex == -1) return;
 
@@ -42,7 +42,7 @@ public final class GuiUtil {
         }
     }
 
-    private static int findIndex(BaseGUI<?, ?> current) {
+    private static int findIndex(BaseGUI<?, ?, ?> current) {
         if (current == ExtraStorage.getInstance().getStorageGUI()) return 0;
         if (current == ExtraStorage.getInstance().getSellGUI()) return 1;
         if (current == ExtraStorage.getInstance().getPartnerGUI()) return 2;
