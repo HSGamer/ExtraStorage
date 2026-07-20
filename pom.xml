@@ -6,7 +6,7 @@
 	
 	<groupId>me.hsgamer</groupId>
 	<artifactId>ExtraStorage</artifactId>
-	<version>3.13.1</version>
+	<version>3.14.0</version>
 	<packaging>jar</packaging>
 
 	<name>ExtraStorage</name>
