@@ -1,7 +1,8 @@
 package me.hsgamer.extrastorage.gui.base;
 
+import io.github.projectunified.craftconfig.bukkit.BukkitConfig;
+import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import io.github.projectunified.craftux.common.ActionItem;
-import io.github.projectunified.craftux.common.Button;
 import io.github.projectunified.craftux.common.Mask;
 import io.github.projectunified.craftux.common.Position;
 import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
@@ -14,10 +15,10 @@ import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
-import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -26,32 +27,23 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
-public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends SpigotInventoryUI {
+public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> {
 
-    protected final Player player;
-    protected final User user;
-    protected final C config;
-    private final HybridMask mask;
-    private final AtomicReference<List<Button>> representItemsRef = new AtomicReference<>();
-    protected Storage storage;
-    protected S sort;
-    protected boolean orderSort = true;
+    protected final String configFile;
+    protected final Class<C> configClass;
+    protected final Class<S> sortClass;
+    protected final Map<UUID, SpigotInventoryUI> openInventories = new HashMap<>();
+    protected C config;
+    protected HybridMask mask;
 
-    public BaseGUI(Player player, C config, Class<S> sortClass) {
-        super(player.getUniqueId(), Utils.colorize(config.settings().title()), Digital.getBetween(9, 54, config.settings().rows() * 9));
-        this.player = player;
-        this.user = ExtraStorage.getInstance().getUserManager().getUser(player);
-        this.config = config;
-        this.storage = user.getStorage();
-        this.sort = getDefaultSort(config, sortClass);
-
-        mask = new HybridMask();
-        setMask(mask);
+    protected BaseGUI(String configFile, Class<C> configClass, Class<S> sortClass) {
+        this.configFile = configFile;
+        this.configClass = configClass;
+        this.sortClass = sortClass;
+        loadAndBuild();
     }
 
     @SuppressWarnings("unchecked")
@@ -117,8 +109,8 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
         }
     }
 
-    private S getDefaultSort(C config, Class<S> sortClass) {
-        String sort = config.settings().defaultSort();
+    protected static <S extends Enum<S>> S getDefaultSort(GuiConfig.SettingsConfig settings, Class<S> sortClass) {
+        String sort = settings.defaultSort();
         if (sort == null) return null;
         try {
             return Enum.valueOf(sortClass, sort.toUpperCase());
@@ -127,194 +119,11 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
         }
     }
 
-    @Override
-    protected boolean onClick(InventoryClickEvent event) {
-        SoundUtil.getSoundPlayer(config.settings().sound()).accept(player);
-        return super.onClick(event);
-    }
-
-    protected final boolean hasPermission(String perm) {
-        return (player.isOp() || player.hasPermission(perm));
-    }
-
-    protected void browseGUI(boolean forward) {
-        GuiUtil.browseGUI(player, this, forward);
-    }
-
-    protected void setup() {
-        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
-        if (decorateItems != null) {
-            for (Map<String, Object> itemConfig : decorateItems.values()) {
-                processDecorateItem(mask, itemConfig);
-            }
-        }
-
-        Map<String, Object> representConfig = config.representItem();
-        List<Position> representItemSlots = getSlots(representConfig);
-        ButtonPaginatedMask representItemMask = new ButtonPaginatedMask(u -> representItemSlots) {
-            @Override
-            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
-                List<Button> buttons = representItemsRef.get();
-                return buttons == null ? Collections.emptyList() : buttons;
-            }
-        };
-        mask.add(representItemMask);
-
-        Mask controlItemMask = getControlItems(config.controlItems());
-        mask.add(controlItemMask);
-
-        GuiConfig.ControlItemsConfig controlConfig = config.controlItems();
-        Map<String, Object> nextPageConfig = controlConfig.nextPage();
-        GUIItem nextPageItem = GUIItem.get(nextPageConfig, null);
-        List<Position> nextPageSlots = getSlots(nextPageConfig);
-        Map<String, Object> previousPageConfig = controlConfig.previousPage();
-        GUIItem previousPageItem = GUIItem.get(previousPageConfig, null);
-        List<Position> previousPageSlots = getSlots(previousPageConfig);
-
-        mask.add(new Mask() {
-            @Override
-            public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
-                Map<Position, Consumer<ActionItem>> map = new HashMap<>();
-                int page = representItemMask.getPage(uuid);
-                int maxPage = representItemMask.getPageAmount(uuid);
-                UnaryOperator<String> replacer = s -> s
-                        .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page + 1))
-                        .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
-
-                if (page < maxPage - 1) {
-                    Consumer<ActionItem> actionItemConsumer = actionItem -> {
-                        actionItem.setItem(nextPageItem.getItem(user, replacer));
-                        actionItem.setAction(InventoryClickEvent.class, event -> {
-                            representItemMask.nextPage(uuid);
-                            update();
-                        });
-                    };
-                    nextPageSlots.forEach(position -> map.put(position, actionItemConsumer));
-                }
-                if (page > 0) {
-                    Consumer<ActionItem> actionItemConsumer = actionItem -> {
-                        actionItem.setItem(previousPageItem.getItem(user, replacer));
-                        actionItem.setAction(InventoryClickEvent.class, event -> {
-                            representItemMask.previousPage(uuid);
-                            update();
-                        });
-                    };
-                    previousPageSlots.forEach(position -> map.put(position, actionItemConsumer));
-                }
-                return map;
-            }
-        });
-        updateRepresentItems();
-        update();
-    }
-
-    protected void updateRepresentItems() {
-        representItemsRef.set(getRepresentItems(config.representItem()));
-    }
-
-    protected abstract List<Button> getRepresentItems(Map<String, Object> section);
-
-    protected abstract Mask getControlItems(GuiConfig.ControlItemsConfig section);
-
-    @SuppressWarnings("unchecked")
-    private void processDecorateItem(HybridMask mask, Map<String, Object> itemConfig) {
-        List<Position> slots = getSlots(itemConfig);
-        if (slots.isEmpty()) return;
-
-        ItemStack item = GUIItem.get(itemConfig, null).getItem(user, s -> s);
-        if ((item == null) || (item.getType() == Material.AIR)) return;
-
-        Object commands = itemConfig.get("Commands");
-        List<String> actions = (commands instanceof List) ? (List<String>) commands : Collections.emptyList();
-        Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
-
-        SimpleButtonMask decorateButtonMask = new SimpleButtonMask();
-        Button decorateButton = (uuid, actionItem) -> {
-            actionItem.setItem(item);
-            if (actionConsumer != null) {
-                actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));
-            }
-            return true;
-        };
-        decorateButtonMask.setButton(slots, decorateButton);
-        mask.add(decorateButtonMask);
-    }
-
-    protected void addAboutButton(HybridMask mask, Map<String, Object> aboutConfig, UnaryOperator<String> loreReplacer, Consumer<InventoryClickEvent> action) {
-        GUIItem aboutItem = GUIItem.get(aboutConfig, null);
-        List<Position> aboutItemSlots = getSlots(aboutConfig);
-        SimpleButtonMask aboutMask = new SimpleButtonMask();
-        mask.add(aboutMask);
-        aboutMask.setButton(aboutItemSlots, (uuid, actionItem) -> {
-            aboutItem.apply(actionItem, user, loreReplacer);
-            if (action != null) {
-                actionItem.setAction(InventoryClickEvent.class, action);
-            }
-            return true;
-        });
-    }
-
-    protected void addSwitchButton(HybridMask mask, Map<String, Object> switchConfig, Consumer<InventoryClickEvent> action) {
-        GUIItem switchItem = GUIItem.get(switchConfig, null);
-        List<Position> switchSlots = getSlots(switchConfig);
-        SimpleButtonMask switchMask = new SimpleButtonMask();
-        mask.add(switchMask);
-        switchMask.setButton(switchSlots, (uuid, actionItem) -> {
-            switchItem.apply(actionItem, user, s -> s);
-            if (action != null) {
-                actionItem.setAction(InventoryClickEvent.class, action);
-            }
-            return true;
-        });
-    }
-
-    protected void addSortMask(HybridMask mask, Map<S, SortButtonConfig<S>> configMap) {
-        if (sort == null || (!configMap.containsKey(sort) && !configMap.isEmpty())) {
-            sort = configMap.keySet().stream().findFirst().orElse(null);
-        }
-
-        mask.add(new Mask() {
-            @Override
-            public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
-                Map<Position, Consumer<ActionItem>> map = new HashMap<>();
-                if (sort == null) return map;
-                SortButtonConfig<S> config = configMap.get(sort);
-                if (config != null && config.displayItem != null && !config.positions.isEmpty()) {
-                    Consumer<ActionItem> actionItemConsumer = actionItem -> {
-                        config.displayItem.apply(actionItem, user, s -> s);
-                        actionItem.setAction(InventoryClickEvent.class, event -> {
-                            if (event.isShiftClick()) {
-                                orderSort = !orderSort;
-                            } else {
-                                List<S> keys = new ArrayList<>(configMap.keySet());
-                                int index = keys.indexOf(sort);
-                                S newSort;
-                                if (event.isLeftClick()) {
-                                    newSort = keys.get((index + 1) % keys.size());
-                                } else if (event.isRightClick()) {
-                                    newSort = keys.get((index - 1 + keys.size()) % keys.size());
-                                } else {
-                                    newSort = null;
-                                }
-                                if (newSort == null) return;
-                                sort = newSort;
-                            }
-                            updateRepresentItems();
-                            update();
-                        });
-                    };
-                    config.positions.forEach(position -> map.put(position, actionItemConsumer));
-                }
-                return map;
-            }
-        });
-    }
-
-    protected String applyStoragePlaceholders(String s, String playerName) {
+    protected static String applyStoragePlaceholders(Storage storage, String playerName, String text) {
         String UNKNOWN = Utils.formatMessage(ExtraStorage.getInstance().getMessage().status().unknown());
         long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
         double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
-        return s
+        return text
                 .replaceAll(Utils.getRegex("player"), playerName)
                 .replaceAll(Utils.getRegex("status"), Utils.formatMessage(storage.getStatus() ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled()))
                 .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
@@ -324,9 +133,218 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig> extends Sp
                 .replaceAll(Utils.getRegex("free(\\_|\\-)percent"), (freePercent == -1) ? UNKNOWN : (freePercent + "%"));
     }
 
+    public void reload() {
+        loadAndBuild();
+        clearSessions();
+        openInventories.clear();
+    }
+
+    private void loadAndBuild() {
+        BukkitConfig bukkitConfig = new BukkitConfig(ExtraStorage.getInstance(), configFile);
+        this.config = ConfigGenerator.newInstance(configClass, bukkitConfig);
+        this.mask = new HybridMask();
+        buildMask();
+    }
+
+    protected abstract void buildMask();
+
+    protected abstract void clearSessions();
+
+    protected SpigotInventoryUI createInventory(Player player) {
+        SpigotInventoryUI inv = new SpigotInventoryUI(
+                player.getUniqueId(),
+                Utils.colorize(config.settings().title()),
+                Digital.getBetween(9, 54, config.settings().rows() * 9)
+        ) {
+            @Override
+            protected boolean onClick(InventoryClickEvent event) {
+                SoundUtil.getSoundPlayer(config.settings().sound()).accept(player);
+                if (event.getClickedInventory() == player.getOpenInventory().getBottomInventory()) {
+                    onBottomInventoryClick(event);
+                }
+                return super.onClick(event);
+            }
+        };
+        inv.setMask(mask);
+        return inv;
+    }
+
+    public SpigotInventoryUI getInventory(Player player) {
+        UUID uuid = player.getUniqueId();
+        SpigotInventoryUI inv = openInventories.get(uuid);
+        if (inv == null) {
+            inv = createInventory(player);
+            openInventories.put(uuid, inv);
+        }
+        return inv;
+    }
+
+    protected void onBottomInventoryClick(InventoryClickEvent event) {
+    }
+
+    protected void updateInventory(UUID uuid) {
+        SpigotInventoryUI inv = openInventories.get(uuid);
+        if (inv != null) inv.update();
+    }
+
     protected <T extends Enum<T>> void putSortConfig(Map<T, SortButtonConfig<T>> map, T type, Map<String, Object> itemConfig) {
         if (itemConfig == null) return;
         map.put(type, new SortButtonConfig<>(GUIItem.get(itemConfig, null), getSlots(itemConfig)));
+    }
+
+    protected void processDecorateItem(HybridMask mask, Map<String, Object> itemConfig) {
+        List<Position> slots = getSlots(itemConfig);
+        if (slots.isEmpty()) return;
+
+        GUIItem guiItem = GUIItem.get(itemConfig, null);
+        Object commands = itemConfig.get("Commands");
+        List<String> actions = (commands instanceof List) ? (List<String>) commands : Collections.emptyList();
+        Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
+
+        SimpleButtonMask decorateMask = new SimpleButtonMask();
+        decorateMask.setButton(slots, (uuid, actionItem) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null) return false;
+            User u = ExtraStorage.getInstance().getUserManager().getUser(p);
+            ItemStack item = guiItem.getItem(u, s -> s);
+            if (item == null || item.getType() == Material.AIR) return false;
+            actionItem.setItem(item);
+            if (actionConsumer != null) {
+                actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));
+            }
+            return true;
+        });
+        mask.add(decorateMask);
+    }
+
+    protected void addAboutButton(HybridMask mask, Map<String, Object> aboutConfig,
+                                  BiFunction<UUID, String, String> loreReplacer,
+                                  BiConsumer<UUID, InventoryClickEvent> action) {
+        GUIItem aboutItem = GUIItem.get(aboutConfig, null);
+        List<Position> slots = getSlots(aboutConfig);
+        SimpleButtonMask btnMask = new SimpleButtonMask();
+        btnMask.setButton(slots, (uuid, actionItem) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null) return false;
+            User u = ExtraStorage.getInstance().getUserManager().getUser(p);
+            aboutItem.apply(actionItem, u, s -> loreReplacer.apply(uuid, s));
+            if (action != null) {
+                actionItem.setAction(InventoryClickEvent.class, event -> action.accept(uuid, event));
+            }
+            return true;
+        });
+        mask.add(btnMask);
+    }
+
+    protected void addSwitchButton(HybridMask mask, Map<String, Object> switchConfig,
+                                   BiConsumer<UUID, InventoryClickEvent> action) {
+        GUIItem switchItem = GUIItem.get(switchConfig, null);
+        List<Position> slots = getSlots(switchConfig);
+        SimpleButtonMask switchMask = new SimpleButtonMask();
+        mask.add(switchMask);
+        switchMask.setButton(slots, (uuid, actionItem) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null) return false;
+            User u = ExtraStorage.getInstance().getUserManager().getUser(p);
+            switchItem.apply(actionItem, u, s -> s);
+            if (action != null) {
+                actionItem.setAction(InventoryClickEvent.class, event -> action.accept(uuid, event));
+            }
+            return true;
+        });
+    }
+
+    protected <T extends Enum<T>> void addSortMask(HybridMask mask, Map<T, SortButtonConfig<T>> configMap,
+                                                   Function<UUID, T> sortAccessor,
+                                                   BiConsumer<UUID, T> sortMutator,
+                                                   Function<UUID, Boolean> orderAccessor,
+                                                   BiConsumer<UUID, Boolean> orderMutator,
+                                                   Consumer<UUID> updater) {
+        mask.add(new Mask() {
+            @Override
+            public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
+                T sort = sortAccessor.apply(uuid);
+                if (sort == null || (!configMap.containsKey(sort) && !configMap.isEmpty())) {
+                    sort = configMap.keySet().stream().findFirst().orElse(null);
+                    if (sort != null) sortMutator.accept(uuid, sort);
+                }
+                Map<Position, Consumer<ActionItem>> map = new HashMap<>();
+                if (sort == null) return map;
+                SortButtonConfig<T> cfg = configMap.get(sort);
+                if (cfg == null || cfg.displayItem == null || cfg.positions.isEmpty()) return map;
+
+                Player p = Bukkit.getPlayer(uuid);
+                if (p == null) return map;
+                User u = ExtraStorage.getInstance().getUserManager().getUser(p);
+                Consumer<ActionItem> itemConsumer = actionItem -> {
+                    cfg.displayItem.apply(actionItem, u, s -> s);
+                    actionItem.setAction(InventoryClickEvent.class, event -> {
+                        T currentSort = sortAccessor.apply(uuid);
+                        if (event.isShiftClick()) {
+                            orderMutator.accept(uuid, !orderAccessor.apply(uuid));
+                        } else {
+                            List<T> keys = new ArrayList<>(configMap.keySet());
+                            int index = keys.indexOf(currentSort);
+                            T newSort;
+                            if (event.isLeftClick()) {
+                                newSort = keys.get((index + 1) % keys.size());
+                            } else if (event.isRightClick()) {
+                                newSort = keys.get((index - 1 + keys.size()) % keys.size());
+                            } else {
+                                newSort = null;
+                            }
+                            if (newSort == null) return;
+                            sortMutator.accept(uuid, newSort);
+                        }
+                        updater.accept(uuid);
+                    });
+                };
+                cfg.positions.forEach(position -> map.put(position, itemConsumer));
+                return map;
+            }
+        });
+    }
+
+    protected void addPageNavMask(HybridMask mask, ButtonPaginatedMask repMask,
+                                  GUIItem nextPageItem, List<Position> nextPageSlots,
+                                  GUIItem previousPageItem, List<Position> previousPageSlots,
+                                  Consumer<UUID> updater) {
+        mask.add(new Mask() {
+            @Override
+            public @NotNull Map<Position, Consumer<ActionItem>> apply(@NotNull UUID uuid) {
+                Map<Position, Consumer<ActionItem>> map = new HashMap<>();
+                int page = repMask.getPage(uuid);
+                int maxPage = repMask.getPageAmount(uuid);
+                Player p = Bukkit.getPlayer(uuid);
+                if (p == null) return map;
+                User u = ExtraStorage.getInstance().getUserManager().getUser(p);
+                UnaryOperator<String> replacer = s -> s
+                        .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page + 1))
+                        .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));
+
+                if (page < maxPage - 1) {
+                    Consumer<ActionItem> nextConsumer = actionItem -> {
+                        actionItem.setItem(nextPageItem.getItem(u, replacer));
+                        actionItem.setAction(InventoryClickEvent.class, event -> {
+                            repMask.nextPage(uuid);
+                            updater.accept(uuid);
+                        });
+                    };
+                    nextPageSlots.forEach(position -> map.put(position, nextConsumer));
+                }
+                if (page > 0) {
+                    Consumer<ActionItem> prevConsumer = actionItem -> {
+                        actionItem.setItem(previousPageItem.getItem(u, replacer));
+                        actionItem.setAction(InventoryClickEvent.class, event -> {
+                            repMask.previousPage(uuid);
+                            updater.accept(uuid);
+                        });
+                    };
+                    previousPageSlots.forEach(position -> map.put(position, prevConsumer));
+                }
+                return map;
+            }
+        });
     }
 
     public static class SortButtonConfig<S extends Enum<S>> {

@@ -75,7 +75,7 @@ public class AdminCommand {
     @Permission(Constants.ADMIN_OPEN_PERMISSION)
     public void open(Player sender, String targetName) {
         User user = resolveTargetUser(targetName);
-        new StorageGUI(sender, user).open();
+        ExtraStorage.getInstance().getStorageGUI().openFor(sender, user);
     }
 
     @Command("space")
@@ -378,7 +378,7 @@ public class AdminCommand {
     @Command("whitelist")
     @Permission(Constants.ADMIN_WHITELIST_PERMISSION)
     public void whitelist(Player sender) {
-        new WhitelistGUI(sender).open();
+        ExtraStorage.getInstance().getWhitelistGUI().openFor(sender);
     }
 
     @Command(value = "reload", aliases = {"rld", "rl"})

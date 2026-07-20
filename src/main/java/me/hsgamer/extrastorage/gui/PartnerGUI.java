@@ -1,51 +1,135 @@
 package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
-import io.github.projectunified.craftux.common.Mask;
-import io.github.projectunified.craftux.mask.HybridMask;
+import io.github.projectunified.craftux.common.Position;
+import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
+import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
-import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.config.PartnerGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
+import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
-    private boolean confirm;
 
-    public PartnerGUI(Player player) {
-        super(player, ExtraStorage.getInstance().getPartnerGuiConfig(), SortType.class);
-        this.confirm = false;
+    private final Map<UUID, PartnerData> sessions = new HashMap<>();
 
-        setup();
+    public PartnerGUI() {
+        super("gui/partner.yml", PartnerGuiConfig.class, SortType.class);
     }
 
     @Override
-    protected List<Button> getRepresentItems(Map<String, Object> section) {
-        Stream<Partner> partnerStream = user.getPartners().stream();
+    protected void clearSessions() {
+        sessions.clear();
+    }
+
+    public void openFor(Player player) {
+        PartnerData data = sessions.computeIfAbsent(player.getUniqueId(), k -> {
+            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
+            return new PartnerData(player, user);
+        });
+        data.confirm = false;
+        getInventory(player).open();
+    }
+
+    @Override
+    protected void buildMask() {
+        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
+        if (decorateItems != null) {
+            for (Map<String, Object> itemConfig : decorateItems.values()) {
+                processDecorateItem(mask, itemConfig);
+            }
+        }
+
+        Map<String, Object> representConfig = config.representItem();
+        List<Position> representSlots = getSlots(representConfig);
+        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> representSlots) {
+            @Override
+            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
+                PartnerData d = sessions.get(uuid);
+                if (d == null) return Collections.emptyList();
+                return getRepresentItems(d, representConfig);
+            }
+        };
+        mask.add(repMask);
+
+        PartnerGuiConfig.PartnerControlItemsConfig ctrl = config.controlItems();
+
+        addAboutButton(mask, ctrl.about(),
+                (uuid, text) -> {
+                    PartnerData d = sessions.get(uuid);
+                    return text.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(d.user.getPartners().size()));
+                },
+                (uuid, event) -> {
+                    PartnerData d = sessions.get(uuid);
+                    if (d.user.getPartners().isEmpty() || !event.isShiftClick()) return;
+                    if (!d.confirm) {
+                        d.confirm = true;
+                        d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
+                        return;
+                    }
+                    for (Partner pn : d.user.getPartners()) {
+                        OfflinePlayer offPlayer = pn.getOfflinePlayer();
+                        if (!offPlayer.isOnline()) continue;
+                        Player p = offPlayer.getPlayer();
+                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), d.player.getName()));
+                        StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
+                        if (sd != null && sd.partner.getUUID().equals(d.player.getUniqueId())) p.closeInventory();
+                    }
+                    d.user.clearPartners();
+                    d.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().cleanupPartnersList()));
+                    updateInventory(uuid);
+                });
+
+        addSwitchButton(mask, ctrl.switchGui(),
+                (uuid, event) -> {
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p == null) return;
+                    GuiUtil.browseGUI(p, PartnerGUI.this, event.isLeftClick());
+                });
+
+        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
+        putSortConfig(sortConfigMap, SortType.NAME, ctrl.sortByName());
+        putSortConfig(sortConfigMap, SortType.TIME, ctrl.sortByTime());
+        addSortMask(mask, sortConfigMap,
+                uuid -> sessions.get(uuid).sort,
+                (uuid, s) -> sessions.get(uuid).sort = s,
+                uuid -> sessions.get(uuid).orderSort,
+                (uuid, b) -> sessions.get(uuid).orderSort = b,
+                uuid -> updateInventory(uuid));
+
+        Map<String, Object> nextPageCfg = ctrl.nextPage();
+        Map<String, Object> prevPageCfg = ctrl.previousPage();
+        addPageNavMask(mask, repMask,
+                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
+                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
+                uuid -> updateInventory(uuid));
+    }
+
+    private List<Button> getRepresentItems(PartnerData session, Map<String, Object> section) {
+        Stream<Partner> partnerStream = session.user.getPartners().stream();
 
         Comparator<Partner> comparator = null;
-        switch (sort) {
+        switch (session.sort) {
             case NAME:
-                comparator = SortUtil.compose(orderSort, SortUtil::comparePartnerByName);
+                comparator = SortUtil.compose(session.orderSort, SortUtil::comparePartnerByName);
                 break;
             case TIME:
-                comparator = SortUtil.compose(orderSort, SortUtil::comparePartnerByTimestamp);
+                comparator = SortUtil.compose(session.orderSort, SortUtil::comparePartnerByTimestamp);
                 break;
             default:
                 break;
@@ -72,72 +156,37 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig> {
             return (Button) (uuid, actionItem) -> {
                 actionItem.setItem(item);
                 actionItem.setAction(InventoryClickEvent.class, event -> {
-                    user.removePartner(pnPlayer.getUniqueId());
-                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
+                    session.user.removePartner(pnPlayer.getUniqueId());
+                    session.player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
                     if (pnPlayer.isOnline()) {
                         Player p = pnPlayer.getPlayer();
-                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), player.getName()));
-                        InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                        if (holder instanceof StorageGUI) {
-                            StorageGUI gui = (StorageGUI) holder;
-                            if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
-                        }
+                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), session.player.getName()));
+                        StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
+                        if (sd != null && sd.partner.getUUID().equals(session.player.getUniqueId())) p.closeInventory();
                     }
 
-                    updateRepresentItems();
-                    update();
+                    updateInventory(uuid);
                 });
                 return true;
             };
         }).collect(Collectors.toList());
     }
 
-    @Override
-    protected Mask getControlItems(GuiConfig.ControlItemsConfig section) {
-        PartnerGuiConfig.PartnerControlItemsConfig controlConfig = (PartnerGuiConfig.PartnerControlItemsConfig) section;
-        HybridMask mask = new HybridMask();
-
-        addAboutButton(mask, controlConfig.about(), s -> s.replaceAll(Utils.getRegex("total(\\_|\\-)partners"), Integer.toString(user.getPartners().size())), event -> {
-            if (user.getPartners().isEmpty() || (!event.isShiftClick())) return;
-
-            if (!confirm) {
-                confirm = true;
-                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
-                return;
-            }
-
-            for (Partner pn : user.getPartners()) {
-                OfflinePlayer offPlayer = pn.getOfflinePlayer();
-                if (!offPlayer.isOnline()) continue;
-
-                Player p = offPlayer.getPlayer();
-                p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().noLongerPartner()).replaceAll(Utils.getRegex("player"), player.getName()));
-                InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                if (holder instanceof StorageGUI) {
-                    StorageGUI gui = (StorageGUI) holder;
-                    if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
-                }
-            }
-            user.clearPartners();
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().cleanupPartnersList()));
-
-            updateRepresentItems();
-            update();
-        });
-
-        addSwitchButton(mask, controlConfig.switchGui(), event -> {
-            browseGUI(event.isLeftClick());
-        });
-
-        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.NAME, controlConfig.sortByName());
-        putSortConfig(sortConfigMap, SortType.TIME, controlConfig.sortByTime());
-        addSortMask(mask, sortConfigMap);
-
-        return mask;
-    }
-
     public enum SortType {
         NAME, TIME
+    }
+
+    public class PartnerData {
+        public final Player player;
+        public final User user;
+        public SortType sort;
+        public boolean orderSort = true;
+        public boolean confirm;
+
+        private PartnerData(Player player, User user) {
+            this.player = player;
+            this.user = user;
+            this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
+        }
     }
 }

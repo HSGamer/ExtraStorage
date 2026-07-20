@@ -22,7 +22,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -55,7 +54,7 @@ public class PlayerCommand {
         Player player = user.getPlayer();
 
         if (target == null) {
-            new StorageGUI(player, null).open();
+            ExtraStorage.getInstance().getStorageGUI().openFor(player, null);
             return;
         }
 
@@ -73,7 +72,7 @@ public class PlayerCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().playerNotPartner()).replaceAll(PLAYER_REGEX, target));
         }
 
-        new StorageGUI(player, targetUser).open();
+        ExtraStorage.getInstance().getStorageGUI().openFor(player, targetUser);
     }
 
     @Command(value = "help", aliases = {"?"})
@@ -116,7 +115,7 @@ public class PlayerCommand {
     @Command("filter")
     @Permission(Constants.PLAYER_FILTER_PERMISSION)
     public void filter(Player sender) {
-        new FilterGUI(sender).open();
+        ExtraStorage.getInstance().getFilterGUI().openFor(sender);
     }
 
     @Command("sell")
@@ -125,7 +124,7 @@ public class PlayerCommand {
         Player player = user.getPlayer();
 
         if (materialKey == null) {
-            new SellGUI(player).open();
+            ExtraStorage.getInstance().getSellGUI().openFor(player);
             return;
         }
 
@@ -236,7 +235,7 @@ public class PlayerCommand {
 
         @Default
         public void execute(@Resolve("resolveUser") User user) {
-            new PartnerGUI(user.getPlayer()).open();
+            ExtraStorage.getInstance().getPartnerGUI().openFor(user.getPlayer());
         }
 
         @Command("add")
@@ -283,11 +282,8 @@ public class PlayerCommand {
             if (target.isOnline()) {
                 Player p = target.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.getMessage().success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
-                InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                if (holder instanceof StorageGUI) {
-                    StorageGUI gui = (StorageGUI) holder;
-                    if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
-                }
+                StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
+                        if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
         }
 
@@ -304,11 +300,8 @@ public class PlayerCommand {
 
                 Player p = offPlayer.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.getMessage().success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
-                InventoryHolder holder = p.getOpenInventory().getTopInventory().getHolder();
-                if (holder instanceof StorageGUI) {
-                    StorageGUI gui = (StorageGUI) holder;
-                    if (gui.getPartner().getUUID().equals(player.getUniqueId())) p.closeInventory();
-                }
+                StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
+                        if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
             user.clearPartners();
             player.sendMessage(Utils.formatMessage(instance.getMessage().success().cleanupPartnersList()));

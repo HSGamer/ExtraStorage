@@ -16,6 +16,7 @@ import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.data.worth.WorthManager;
+import me.hsgamer.extrastorage.gui.*;
 import me.hsgamer.extrastorage.gui.config.*;
 import me.hsgamer.extrastorage.hooks.economy.EconomyProvider;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
@@ -54,11 +55,11 @@ public final class ExtraStorage extends JavaPlugin {
 
     private ESPlaceholder placeholder;
 
-    private FilterGuiConfig filterGuiConfig;
-    private PartnerGuiConfig partnerGuiConfig;
-    private SellGuiConfig sellGuiConfig;
-    private StorageGuiConfig storageGuiConfig;
-    private WhitelistGuiConfig whitelistGuiConfig;
+    private StorageGUI storageGUI;
+    private SellGUI sellGUI;
+    private FilterGUI filterGUI;
+    private PartnerGUI partnerGUI;
+    private WhitelistGUI whitelistGUI;
 
     private ActionManager actionManager;
     private BukkitCommandManager commandManager;
@@ -158,16 +159,20 @@ public final class ExtraStorage extends JavaPlugin {
     }
 
     public void loadGuiFile() {
-        this.filterGuiConfig = createGuiConfig("gui/filter.yml", FilterGuiConfig.class);
-        this.partnerGuiConfig = createGuiConfig("gui/partner.yml", PartnerGuiConfig.class);
-        this.sellGuiConfig = createGuiConfig("gui/sell.yml", SellGuiConfig.class);
-        this.storageGuiConfig = createGuiConfig("gui/storage.yml", StorageGuiConfig.class);
-        this.whitelistGuiConfig = createGuiConfig("gui/whitelist.yml", WhitelistGuiConfig.class);
-    }
+        if (storageGUI == null) storageGUI = new StorageGUI();
+        else storageGUI.reload();
 
-    private <C extends GuiConfig> C createGuiConfig(String fileName, Class<C> clazz) {
-        io.github.projectunified.craftconfig.bukkit.BukkitConfig bukkitConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, fileName);
-        return ConfigGenerator.newInstance(clazz, bukkitConfig);
+        if (sellGUI == null) sellGUI = new SellGUI();
+        else sellGUI.reload();
+
+        if (filterGUI == null) filterGUI = new FilterGUI();
+        else filterGUI.reload();
+
+        if (partnerGUI == null) partnerGUI = new PartnerGUI();
+        else partnerGUI.reload();
+
+        if (whitelistGUI == null) whitelistGUI = new WhitelistGUI();
+        else whitelistGUI.reload();
     }
 
     private void registerCommands() {
@@ -215,27 +220,27 @@ public final class ExtraStorage extends JavaPlugin {
         return this.log;
     }
 
-    public FilterGuiConfig getFilterGuiConfig() {
-        return filterGuiConfig;
-    }
-
-    public PartnerGuiConfig getPartnerGuiConfig() {
-        return partnerGuiConfig;
-    }
-
-    public SellGuiConfig getSellGuiConfig() {
-        return sellGuiConfig;
-    }
-
-    public StorageGuiConfig getStorageGuiConfig() {
-        return storageGuiConfig;
-    }
-
-    public WhitelistGuiConfig getWhitelistGuiConfig() {
-        return whitelistGuiConfig;
-    }
-
     public ActionManager getActionManager() {
         return actionManager;
+    }
+
+    public StorageGUI getStorageGUI() {
+        return storageGUI;
+    }
+
+    public SellGUI getSellGUI() {
+        return sellGUI;
+    }
+
+    public FilterGUI getFilterGUI() {
+        return filterGUI;
+    }
+
+    public PartnerGUI getPartnerGUI() {
+        return partnerGUI;
+    }
+
+    public WhitelistGUI getWhitelistGUI() {
+        return whitelistGUI;
     }
 }

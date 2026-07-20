@@ -1,66 +1,149 @@
 package me.hsgamer.extrastorage.gui;
 
 import io.github.projectunified.craftux.common.Button;
-import io.github.projectunified.craftux.common.Mask;
-import io.github.projectunified.craftux.mask.HybridMask;
+import io.github.projectunified.craftux.common.Position;
+import io.github.projectunified.craftux.mask.ButtonPaginatedMask;
+import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
+import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
-import me.hsgamer.extrastorage.gui.config.GuiConfig;
 import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
+import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
+import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
-    private final User partner;
 
-    public StorageGUI(Player player, User partner) {
-        super(player, ExtraStorage.getInstance().getStorageGuiConfig(), SortType.class);
-        this.partner = ((partner == null) ? user : partner);
-        this.storage = this.partner.getStorage();
+    final Map<UUID, StorageData> sessions = new HashMap<>();
 
-        setup();
-    }
-
-    public User getPartner() {
-        return partner;
+    public StorageGUI() {
+        super("gui/storage.yml", StorageGuiConfig.class, SortType.class);
     }
 
     @Override
-    protected List<Button> getRepresentItems(Map<String, Object> section) {
+    protected void clearSessions() {
+        sessions.clear();
+    }
+
+    public StorageData getSessionData(UUID uuid) {
+        return sessions.get(uuid);
+    }
+
+    public void openFor(Player player, User partner) {
+        StorageData data = sessions.computeIfAbsent(player.getUniqueId(), k -> {
+            User user = ExtraStorage.getInstance().getUserManager().getUser(player);
+            return new StorageData(user);
+        });
+        data.setPartner(partner == null ? data.user : partner);
+        getInventory(player).open();
+    }
+
+    @Override
+    protected void buildMask() {
+        Map<String, Map<String, Object>> decorateItems = config.decorateItems();
+        if (decorateItems != null) {
+            for (Map<String, Object> itemConfig : decorateItems.values()) {
+                processDecorateItem(mask, itemConfig);
+            }
+        }
+
+        Map<String, Object> representConfig = config.representItem();
+        List<Position> representSlots = getSlots(representConfig);
+        ButtonPaginatedMask repMask = new ButtonPaginatedMask(u -> representSlots) {
+            @Override
+            public @NotNull List<Button> getButtons(@NotNull UUID uuid) {
+                StorageData s = sessions.get(uuid);
+                if (s == null) return Collections.emptyList();
+                return getRepresentItems(s, representConfig);
+            }
+        };
+        mask.add(repMask);
+
+        StorageGuiConfig.StorageControlItemsConfig ctrl = config.controlItems();
+
+        addAboutButton(mask, ctrl.about(),
+                (uuid, text) -> {
+                    StorageData s = sessions.get(uuid);
+                    return applyStoragePlaceholders(s.storage, s.partner.getName(), text);
+                },
+                (uuid, event) -> {
+                    StorageData s = sessions.get(uuid);
+                    Player p = s.user.getPlayer();
+                    boolean isAdminOrSelf = (p.isOp() || p.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || s.partner.getUUID().equals(uuid));
+                    if (!p.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION) || !isAdminOrSelf) return;
+                    boolean status = !s.storage.getStatus();
+                    s.storage.setStatus(status);
+                    p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().storageUsageToggled())
+                            .replaceAll(Utils.getRegex("status"), Utils.formatMessage(status ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled())));
+                    updateInventory(uuid);
+                });
+
+        addSwitchButton(mask, ctrl.switchGui(),
+                (uuid, event) -> {
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p == null) return;
+                    GuiUtil.browseGUI(p, StorageGUI.this, event.isLeftClick());
+                });
+
+        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
+        putSortConfig(sortConfigMap, SortType.MATERIAL, ctrl.sortByMaterial());
+        putSortConfig(sortConfigMap, SortType.NAME, ctrl.sortByName());
+        putSortConfig(sortConfigMap, SortType.QUANTITY, ctrl.sortByQuantity());
+        putSortConfig(sortConfigMap, SortType.UNFILTER, ctrl.sortByUnfilter());
+        addSortMask(mask, sortConfigMap,
+                uuid -> sessions.get(uuid).sort,
+                (uuid, s) -> sessions.get(uuid).sort = s,
+                uuid -> sessions.get(uuid).orderSort,
+                (uuid, b) -> sessions.get(uuid).orderSort = b,
+                uuid -> updateInventory(uuid));
+
+        Map<String, Object> nextPageCfg = ctrl.nextPage();
+        Map<String, Object> prevPageCfg = ctrl.previousPage();
+        addPageNavMask(mask, repMask,
+                GUIItem.get(nextPageCfg, null), getSlots(nextPageCfg),
+                GUIItem.get(prevPageCfg, null), getSlots(prevPageCfg),
+                uuid -> updateInventory(uuid));
+    }
+
+    private List<Button> getRepresentItems(StorageData session, Map<String, Object> section) {
+        Player player = session.user.getPlayer();
         SettingConfig setting = ExtraStorage.getInstance().getSetting();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
-        Stream<Item> itemStream = storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
-        if (sort == SortType.UNFILTER) {
+        Stream<Item> itemStream = session.storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
+        if (session.sort == SortType.UNFILTER) {
             itemStream = itemStream.filter(item -> !item.isFiltered());
         } else {
             itemStream = itemStream.filter(item -> item.isFiltered() || (item.getQuantity() > 0));
             Comparator<Item> comparator = null;
-            switch (sort) {
+            switch (session.sort) {
                 case MATERIAL:
-                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
+                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
                     break;
                 case NAME:
-                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
+                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
                     break;
                 case QUANTITY:
-                    comparator = SortUtil.compose(orderSort, SortUtil::compareItemByQuantity);
+                    comparator = SortUtil.compose(session.orderSort, SortUtil::compareItemByQuantity);
                     break;
                 default:
                     break;
@@ -87,8 +170,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
 
                             final ClickType click = event.getClick();
                             if (click == ClickType.SHIFT_RIGHT) {
-                                // Chuyển tất cả vật phẩm trong kho đồ của người chơi vào kho chứa:
-                                if (storage.isMaxSpace()) {
+                                if (session.storage.isMaxSpace()) {
                                     player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().storageIsFull()));
                                     return;
                                 }
@@ -106,7 +188,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                                 for (ItemStack is : items) {
                                     if ((is == null) || (is.getType() == Material.AIR)) continue;
 
-                                    Optional<Item> optional = storage.getItem(is);
+                                    Optional<Item> optional = session.storage.getItem(is);
                                     if (!optional.isPresent()) continue;
                                     Item i = optional.get();
                                     if (!i.isLoaded()) continue;
@@ -115,16 +197,16 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                                     if (!key.equalsIgnoreCase(ItemUtil.toMaterialKey(is))) continue;
 
                                     int amount = is.getAmount();
-                                    long freeSpace = storage.getFreeSpace();
+                                    long freeSpace = session.storage.getFreeSpace();
                                     if ((freeSpace == -1) || ((freeSpace - amount) >= 0)) {
                                         count += amount;
-                                        storage.add(item.getKey(), amount);
+                                        session.storage.add(item.getKey(), amount);
                                         player.getInventory().removeItem(is);
                                         continue;
                                     }
                                     amount = (int) freeSpace;
                                     count += amount;
-                                    storage.add(key, amount);
+                                    session.storage.add(key, amount);
 
                                     if (is.getAmount() > amount) is.setAmount(is.getAmount() - amount);
                                     else player.getInventory().removeItem(is);
@@ -136,16 +218,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                                 }
 
                                 if (setting.log().transfer()) {
-                                    ExtraStorage.getInstance().getLog().log(player, partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
+                                    ExtraStorage.getInstance().getLog().log(player, session.partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
                                 }
 
                                 player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().movedItemsToStorage())
                                         .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(count))
                                         .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
-                                if (!partner.isOnline()) partner.save();
+                                if (!session.partner.isOnline()) session.partner.save();
 
-                                updateRepresentItems();
-                                update();
+                                updateInventory(uuid);
                                 return;
                             }
 
@@ -158,43 +239,35 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                             ItemStack vanillaItem = item.getItem();
                             if (click == ClickType.SHIFT_LEFT)
                                 vanillaItem.setAmount(current);
-                            else if (event.isLeftClick()) ; // Bỏ qua vì phần này chỉ rút 1 vật phẩm.
+                            else if (event.isLeftClick()) ;
                             else if (event.isRightClick())
                                 vanillaItem.setAmount(Math.min(current, clicked.getMaxStackSize()));
                             else return;
                             if (item.getType() == ItemUtil.ItemType.VANILLA) {
-                                /*
-                                 * Cần xoá Meta của Item khi rút vì xảy ra trường hợp sau khi rút xong
-                                 * thì item sẽ có Meta, khiến cho việc drop ra mặt đất và không thể
-                                 * nhặt lại vào kho chứa được.
-                                 * Việc setItemMeta(null) sẽ không bị lỗi ở bất kỳ phiên bản nào.
-                                 */
                                 vanillaItem.setItemMeta(null);
                             }
 
                             int free = ItemUtil.getFreeSpace(player, vanillaItem);
                             if (free == -1) {
-                                // Nếu kho đồ đã đầy:
                                 player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().inventoryIsFull()));
                                 return;
                             }
                             vanillaItem.setAmount(free);
 
                             ItemUtil.giveItem(player, vanillaItem);
-                            storage.subtract(item.getKey(), free);
+                            session.storage.subtract(item.getKey(), free);
 
                             if (setting.log().withdraw()) {
-                                ExtraStorage.getInstance().getLog().log(player, partner.getOfflinePlayer(), Log.Action.WITHDRAW, item.getKey(), free, -1);
+                                ExtraStorage.getInstance().getLog().log(player, session.partner.getOfflinePlayer(), Log.Action.WITHDRAW, item.getKey(), free, -1);
                             }
 
-                            if (!partner.isOnline()) partner.save();
+                            if (!session.partner.isOnline()) session.partner.save();
 
                             player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().withdrewItem())
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(free))
                                     .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
-                            updateRepresentItems();
-                            update();
+                            updateInventory(uuid);
                         });
                         return true;
                     };
@@ -202,39 +275,25 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig> {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    protected Mask getControlItems(GuiConfig.ControlItemsConfig section) {
-        StorageGuiConfig.StorageControlItemsConfig controlConfig = (StorageGuiConfig.StorageControlItemsConfig) section;
-        HybridMask mask = new HybridMask();
-
-        addAboutButton(mask, controlConfig.about(), s -> {
-            return applyStoragePlaceholders(s, partner.getName());
-        }, event -> {
-            boolean isAdminOrSelf = (this.hasPermission(Constants.ADMIN_OPEN_PERMISSION) || partner.getUUID().equals(player.getUniqueId()));
-            if ((!this.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION)) || (!isAdminOrSelf)) return;
-
-            boolean status = !storage.getStatus();
-            storage.setStatus(status);
-
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().storageUsageToggled()).replaceAll(Utils.getRegex("status"), Utils.formatMessage(status ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled())));
-            update();
-        });
-
-        addSwitchButton(mask, controlConfig.switchGui(), event -> {
-            browseGUI(event.isLeftClick());
-        });
-
-        Map<SortType, SortButtonConfig<SortType>> sortConfigMap = new EnumMap<>(SortType.class);
-        putSortConfig(sortConfigMap, SortType.MATERIAL, controlConfig.sortByMaterial());
-        putSortConfig(sortConfigMap, SortType.NAME, controlConfig.sortByName());
-        putSortConfig(sortConfigMap, SortType.QUANTITY, controlConfig.sortByQuantity());
-        putSortConfig(sortConfigMap, SortType.UNFILTER, controlConfig.sortByUnfilter());
-        addSortMask(mask, sortConfigMap);
-
-        return mask;
-    }
-
     public enum SortType {
         MATERIAL, NAME, QUANTITY, UNFILTER
+    }
+
+    public class StorageData {
+        public final User user;
+        public User partner;
+        public Storage storage;
+        public SortType sort;
+        public boolean orderSort = true;
+
+        private StorageData(User user) {
+            this.user = user;
+            this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
+        }
+
+        void setPartner(User partner) {
+            this.partner = partner;
+            this.storage = partner.getStorage();
+        }
     }
 }
