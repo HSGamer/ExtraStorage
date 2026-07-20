@@ -27,6 +27,7 @@ import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -170,7 +171,10 @@ public final class ExtraStorage extends JavaPlugin {
     }
 
     private void registerCommands() {
-        this.commandManager = new BukkitCommandManager(this);
+        this.commandManager = new BukkitCommandManager(this, (sender, e) -> {
+            Debug.log("Error when executing the command", e);
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+        });
         commandManager.register(new PlayerCommand());
         commandManager.register(new AdminCommand());
         commandManager.syncCommand();

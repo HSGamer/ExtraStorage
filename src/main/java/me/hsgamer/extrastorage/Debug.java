@@ -1,16 +1,21 @@
 package me.hsgamer.extrastorage;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import java.util.logging.Level;
 
 public class Debug {
-    public static boolean enabled = false;
-
     public static void log(String... messages) {
-        if (enabled) {
-            JavaPlugin plugin = ExtraStorage.getInstance();
+        ExtraStorage plugin = ExtraStorage.getInstance();
+        if (plugin.getSetting().debug()) {
             for (String message : messages) {
                 plugin.getLogger().info(message);
             }
+        }
+    }
+
+    public static void log(String message, Throwable throwable) {
+        ExtraStorage plugin = ExtraStorage.getInstance();
+        if (plugin.getSetting().debug()) {
+            plugin.getLogger().log(Level.INFO, message, throwable);
         }
     }
 }
