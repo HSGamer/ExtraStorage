@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public interface GuiConfig {
+    void reloadConfig();
 
     SettingsConfig settings();
 

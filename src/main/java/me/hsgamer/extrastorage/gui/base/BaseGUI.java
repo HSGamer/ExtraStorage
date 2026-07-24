@@ -34,20 +34,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
-
-    protected final String configFile;
-    protected final Class<C> configClass;
     protected final Class<S> sortClass;
     protected final Map<UUID, SpigotInventoryUI> openInventories = new HashMap<>();
     protected final Map<UUID, D> sessions = new HashMap<>();
-    protected C config;
+    protected final C config;
     protected HybridMask mask;
 
     protected BaseGUI(String configFile, Class<C> configClass, Class<S> sortClass) {
-        this.configFile = configFile;
-        this.configClass = configClass;
         this.sortClass = sortClass;
-        loadAndBuild();
+        this.config = ConfigGenerator.newInstance(configClass, new BukkitConfig(ExtraStorage.getInstance(), configFile));
+        loadMask();
     }
 
     @SuppressWarnings("unchecked")
@@ -145,14 +141,13 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
                 player.closeInventory();
             }
         });
-        loadAndBuild();
         sessions.clear();
         openInventories.clear();
+        config.reloadConfig();
+        loadMask();
     }
 
-    private void loadAndBuild() {
-        BukkitConfig bukkitConfig = new BukkitConfig(ExtraStorage.getInstance(), configFile);
-        this.config = ConfigGenerator.newInstance(configClass, bukkitConfig);
+    private void loadMask() {
         this.mask = new HybridMask();
         buildMask();
     }
