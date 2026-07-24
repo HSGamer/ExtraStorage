@@ -138,6 +138,13 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
     }
 
     public void reload() {
+        openInventories.forEach((uuid, spigotInventoryUI) -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null) return;
+            if (player.getOpenInventory().getTopInventory().getHolder() == spigotInventoryUI) {
+                player.closeInventory();
+            }
+        });
         loadAndBuild();
         sessions.clear();
         openInventories.clear();
