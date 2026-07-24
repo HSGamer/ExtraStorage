@@ -20,6 +20,7 @@ import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.hscore.common.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -256,7 +257,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
 
         GUIItem guiItem = GUIItem.get(itemConfig, null);
         Object commands = itemConfig.get("Commands");
-        List<String> actions = (commands instanceof List) ? (List<String>) commands : Collections.emptyList();
+        List<String> actions = CollectionUtils.createStringListFromObject(commands);
         Consumer<UUID> actionConsumer = ExtraStorage.getInstance().getActionManager().createRunnable(actions);
 
         SimpleButtonMask decorateMask = new SimpleButtonMask();
