@@ -1,6 +1,7 @@
 package me.hsgamer.extrastorage;
 
 import io.github.projectunified.craftcommand.bukkit.BukkitCommandManager;
+import io.github.projectunified.craftconfig.bukkit.BukkitConfig;
 import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUIListener;
@@ -143,10 +144,10 @@ public final class ExtraStorage extends JavaPlugin {
     }
 
     private void loadConfigs() {
-        io.github.projectunified.craftconfig.bukkit.BukkitConfig settingConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, "config.yml");
+        BukkitConfig settingConfig = new BukkitConfig(this, "config.yml");
         this.setting = ConfigGenerator.newInstance(SettingConfig.class, settingConfig);
 
-        io.github.projectunified.craftconfig.bukkit.BukkitConfig messageConfig = new io.github.projectunified.craftconfig.bukkit.BukkitConfig(this, "messages.yml");
+        BukkitConfig messageConfig = new BukkitConfig(this, "messages.yml");
         this.message = ConfigGenerator.newInstance(MessageConfig.class, messageConfig);
 
         this.worthManager = new WorthManager();
