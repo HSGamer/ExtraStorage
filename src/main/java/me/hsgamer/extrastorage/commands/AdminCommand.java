@@ -386,6 +386,7 @@ public class AdminCommand {
     public void reload(CommandSender sender) {
         instance.getSetting().reload();
         instance.getMessage().reload();
+        instance.getWorthManager().reload();
         instance.loadGuiFile();
         instance.refreshCache();
         sender.sendMessage(Utils.formatMessage(instance.getMessage().success().configReload()));

@@ -20,6 +20,11 @@ public final class WorthManager {
         this.load();
     }
 
+    public void reload() {
+        this.bukkitConfig.reload();
+        this.load();
+    }
+
     private void load() {
         this.cache = new ConcurrentHashMap<>();
         ConfigNode worthSection = bukkitConfig.node("Worth");
