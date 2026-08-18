@@ -56,7 +56,7 @@ jobs:
           DISCORD_LINKS: |
             {
               "SpigotMC": "https://www.spigotmc.org/resources/extrastorage.90379/",
-              "Modrinth": "https://modrinth.com/plugin/extrastorage-plugin"
+              "Modrinth": "https://modrinth.com/plugin/extrastorage-plugin",
               "voxel.shop": "https://voxel.shop/product/860/extrastorage"
             }
 
