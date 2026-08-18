@@ -12,11 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Generate changelog
+      - name: Get changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v4.7.0
-        with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "version=$(cat CHANGELOG.md)" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
@@ -47,6 +45,15 @@ jobs:
 
           VOXELSHOP_KEY: ${{ secrets.VOXELSHOP_KEY }}
           VOXELSHOP_RESOURCE: 860
+
+          DISCORD_URL: ${{ secrets.DISCORD_URL }}
+          DISCORD_MENTIONS: "1224672188473544735"
+          DISCORD_LINKS: |
+            {
+              "SpigotMC": "https://www.spigotmc.org/resources/extrastorage.90379/",
+              "Modrinth": "https://modrinth.com/plugin/extrastorage-plugin"
+              "voxel.shop": "https://voxel.shop/product/860/extrastorage"
+            }
 
       - name: "GitHub Release"
         uses: softprops/action-gh-release@v3
