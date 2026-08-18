@@ -36,6 +36,7 @@ jobs:
         with:
           files: target/ExtraStorage.jar
         env:
+          PROJECT: ExtraStorage
           DESCRIPTION: ${{ steps.changelog.outputs.changelog }}
           GAME_VERSIONS: "1.16..latest"
 
