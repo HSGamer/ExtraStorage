@@ -3,6 +3,7 @@ package me.hsgamer.extrastorage.commands;
 import io.github.projectunified.craftcommand.annotation.Command;
 import io.github.projectunified.craftcommand.annotation.Default;
 import io.github.projectunified.craftcommand.annotation.Resolve;
+import io.github.projectunified.craftcommand.annotation.Suggest;
 import io.github.projectunified.craftcommand.bukkit.annotation.Permission;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
@@ -10,9 +11,6 @@ import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.Constants;
-import me.hsgamer.extrastorage.gui.FilterGUI;
-import me.hsgamer.extrastorage.gui.PartnerGUI;
-import me.hsgamer.extrastorage.gui.SellGUI;
 import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -25,7 +23,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Command(value = "extrastorage", aliases = {"exstorage", "storage", "es", "kho"}, description = "Commands for players")
 public class PlayerCommand {
@@ -41,16 +41,9 @@ public class PlayerCommand {
     private static final String STATUS_REGEX = Utils.getRegex("status");
     private final ExtraStorage instance = ExtraStorage.getInstance();
 
-    public User resolveUser(CommandSender sender) {
-        if (sender instanceof Player) {
-            return instance.getUserManager().getUser((Player) sender);
-        }
-        throw new CommandException(Utils.formatMessage(instance.getMessage().fail().onlyPlayers()));
-    }
-
     @Default
     @Permission(Constants.PLAYER_OPEN_PERMISSION)
-    public void execute(@Resolve("resolveUser") User user, @Default String target) {
+    public void execute(User user, @Default String target) {
         Player player = user.getPlayer();
 
         if (target == null) {
@@ -103,7 +96,7 @@ public class PlayerCommand {
 
     @Command("toggle")
     @Permission(Constants.PLAYER_TOGGLE_PERMISSION)
-    public void toggle(@Resolve("resolveUser") User user) {
+    public void toggle(User user) {
         Storage storage = user.getStorage();
         boolean toggled = !storage.getStatus();
         storage.setStatus(toggled);
@@ -118,9 +111,19 @@ public class PlayerCommand {
         ExtraStorage.getInstance().getFilterGUI().openFor(sender);
     }
 
+    List<String> suggestUserMaterials(@Resolve User user) {
+        return user.getStorage()
+                .getItems()
+                .values()
+                .stream()
+                .filter(item -> item.getQuantity() > 0)
+                .map(Item::getKey)
+                .collect(Collectors.toList());
+    }
+
     @Command("sell")
     @Permission(Constants.PLAYER_SELL_PERMISSION)
-    public void sell(@Resolve("resolveUser") User user, @Default String materialKey, @Default String amountStr) {
+    public void sell(User user, @Default @Suggest("suggestUserMaterials") String materialKey, @Default String amountStr) {
         Player player = user.getPlayer();
 
         if (materialKey == null) {
@@ -177,7 +180,7 @@ public class PlayerCommand {
 
     @Command("withdraw")
     @Permission(Constants.PLAYER_WITHDRAW_PERMISSION)
-    public void withdraw(@Resolve("resolveUser") User user, String materialKey, @Default String amountStr) {
+    public void withdraw(User user, @Suggest("suggestUserMaterials") String materialKey, @Default String amountStr) {
         Player player = user.getPlayer();
         Storage storage = user.getStorage();
 
@@ -228,18 +231,13 @@ public class PlayerCommand {
     @Command("partner")
     @Permission(Constants.PLAYER_PARTNER_PERMISSION)
     public class PartnerCommand {
-
-        public User resolveUser(CommandSender sender) {
-            return PlayerCommand.this.resolveUser(sender);
-        }
-
         @Default
-        public void execute(@Resolve("resolveUser") User user) {
+        public void execute(User user) {
             ExtraStorage.getInstance().getPartnerGUI().openFor(user.getPlayer());
         }
 
         @Command("add")
-        public void add(@Resolve("resolveUser") User user, String targetName) {
+        public void add(User user, String targetName) {
             Player player = user.getPlayer();
 
             OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
@@ -263,7 +261,7 @@ public class PlayerCommand {
         }
 
         @Command("remove")
-        public void remove(@Resolve("resolveUser") User user, String targetName) {
+        public void remove(User user, String targetName) {
             Player player = user.getPlayer();
 
             OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
@@ -283,12 +281,12 @@ public class PlayerCommand {
                 Player p = target.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.getMessage().success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
                 StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
-                        if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
+                if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
         }
 
         @Command("clear")
-        public void clear(@Resolve("resolveUser") User user) {
+        public void clear(User user) {
             Player player = user.getPlayer();
             Collection<Partner> partners = user.getPartners();
             if (partners.isEmpty()) {
@@ -301,7 +299,7 @@ public class PlayerCommand {
                 Player p = offPlayer.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.getMessage().success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
                 StorageGUI.StorageData sd = ExtraStorage.getInstance().getStorageGUI().getSessionData(p.getUniqueId());
-                        if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
+                if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
             user.clearPartners();
             player.sendMessage(Utils.formatMessage(instance.getMessage().success().cleanupPartnersList()));

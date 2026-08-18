@@ -10,6 +10,7 @@ import io.github.projectunified.faststats.gson.GsonSerializer;
 import io.github.projectunified.faststats.net.NetSubmitter;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.action.ActionManager;
+import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.commands.AdminCommand;
 import me.hsgamer.extrastorage.commands.PlayerCommand;
 import me.hsgamer.extrastorage.configs.MessageConfig;
@@ -18,18 +19,19 @@ import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.data.user.UserManager;
 import me.hsgamer.extrastorage.data.worth.WorthManager;
 import me.hsgamer.extrastorage.gui.*;
-import me.hsgamer.extrastorage.gui.config.*;
 import me.hsgamer.extrastorage.hooks.economy.EconomyProvider;
 import me.hsgamer.extrastorage.hooks.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.listeners.ItemListener;
 import me.hsgamer.extrastorage.listeners.PickupListener;
 import me.hsgamer.extrastorage.listeners.PlayerListener;
+import me.hsgamer.extrastorage.util.Utils;
 import me.hsgamer.hscore.license.common.LicenseStatus;
 import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
 import me.hsgamer.hscore.license.spigotmc.SpigotLicenseChecker;
 import me.hsgamer.hscore.license.template.LicenseTemplate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -180,6 +182,12 @@ public final class ExtraStorage extends JavaPlugin {
         this.commandManager = new BukkitCommandManager(this, (sender, e) -> {
             Debug.log("Error when executing the command", e);
             sender.sendMessage(ChatColor.RED + e.getMessage());
+        });
+        commandManager.registerSenderResolver(User.class, sender -> {
+            if (sender instanceof Player) {
+                return userManager.getUser((Player) sender);
+            }
+            throw new CommandException(Utils.formatMessage(message.fail().onlyPlayers()));
         });
         commandManager.register(new PlayerCommand());
         commandManager.register(new AdminCommand());

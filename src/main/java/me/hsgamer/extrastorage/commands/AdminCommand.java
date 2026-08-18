@@ -2,6 +2,7 @@ package me.hsgamer.extrastorage.commands;
 
 import io.github.projectunified.craftcommand.annotation.Command;
 import io.github.projectunified.craftcommand.annotation.Default;
+import io.github.projectunified.craftcommand.annotation.Suggest;
 import io.github.projectunified.craftcommand.bukkit.annotation.Permission;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.ExtraStorage;
@@ -11,8 +12,6 @@ import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.configs.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.user.UserManager;
-import me.hsgamer.extrastorage.gui.StorageGUI;
-import me.hsgamer.extrastorage.gui.WhitelistGUI;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
@@ -21,6 +20,9 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -85,7 +87,7 @@ public class AdminCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
-        if (target == null) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             user.getStorage().setSpace(amount);
             sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
@@ -115,7 +117,7 @@ public class AdminCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
-        if (target == null) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
             if (checkIntLimit(storage.getSpace(), amount)) {
@@ -148,10 +150,15 @@ public class AdminCommand {
         notifyOnline(user, Utils.formatMessage(instance.getMessage().success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
     }
 
+    Collection<String> suggestMaterials(Player sender) {
+        User user = instance.getUserManager().getUser(sender);
+        return user.getStorage().getItems().keySet();
+    }
+
     @Command("add")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
-    public void add(Player sender, String materialKey, long amount, @Default String target) {
-        if (target == null) {
+    public void add(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -183,8 +190,8 @@ public class AdminCommand {
 
     @Command("addrnd")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
-    public void addRnd(Player sender, String materialKey, @Default String target) {
-        if (target == null) {
+    public void addRnd(Player sender, @Suggest("suggestMaterials") String materialKey, @Default String target) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -247,8 +254,8 @@ public class AdminCommand {
 
     @Command("subtract")
     @Permission(Constants.ADMIN_SUBTRACT_PERMISSION)
-    public void subtract(Player sender, String materialKey, long amount, @Default String target) {
-        if (target == null) {
+    public void subtract(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -288,8 +295,8 @@ public class AdminCommand {
 
     @Command("set")
     @Permission(Constants.ADMIN_SET_PERMISSION)
-    public void set(Player sender, String materialKey, long amount, @Default String target) {
-        if (target == null) {
+    public void set(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -333,12 +340,18 @@ public class AdminCommand {
                 .replaceAll(PLAYER_REGEX, sender.getName()));
     }
 
+    Collection<String> suggestMaterialsForReset(Player player) {
+        List<String> suggestions = new ArrayList<>(suggestMaterials(player));
+        suggestions.add("*");
+        return suggestions;
+    }
+
     @Command("reset")
     @Permission(Constants.ADMIN_RESET_PERMISSION)
-    public void reset(Player sender, String materialKey, @Default String target) {
+    public void reset(Player sender, @Suggest("suggestMaterialsForReset") String materialKey, @Default String target) {
         boolean isAll = ALL_PATTERN.matcher(materialKey).matches();
 
-        if (target == null) {
+        if (target == null || target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
