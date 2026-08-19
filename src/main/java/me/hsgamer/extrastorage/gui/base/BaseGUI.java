@@ -112,11 +112,11 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
 
     protected static <S extends Enum<S>> S getDefaultSort(GuiConfig.SettingsConfig settings, Class<S> sortClass) {
         String sort = settings.defaultSort();
-        if (sort == null) return null;
+        if (sort == null) return sortClass.getEnumConstants()[0];
         try {
             return Enum.valueOf(sortClass, sort.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return null;
+            return sortClass.getEnumConstants()[0];
         }
     }
 
