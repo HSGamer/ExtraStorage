@@ -87,7 +87,7 @@ public class AdminCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             user.getStorage().setSpace(amount);
             sender.sendMessage(Utils.formatMessage(instance.getMessage().success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
@@ -117,7 +117,7 @@ public class AdminCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().maxSpaceNotUsed()));
         }
 
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
             if (checkIntLimit(storage.getSpace(), amount)) {
@@ -158,7 +158,7 @@ public class AdminCommand {
     @Command("add")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
     public void add(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -171,8 +171,8 @@ public class AdminCommand {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         User user = resolveTargetUser(target);
+        OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
         Item item = requireItem(storage, materialKey, player);
@@ -191,7 +191,7 @@ public class AdminCommand {
     @Command("addrnd")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
     public void addRnd(Player sender, @Suggest("suggestMaterials") String materialKey, @Default String target) {
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -217,8 +217,8 @@ public class AdminCommand {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         User user = resolveTargetUser(target);
+        OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
         if (materialKey.equals("*")) {
@@ -255,7 +255,7 @@ public class AdminCommand {
     @Command("subtract")
     @Permission(Constants.ADMIN_SUBTRACT_PERMISSION)
     public void subtract(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -272,8 +272,8 @@ public class AdminCommand {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         User user = resolveTargetUser(target);
+        OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
         Item item = requireItem(storage, materialKey, player);
@@ -296,7 +296,7 @@ public class AdminCommand {
     @Command("set")
     @Permission(Constants.ADMIN_SET_PERMISSION)
     public void set(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -316,8 +316,8 @@ public class AdminCommand {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         User user = resolveTargetUser(target);
+        OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
         Item item = requireItem(storage, materialKey, player);
@@ -351,7 +351,7 @@ public class AdminCommand {
     public void reset(Player sender, @Suggest("suggestMaterialsForReset") String materialKey, @Default String target) {
         boolean isAll = ALL_PATTERN.matcher(materialKey).matches();
 
-        if (target == null || target.isEmpty()) {
+        if (target.isEmpty()) {
             User user = manager.getUser(sender);
             Storage storage = user.getStorage();
 
@@ -367,8 +367,8 @@ public class AdminCommand {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(target);
         User user = resolveTargetUser(target);
+        OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
         if (isAll) {

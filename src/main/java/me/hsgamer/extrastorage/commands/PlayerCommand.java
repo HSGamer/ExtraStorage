@@ -46,7 +46,7 @@ public class PlayerCommand {
     public void execute(User user, @Default String target) {
         Player player = user.getPlayer();
 
-        if (target == null) {
+        if (target.isEmpty()) {
             ExtraStorage.getInstance().getStorageGUI().openFor(player, null);
             return;
         }
