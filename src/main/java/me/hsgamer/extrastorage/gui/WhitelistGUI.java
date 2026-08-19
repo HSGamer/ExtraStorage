@@ -152,6 +152,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
 
         private WhitelistData(UUID uuid) {
             this.uuid = uuid;
+            this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
         }
 
         public Player getPlayer() {

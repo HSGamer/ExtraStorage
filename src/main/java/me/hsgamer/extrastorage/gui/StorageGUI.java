@@ -40,7 +40,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
     }
 
     public void openFor(Player player, User partner) {
-        StorageData data = sessions.computeIfAbsent(player.getUniqueId(), k -> new StorageData(k));
+        StorageData data = sessions.computeIfAbsent(player.getUniqueId(), StorageData::new);
         data.setPartner(partner);
         SpigotInventoryUI inv = getInventory(player);
         inv.update();
