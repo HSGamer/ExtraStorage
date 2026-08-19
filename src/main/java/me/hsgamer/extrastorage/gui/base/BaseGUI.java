@@ -163,7 +163,9 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> {
         ) {
             @Override
             protected boolean onClick(InventoryClickEvent event) {
-                SoundUtil.getSoundPlayer(config.settings().sound()).accept(player);
+                if (event.getClickedInventory() == player.getOpenInventory().getTopInventory()) {
+                    SoundUtil.getSoundPlayer(config.settings().sound()).accept(player);
+                }
                 if (event.getClickedInventory() == player.getOpenInventory().getBottomInventory()) {
                     onBottomInventoryClick(event);
                 }
