@@ -1,0 +1,1 @@
+* **Fix a case with empty name in commands**
