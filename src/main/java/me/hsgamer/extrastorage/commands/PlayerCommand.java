@@ -126,7 +126,7 @@ public class PlayerCommand {
     public void sell(User user, @Default @Suggest("suggestUserMaterials") String materialKey, @Default String amountStr) {
         Player player = user.getPlayer();
 
-        if (materialKey == null) {
+        if (materialKey.isEmpty()) {
             ExtraStorage.getInstance().getSellGUI().openFor(player);
             return;
         }
@@ -143,7 +143,7 @@ public class PlayerCommand {
             throw new CommandException(Utils.formatMessage(instance.getMessage().fail().notEnoughItem()).replaceAll(ITEM_REGEX, instance.getSetting().getNameFormatted(materialKey, true)));
         }
 
-        if (amountStr == null) {
+        if (amountStr.isEmpty()) {
             instance.getEconomyProvider()
                     .sellItem(player, item.getItem(), quantity, result -> {
                         if (!result.isSuccess()) {
@@ -199,7 +199,7 @@ public class PlayerCommand {
         }
         ItemStack iStack = item.getItem().clone();
 
-        if (amountStr == null) {
+        if (amountStr.isEmpty()) {
             iStack.setAmount(current);
         } else {
             int amount;
