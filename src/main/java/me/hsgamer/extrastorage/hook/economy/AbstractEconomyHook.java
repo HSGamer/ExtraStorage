@@ -11,7 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import java.util.function.Consumer;
 
 public abstract class AbstractEconomyHook implements EconomyProvider {
-    protected final ExtraStorage instance = ExtraStorage.getInstance();
+    protected final ExtraStorage instance;
+
+    protected AbstractEconomyHook(ExtraStorage instance) {
+        this.instance = instance;
+    }
 
     @Override
     public String getPrice(Player player, ItemStack item, int amount) {

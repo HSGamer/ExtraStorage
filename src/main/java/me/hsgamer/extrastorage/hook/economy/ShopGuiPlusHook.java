@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.hook.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
+
 import net.brcdev.shopgui.ShopGuiPlusApi;
 import net.brcdev.shopgui.modifier.PriceModifier;
 import net.brcdev.shopgui.modifier.PriceModifierActionType;
@@ -15,7 +17,8 @@ public final class ShopGuiPlusHook extends AbstractEconomyHook {
     private boolean setup = false;
     private Economy econ;
 
-    public ShopGuiPlusHook() {
+    public ShopGuiPlusHook(ExtraStorage plugin) {
+        super(plugin);
         if (this.isHooked()) {
             instance.getLogger().info("Using ShopGUIPlus as economy provider.");
         } else {

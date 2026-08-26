@@ -13,13 +13,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.UUID;
 
 public final class PlayerListener implements ListenerComponent {
-
     private final ExtraStorage instance;
-    private final UserManager manager;
 
     public PlayerListener(ExtraStorage instance) {
         this.instance = instance;
-        this.manager = instance.get(UserManager.class);
     }
 
     @Override
@@ -31,14 +28,14 @@ public final class PlayerListener implements ListenerComponent {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        manager.load(uuid);
+        instance.get(UserManager.class).load(uuid);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        manager.save(uuid);
+        instance.get(UserManager.class).save(uuid);
     }
 
 }

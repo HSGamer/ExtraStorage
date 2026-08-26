@@ -2,6 +2,7 @@ package me.hsgamer.extrastorage.hook.economy;
 
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.objects.ShopItem;
+import me.hsgamer.extrastorage.ExtraStorage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,7 +14,8 @@ public final class EconomyShopGuiHook extends AbstractEconomyHook {
     private final Economy econ;
     private final boolean isPaid;
 
-    public EconomyShopGuiHook() {
+    public EconomyShopGuiHook(ExtraStorage plugin) {
+        super(plugin);
         RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
         econ = (rsp != null) ? rsp.getProvider() : null;
         isPaid = instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium");

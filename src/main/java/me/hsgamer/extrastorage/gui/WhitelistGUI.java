@@ -28,7 +28,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiConfig, WhitelistGUI.WhitelistData> {
-
     public WhitelistGUI(ExtraStorage plugin) {
         super(plugin, "gui/whitelist.yml", WhitelistGuiConfig.class, SortType.class);
     }
@@ -51,27 +50,27 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
 
         final String validKey = ItemUtil.toMaterialKey(item);
         if (validKey.equals(Constants.INVALID)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().invalidItem()));
+            player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().invalidItem()));
             return;
         }
-        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
+        SettingConfig setting = plugin.get(SettingConfig.class);
         if (setting.getNormalizedBlacklist().contains(validKey)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemBlacklisted()));
+            player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().itemBlacklisted()));
             return;
         }
         if (setting.getNormalizedWhitelist().contains(validKey)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemAlreadyWhitelisted()));
+            player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().itemAlreadyWhitelisted()));
             return;
         }
 
         setting.addToWhitelist(validKey);
-        for (User user : ExtraStorage.getInstance().get(UserManager.class).getUsers()) {
+        for (User user : plugin.get(UserManager.class).getUsers()) {
             Storage storage = user.getStorage();
             Optional<Item> optional = storage.getItem(validKey);
             if (!optional.isPresent()) storage.addNewItem(validKey);
         }
 
-        player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().itemAddedToWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
+        player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().itemAddedToWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
 
         updateInventory(player.getUniqueId());
     }
@@ -100,7 +99,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     private List<Button> getRepresentItems(WhitelistData session, Map<String, Object> section) {
-        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
+        SettingConfig setting = plugin.get(SettingConfig.class);
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         List<String> whitelist = new ArrayList<>(setting.getNormalizedWhitelist());
 
@@ -127,12 +126,12 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             setting.removeFromWhitelist(key);
 
-                            for (User user : ExtraStorage.getInstance().get(UserManager.class).getUsers()) {
+                            for (User user : plugin.get(UserManager.class).getUsers()) {
                                 Storage storage = user.getStorage();
                                 Optional<Item> optional = storage.getItem(key);
                                 if (optional.isPresent()) storage.unfilter(key);
                             }
-                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                            session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
                             updateInventory(uuid);
                         });

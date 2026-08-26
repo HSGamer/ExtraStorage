@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 @Command(value = "esadmin", description = "Commands for administrators")
 public class AdminCommand {
-
     private static final String VERSION_REGEX = Utils.getRegex("ver(sion)?");
     private static final String LABEL_REGEX = Utils.getRegex("label");
     private static final String PLAYER_REGEX = Utils.getRegex("player");
@@ -40,9 +39,15 @@ public class AdminCommand {
     private static final String QUANTITY_REGEX = Utils.getRegex("quantity");
     private static final String SPACE_REGEX = Utils.getRegex("space");
     private static final Pattern ALL_PATTERN = Pattern.compile("(?ium)(\\*|-all)");
-    private final ExtraStorage instance = ExtraStorage.getInstance();
-    private final UserManager manager = instance.get(UserManager.class);
-    private final SettingConfig setting = instance.get(SettingConfig.class);
+    private final ExtraStorage instance;
+    private final UserManager manager;
+    private final SettingConfig setting;
+
+    public AdminCommand(ExtraStorage instance) {
+        this.instance = instance;
+        this.manager = instance.get(UserManager.class);
+        this.setting = instance.get(SettingConfig.class);
+    }
 
     @Default
     @Permission(Constants.ADMIN_HELP_PERMISSION)
@@ -81,7 +86,7 @@ public class AdminCommand {
     @Permission(Constants.ADMIN_OPEN_PERMISSION)
     public void open(Player sender, String targetName) {
         User user = resolveTargetUser(targetName);
-        ExtraStorage.getInstance().get(StorageGUI.class).openFor(sender, user);
+        instance.get(StorageGUI.class).openFor(sender, user);
     }
 
     @Command("space")
@@ -395,7 +400,7 @@ public class AdminCommand {
     @Command("whitelist")
     @Permission(Constants.ADMIN_WHITELIST_PERMISSION)
     public void whitelist(Player sender) {
-        ExtraStorage.getInstance().get(WhitelistGUI.class).openFor(sender);
+        instance.get(WhitelistGUI.class).openFor(sender);
     }
 
     @Command(value = "reload", aliases = {"rld", "rl"})

@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 @Command(value = "extrastorage", aliases = {"exstorage", "storage", "es", "kho"}, description = "Commands for players")
 public class PlayerCommand {
-
     private static final String VERSION_REGEX = Utils.getRegex("ver(sion)?");
     private static final String LABEL_REGEX = Utils.getRegex("label");
     private static final String PLAYER_REGEX = Utils.getRegex("player");
@@ -46,7 +45,12 @@ public class PlayerCommand {
     private static final String PRICE_REGEX = Utils.getRegex("price");
     private static final String VALUE_REGEX = Utils.getRegex("value");
     private static final String STATUS_REGEX = Utils.getRegex("status");
-    private final ExtraStorage instance = ExtraStorage.getInstance();
+    private final ExtraStorage instance;
+
+    public PlayerCommand(ExtraStorage instance) {
+        this.instance = instance;
+    }
+
 
     @Default
     @Permission(Constants.PLAYER_OPEN_PERMISSION)
@@ -54,7 +58,7 @@ public class PlayerCommand {
         Player player = user.getPlayer();
 
         if (target.isEmpty()) {
-            ExtraStorage.getInstance().get(StorageGUI.class).openFor(player, null);
+            instance.get(StorageGUI.class).openFor(player, null);
             return;
         }
 
@@ -72,7 +76,7 @@ public class PlayerCommand {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotPartner()).replaceAll(PLAYER_REGEX, target));
         }
 
-        ExtraStorage.getInstance().get(StorageGUI.class).openFor(player, targetUser);
+        instance.get(StorageGUI.class).openFor(player, targetUser);
     }
 
     @Command(value = "help", aliases = {"?"})
@@ -115,7 +119,7 @@ public class PlayerCommand {
     @Command("filter")
     @Permission(Constants.PLAYER_FILTER_PERMISSION)
     public void filter(Player sender) {
-        ExtraStorage.getInstance().get(FilterGUI.class).openFor(sender);
+        instance.get(FilterGUI.class).openFor(sender);
     }
 
     List<String> suggestUserMaterials(@Resolve User user) {
@@ -134,7 +138,7 @@ public class PlayerCommand {
         Player player = user.getPlayer();
 
         if (materialKey.isEmpty()) {
-            ExtraStorage.getInstance().get(SellGUI.class).openFor(player);
+            instance.get(SellGUI.class).openFor(player);
             return;
         }
 
@@ -240,7 +244,7 @@ public class PlayerCommand {
     public class PartnerCommand {
         @Default
         public void execute(User user) {
-            ExtraStorage.getInstance().get(PartnerGUI.class).openFor(user.getPlayer());
+            instance.get(PartnerGUI.class).openFor(user.getPlayer());
         }
 
         @Command("add")
@@ -287,7 +291,7 @@ public class PlayerCommand {
             if (target.isOnline()) {
                 Player p = target.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
-                StorageGUI.StorageData sd = ExtraStorage.getInstance().get(StorageGUI.class).getSessionData(p.getUniqueId());
+                StorageGUI.StorageData sd = instance.get(StorageGUI.class).getSessionData(p.getUniqueId());
                 if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
         }
@@ -305,7 +309,7 @@ public class PlayerCommand {
 
                 Player p = offPlayer.getPlayer();
                 p.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().noLongerPartner()).replaceAll(PLAYER_REGEX, player.getName()));
-                StorageGUI.StorageData sd = ExtraStorage.getInstance().get(StorageGUI.class).getSessionData(p.getUniqueId());
+                StorageGUI.StorageData sd = instance.get(StorageGUI.class).getSessionData(p.getUniqueId());
                 if (sd != null && sd.partner.getUUID().equals(player.getUniqueId())) p.closeInventory();
             }
             user.clearPartners();

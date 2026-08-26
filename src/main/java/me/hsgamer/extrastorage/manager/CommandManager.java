@@ -33,8 +33,8 @@ public class CommandManager implements Loadable {
             }
             throw new CommandException(Utils.formatMessage(plugin.get(MessageConfig.class).fail().onlyPlayers()));
         });
-        commandManager.register(new PlayerCommand());
-        commandManager.register(new AdminCommand());
+        commandManager.register(new PlayerCommand(plugin));
+        commandManager.register(new AdminCommand(plugin));
         commandManager.syncCommand();
     }
 

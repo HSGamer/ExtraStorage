@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.SellData> {
-
     public SellGUI(ExtraStorage plugin) {
         super(plugin, "gui/sell.yml", SellGuiConfig.class, SortType.class);
     }
@@ -83,7 +82,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
     }
 
     private List<Button> getRepresentItems(SellData session, Map<String, Object> section) {
-        EconomyProvider econ = ExtraStorage.getInstance().get(HookManager.class).getEconomyProvider();
+        EconomyProvider econ = plugin.get(HookManager.class).getEconomyProvider();
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = session.getUser().getStorage().getItems().values().stream().filter(item -> item != null && item.isLoaded());
         itemStream = sortRepresentItems(itemStream, session.sort, SortType.UNFILTER, sort -> {
@@ -119,7 +118,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
                     ItemStack iStack = displayModifier.construct(
                             item,
                             s -> s
-                                    .replaceAll(Utils.getRegex("status"), Utils.formatMessage(item.isFiltered() ? ExtraStorage.getInstance().get(MessageConfig.class).status().filtered() : ExtraStorage.getInstance().get(MessageConfig.class).status().unfiltered()))
+                                    .replaceAll(Utils.getRegex("status"), Utils.formatMessage(item.isFiltered() ? plugin.get(MessageConfig.class).status().filtered() : plugin.get(MessageConfig.class).status().unfiltered()))
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                                     .replaceAll(Utils.getRegex("price"), price)
                                     .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(amount))
@@ -130,7 +129,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current < 1) {
-                                session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().get(SettingConfig.class).getNameFormatted(item.getKey(), true)));
+                                session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), plugin.get(SettingConfig.class).getNameFormatted(item.getKey(), true)));
                                 return;
                             }
 
@@ -143,16 +142,16 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
                                 sellAmount = Digital.getBetween(1, current, iStack.getMaxStackSize());
                             else return;
 
-                            ExtraStorage.getInstance().get(HookManager.class).getEconomyProvider()
+                            plugin.get(HookManager.class).getEconomyProvider()
                                     .sellItem(session.getPlayer(), item.getItem(), sellAmount, rs -> {
                                         if (!rs.isSuccess()) {
-                                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().cannotBeSold()));
+                                            session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().cannotBeSold()));
                                             return;
                                         }
                                         session.getUser().getStorage().subtract(item.getKey(), rs.getAmount());
-                                        session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().itemSold())
+                                        session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().itemSold())
                                                 .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(rs.getAmount()))
-                                                .replaceAll(Utils.getRegex("item"), ExtraStorage.getInstance().get(SettingConfig.class).getNameFormatted(item.getKey(), true))
+                                                .replaceAll(Utils.getRegex("item"), plugin.get(SettingConfig.class).getNameFormatted(item.getKey(), true))
                                                 .replaceAll(Utils.getRegex("price"), Digital.formatDouble("###,###.##", rs.getPrice())));
                                     });
 
@@ -183,7 +182,7 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
         }
 
         public User getUser() {
-            return ExtraStorage.getInstance().get(UserManager.class).getUser(uuid);
+            return plugin.get(UserManager.class).getUser(uuid);
         }
     }
 }

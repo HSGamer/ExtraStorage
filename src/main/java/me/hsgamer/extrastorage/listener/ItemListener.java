@@ -29,11 +29,9 @@ import java.util.concurrent.TimeUnit;
 public class ItemListener implements ListenerComponent {
     private final ExtraStorage instance;
     private final Cache<String, User> locCache;
-    private final UserManager manager;
 
     public ItemListener(ExtraStorage instance) {
         this.instance = instance;
-        this.manager = instance.get(UserManager.class);
         this.locCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.SECONDS)
                 .build();
@@ -75,7 +73,7 @@ public class ItemListener implements ListenerComponent {
             return;
         }
 
-        User user = manager.getUser(player);
+        User user = instance.get(UserManager.class).getUser(player);
         Storage storage = user.getStorage();
         Location location = event.getBlock().getLocation();
         String locToString = locToString(location);
@@ -89,7 +87,7 @@ public class ItemListener implements ListenerComponent {
             event.setCancelled(true);
             locCache.invalidate(locToString);
 
-            String msg = Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).warn().storageIsFull());
+            String msg = Utils.formatMessage(instance.get(MessageConfig.class).warn().storageIsFull());
             if (!Strings.isNullOrEmpty(msg)) ActionBar.send(player, msg);
             return;
         }

@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.hook.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
+
 import me.hsgamer.extrastorage.util.Digital;
 import me.realized.tokenmanager.api.TokenManager;
 import org.bukkit.Bukkit;
@@ -10,7 +12,8 @@ public final class TokenManagerHook extends WorthEconomyHook {
 
     private final TokenManager api;
 
-    public TokenManagerHook() {
+    public TokenManagerHook(ExtraStorage plugin) {
+        super(plugin);
         Plugin tmPlugin = Bukkit.getServer().getPluginManager().getPlugin("TokenManager");
         api = (tmPlugin != null) ? (TokenManager) tmPlugin : null;
 

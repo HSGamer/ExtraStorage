@@ -11,6 +11,7 @@ import io.github.projectunified.craftux.mask.HybridMask;
 import io.github.projectunified.craftux.simple.SimpleButtonMask;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUI;
 import io.github.projectunified.craftux.spigot.SpigotInventoryUtil;
+import io.github.projectunified.minelib.plugin.base.Loadable;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.component.Reloadable;
 import me.hsgamer.extrastorage.api.item.Item;
@@ -38,7 +39,8 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> implements Reloadable {
+public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> implements Reloadable, Loadable {
+    protected final ExtraStorage plugin;
     protected final Class<S> sortClass;
     protected final Map<UUID, SpigotInventoryUI> openInventories = new HashMap<>();
     protected final Map<UUID, D> sessions = new HashMap<>();
@@ -46,9 +48,9 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
     protected HybridMask mask;
 
     protected BaseGUI(ExtraStorage plugin, String configFile, Class<C> configClass, Class<S> sortClass) {
+        this.plugin = plugin;
         this.sortClass = sortClass;
         this.config = ConfigGenerator.newInstance(configClass, new BukkitConfig(plugin, configFile));
-        loadMask();
     }
 
     @SuppressWarnings("unchecked")
@@ -124,13 +126,18 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
         }
     }
 
-    protected static String applyStoragePlaceholders(Storage storage, String playerName, String text) {
-        String UNKNOWN = Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).status().unknown());
+    @Override
+    public void enable() {
+        loadMask();
+    }
+
+    protected String applyStoragePlaceholders(Storage storage, String playerName, String text) {
+        String UNKNOWN = Utils.formatMessage(plugin.get(MessageConfig.class).status().unknown());
         long space = storage.getSpace(), used = storage.getUsedSpace(), free = storage.getFreeSpace();
         double usedPercent = storage.getSpaceAsPercent(true), freePercent = storage.getSpaceAsPercent(false);
         return text
                 .replaceAll(Utils.getRegex("player"), playerName)
-                .replaceAll(Utils.getRegex("status"), Utils.formatMessage(storage.getStatus() ? ExtraStorage.getInstance().get(MessageConfig.class).status().enabled() : ExtraStorage.getInstance().get(MessageConfig.class).status().disabled()))
+                .replaceAll(Utils.getRegex("status"), Utils.formatMessage(storage.getStatus() ? plugin.get(MessageConfig.class).status().enabled() : plugin.get(MessageConfig.class).status().disabled()))
                 .replaceAll(Utils.getRegex("space"), (space == -1) ? UNKNOWN : Digital.formatThousands(space))
                 .replaceAll(Utils.getRegex("used(\\_|\\-)space"), (used == -1) ? UNKNOWN : Digital.formatThousands(used))
                 .replaceAll(Utils.getRegex("free(\\_|\\-)space"), (free == -1) ? UNKNOWN : Digital.formatThousands(free))
@@ -265,13 +272,13 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
         GUIItem guiItem = GUIItem.get(itemConfig, null);
         Object commands = itemConfig.get("Commands");
         List<String> actions = CollectionUtils.createStringListFromObject(commands);
-        Consumer<UUID> actionConsumer = ExtraStorage.getInstance().get(ActionManager.class).createRunnable(actions);
+        Consumer<UUID> actionConsumer = plugin.get(ActionManager.class).createRunnable(actions);
 
         SimpleButtonMask decorateMask = new SimpleButtonMask();
         decorateMask.setButton(slots, (uuid, actionItem) -> {
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) return false;
-            User u = ExtraStorage.getInstance().get(UserManager.class).getUser(p);
+            User u = plugin.get(UserManager.class).getUser(p);
             ItemStack item = guiItem.getItem(u, s -> s);
             if (item == null || item.getType() == Material.AIR) return false;
             actionItem.setItem(item);
@@ -292,7 +299,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
         btnMask.setButton(slots, (uuid, actionItem) -> {
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) return false;
-            User u = ExtraStorage.getInstance().get(UserManager.class).getUser(p);
+            User u = plugin.get(UserManager.class).getUser(p);
             aboutItem.apply(actionItem, u, s -> loreReplacer.apply(uuid, s));
             if (action != null) {
                 actionItem.setAction(InventoryClickEvent.class, event -> action.accept(uuid, event));
@@ -311,7 +318,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
         switchMask.setButton(slots, (uuid, actionItem) -> {
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) return false;
-            User u = ExtraStorage.getInstance().get(UserManager.class).getUser(p);
+            User u = plugin.get(UserManager.class).getUser(p);
             switchItem.apply(actionItem, u, s -> s);
             if (action != null) {
                 actionItem.setAction(InventoryClickEvent.class, event -> action.accept(uuid, event));
@@ -341,7 +348,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
 
                 Player p = Bukkit.getPlayer(uuid);
                 if (p == null) return map;
-                User u = ExtraStorage.getInstance().get(UserManager.class).getUser(p);
+                User u = plugin.get(UserManager.class).getUser(p);
                 Consumer<ActionItem> itemConsumer = actionItem -> {
                     cfg.displayItem.apply(actionItem, u, s -> s);
                     actionItem.setAction(InventoryClickEvent.class, event -> {
@@ -383,7 +390,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
                 int maxPage = repMask.getPageAmount(uuid);
                 Player p = Bukkit.getPlayer(uuid);
                 if (p == null) return map;
-                User u = ExtraStorage.getInstance().get(UserManager.class).getUser(p);
+                User u = plugin.get(UserManager.class).getUser(p);
                 UnaryOperator<String> replacer = s -> s
                         .replaceAll(Utils.getRegex("page(s)?"), Integer.toString(page + 1))
                         .replaceAll(Utils.getRegex("max(\\_|\\-)?page(s)?"), Integer.toString(maxPage));

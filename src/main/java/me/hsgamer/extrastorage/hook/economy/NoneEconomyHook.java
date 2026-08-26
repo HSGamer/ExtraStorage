@@ -7,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.function.Consumer;
 
 public class NoneEconomyHook implements EconomyProvider {
-    public NoneEconomyHook() {
-        ExtraStorage.getInstance().getLogger().info("Using no economy provider.");
+    public NoneEconomyHook(ExtraStorage plugin) {
+        plugin.getLogger().info("Using no economy provider.");
     }
 
     @Override

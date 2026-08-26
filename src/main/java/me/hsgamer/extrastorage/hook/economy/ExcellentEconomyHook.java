@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.hook.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
+
 import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,7 +15,8 @@ public final class ExcellentEconomyHook extends WorthEconomyHook {
     private boolean setup = false;
     private ExcellentEconomyAPI api;
 
-    public ExcellentEconomyHook() {
+    public ExcellentEconomyHook(ExtraStorage plugin) {
+        super(plugin);
         if (this.isHooked()) {
             instance.getLogger().info("Using ExcellentEconomy as economy provider.");
         } else

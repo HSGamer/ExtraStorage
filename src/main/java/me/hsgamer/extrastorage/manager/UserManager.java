@@ -101,7 +101,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> implemen
 
         Optional<DataStorage.Modifier<UUID, UserImpl>> optionalModifier = storage.modify();
         if (!optionalModifier.isPresent()) {
-            ExtraStorage.getInstance().getLogger().log(Level.WARNING, "Failed to get modifier for user storage");
+            instance.getLogger().log(Level.WARNING, "Failed to get modifier for user storage");
             return;
         }
         DataStorage.Modifier<UUID, UserImpl> modifier = optionalModifier.get();
@@ -109,7 +109,7 @@ public final class UserManager extends SimpleDataHolder<UUID, UserImpl> implemen
             modifier.save(Collections.singletonMap(uuid, toSave));
             modifier.commit();
         } catch (Exception e) {
-            ExtraStorage.getInstance().getLogger().log(Level.SEVERE, "Error while saving user data for " + uuid, e);
+            instance.getLogger().log(Level.SEVERE, "Error while saving user data for " + uuid, e);
             modifier.rollback();
         }
     }

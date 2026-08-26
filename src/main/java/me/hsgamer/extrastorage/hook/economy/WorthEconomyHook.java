@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.hook.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
+
 import me.hsgamer.extrastorage.api.item.Worth;
 import me.hsgamer.extrastorage.manager.WorthManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
@@ -7,6 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class WorthEconomyHook extends AbstractEconomyHook {
+    public WorthEconomyHook(ExtraStorage plugin) {
+        super(plugin);
+    }
+
     @Override
     public int getAmount(ItemStack item) {
         if (!isHooked()) return 0;

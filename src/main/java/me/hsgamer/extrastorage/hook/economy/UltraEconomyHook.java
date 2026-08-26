@@ -4,6 +4,7 @@ import me.TechsCode.UltraEconomy.UltraEconomy;
 import me.TechsCode.UltraEconomy.UltraEconomyAPI;
 import me.TechsCode.UltraEconomy.objects.Account;
 import me.TechsCode.UltraEconomy.objects.Currency;
+import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,8 @@ public final class UltraEconomyHook extends WorthEconomyHook {
 
     private final UltraEconomyAPI api;
 
-    public UltraEconomyHook() {
+    public UltraEconomyHook(ExtraStorage plugin) {
+        super(plugin);
         this.api = UltraEconomy.getAPI();
 
         if (this.isHooked()) {

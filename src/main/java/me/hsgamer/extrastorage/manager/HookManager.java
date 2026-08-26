@@ -54,33 +54,33 @@ public class HookManager implements Loadable, Reloadable {
         EconomyProvider hook;
         switch (provider) {
             case "SHOPGUIPLUS":
-                hook = new ShopGuiPlusHook();
+                hook = new ShopGuiPlusHook(plugin);
                 break;
             case "ECONOMYSHOPGUI":
-                hook = new EconomyShopGuiHook();
+                hook = new EconomyShopGuiHook(plugin);
                 break;
             case "PLAYERPOINTS":
-                hook = new PlayerPointsHook();
+                hook = new PlayerPointsHook(plugin);
                 break;
             case "TOKENMANAGER":
-                hook = new TokenManagerHook();
+                hook = new TokenManagerHook(plugin);
                 break;
             case "ULTRAECONOMY":
-                hook = new UltraEconomyHook();
+                hook = new UltraEconomyHook(plugin);
                 break;
             case "COINSENGINE":
             case "EXCELLENTECONOMY":
-                hook = new ExcellentEconomyHook();
+                hook = new ExcellentEconomyHook(plugin);
                 break;
             case "VAULT":
-                hook = new VaultHook();
+                hook = new VaultHook(plugin);
                 break;
             default:
-                hook = new NoneEconomyHook();
+                hook = new NoneEconomyHook(plugin);
                 break;
         }
         if (!hook.isHooked()) {
-            hook = new NoneEconomyHook();
+            hook = new NoneEconomyHook(plugin);
         }
         return hook;
     }

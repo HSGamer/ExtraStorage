@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, PartnerGUI.PartnerData> {
-
     public PartnerGUI(ExtraStorage plugin) {
         super(plugin, "gui/partner.yml", PartnerGuiConfig.class, SortType.class);
     }
@@ -59,19 +58,19 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, P
                     if (d.getUser().getPartners().isEmpty() || !event.isShiftClick()) return;
                     if (!d.confirm) {
                         d.confirm = true;
-                        d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).warn().confirmCleanup()));
+                        d.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).warn().confirmCleanup()));
                         return;
                     }
                     for (Partner pn : d.getUser().getPartners()) {
                         OfflinePlayer offPlayer = pn.getOfflinePlayer();
                         if (!offPlayer.isOnline()) continue;
                         Player p = offPlayer.getPlayer();
-                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().noLongerPartner()).replaceAll(Utils.getRegex("player"), d.getPlayer().getName()));
-                        StorageGUI.StorageData sd = ExtraStorage.getInstance().get(StorageGUI.class).getSessionData(p.getUniqueId());
+                        p.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().noLongerPartner()).replaceAll(Utils.getRegex("player"), d.getPlayer().getName()));
+                        StorageGUI.StorageData sd = plugin.get(StorageGUI.class).getSessionData(p.getUniqueId());
                         if (sd != null && sd.partner.getUUID().equals(d.uuid)) p.closeInventory();
                     }
                     d.getUser().clearPartners();
-                    d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().cleanupPartnersList()));
+                    d.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().cleanupPartnersList()));
                     updateInventory(uuid);
                 });
 
@@ -116,7 +115,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, P
 
         return partnerStream.map(partner -> {
             OfflinePlayer pnPlayer = partner.getOfflinePlayer();
-            User partnerUser = ExtraStorage.getInstance().get(UserManager.class).getUser(pnPlayer);
+            User partnerUser = plugin.get(UserManager.class).getUser(pnPlayer);
 
             ItemStack item = representItem.getItem(partnerUser, s -> {
                 if (s.matches(Utils.getRegex("partner"))) {
@@ -131,11 +130,11 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, P
                 actionItem.setItem(item);
                 actionItem.setAction(InventoryClickEvent.class, event -> {
                     session.getUser().removePartner(pnPlayer.getUniqueId());
-                    session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
+                    session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().removedPartner()).replaceAll(Utils.getRegex("player"), pnPlayer.getName()));
                     if (pnPlayer.isOnline()) {
                         Player p = pnPlayer.getPlayer();
-                        p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().noLongerPartner()).replaceAll(Utils.getRegex("player"), session.getPlayer().getName()));
-                        StorageGUI.StorageData sd = ExtraStorage.getInstance().get(StorageGUI.class).getSessionData(p.getUniqueId());
+                        p.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().noLongerPartner()).replaceAll(Utils.getRegex("player"), session.getPlayer().getName()));
+                        StorageGUI.StorageData sd = plugin.get(StorageGUI.class).getSessionData(p.getUniqueId());
                         if (sd != null && sd.partner.getUUID().equals(session.uuid)) p.closeInventory();
                     }
 
@@ -166,7 +165,7 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, P
         }
 
         public User getUser() {
-            return ExtraStorage.getInstance().get(UserManager.class).getUser(uuid);
+            return plugin.get(UserManager.class).getUser(uuid);
         }
     }
 }

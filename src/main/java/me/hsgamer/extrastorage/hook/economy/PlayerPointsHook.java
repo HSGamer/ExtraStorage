@@ -1,5 +1,7 @@
 package me.hsgamer.extrastorage.hook.economy;
 
+import me.hsgamer.extrastorage.ExtraStorage;
+
 import me.hsgamer.extrastorage.util.Digital;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
@@ -11,9 +13,10 @@ public final class PlayerPointsHook extends WorthEconomyHook {
 
     private final PlayerPointsAPI api;
 
-    public PlayerPointsHook() {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("PlayerPoints");
-        api = (plugin != null) ? ((PlayerPoints) plugin).getAPI() : null;
+    public PlayerPointsHook(ExtraStorage plugin) {
+        super(plugin);
+        Plugin ppPlugin = Bukkit.getServer().getPluginManager().getPlugin("PlayerPoints");
+        api = (ppPlugin != null) ? ((PlayerPoints) ppPlugin).getAPI() : null;
 
         if (this.isHooked()) {
             instance.getLogger().info("Using PlayerPoints as economy provider.");
