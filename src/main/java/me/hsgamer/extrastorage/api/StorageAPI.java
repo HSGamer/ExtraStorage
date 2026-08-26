@@ -3,6 +3,8 @@ package me.hsgamer.extrastorage.api;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Worth;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.manager.UserManager;
+import me.hsgamer.extrastorage.manager.WorthManager;
 import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
@@ -22,7 +24,7 @@ public final class StorageAPI {
     }
 
     public User getUser(UUID uuid) {
-        return main.getUserManager().getUser(uuid);
+        return main.get(UserManager.class).getUser(uuid);
     }
 
     public User getUser(OfflinePlayer player) {
@@ -30,7 +32,7 @@ public final class StorageAPI {
     }
 
     public Worth getWorth(String key) {
-        return main.getWorthManager().getWorth(key);
+        return main.get(WorthManager.class).getWorth(key);
     }
 
 }

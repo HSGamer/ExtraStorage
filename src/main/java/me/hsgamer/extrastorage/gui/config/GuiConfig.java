@@ -2,7 +2,7 @@ package me.hsgamer.extrastorage.gui.config;
 
 import io.github.projectunified.craftconfig.annotation.Comment;
 import io.github.projectunified.craftconfig.annotation.ConfigPath;
-import me.hsgamer.extrastorage.configs.converters.MapConverter;
+import me.hsgamer.extrastorage.config.converters.MapConverter;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

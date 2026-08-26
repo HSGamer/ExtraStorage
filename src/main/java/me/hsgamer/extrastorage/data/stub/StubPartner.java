@@ -2,6 +2,7 @@ package me.hsgamer.extrastorage.data.stub;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.user.Partner;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -30,7 +31,7 @@ public class StubPartner implements Partner {
 
     @Override
     public String getTimeFormatted() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(ExtraStorage.getInstance().getSetting().dateFormat());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ExtraStorage.getInstance().get(SettingConfig.class).dateFormat());
         return dateFormat.format(new Date(timestamp));
     }
 }

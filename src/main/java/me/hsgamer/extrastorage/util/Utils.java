@@ -1,6 +1,7 @@
 package me.hsgamer.extrastorage.util;
 
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.config.MessageConfig;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Arrays;
@@ -65,7 +66,7 @@ public final class Utils {
 
     public static String formatMessage(String raw) {
         if (raw == null) return "";
-        String prefix = ExtraStorage.getInstance().getMessage().prefix();
+        String prefix = ExtraStorage.getInstance().get(MessageConfig.class).prefix();
         return colorize(raw.replace("{prefix}", prefix));
     }
 

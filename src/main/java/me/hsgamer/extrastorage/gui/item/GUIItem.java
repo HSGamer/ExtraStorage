@@ -8,6 +8,7 @@ import io.github.projectunified.craftitem.spigot.modifier.EnchantmentModifier;
 import io.github.projectunified.craftitem.spigot.modifier.ItemFlagModifier;
 import io.github.projectunified.craftitem.spigot.skull.SkullModifier;
 import io.github.projectunified.craftux.common.ActionItem;
+import io.github.projectunified.uniitem.api.Item;
 import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.gui.util.CompatItemUtil;
@@ -38,7 +39,7 @@ public interface GUIItem {
         String model = (String) itemConfig.getOrDefault("Model", "");
         String texture = (String) itemConfig.getOrDefault("Texture", "");
         if (!Strings.isNullOrEmpty(model)) {
-            io.github.projectunified.uniitem.api.Item item = ItemUtil.getItem(model);
+            Item item = ItemUtil.getItem(model);
             spigotItemSupplier = user -> {
                 ItemStack itemStack = item.tryBukkitItem(user.getPlayer());
                 if (itemStack == null) {

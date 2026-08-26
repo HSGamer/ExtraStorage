@@ -1,7 +1,8 @@
 package me.hsgamer.extrastorage.data.log;
 
+import io.github.projectunified.minelib.plugin.base.Loadable;
 import me.hsgamer.extrastorage.ExtraStorage;
-import me.hsgamer.extrastorage.configs.SettingConfig;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -12,9 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public final class Log {
-
-    private final SettingConfig setting;
+public final class Log implements Loadable {
+    private final ExtraStorage instance;
     private final File logFolder;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -22,15 +22,18 @@ public final class Log {
     private volatile File logFile;
 
     public Log(ExtraStorage instance) {
-        this.setting = instance.getSetting();
-
+        this.instance = instance;
         this.logFolder = new File(instance.getDataFolder(), "logs");
-        if (!logFolder.exists()) logFolder.mkdirs();
+    }
 
+    @Override
+    public void load() {
+        if (!logFolder.exists()) logFolder.mkdirs();
         this.initLogFile();
     }
 
     public synchronized boolean initLogFile() {
+        SettingConfig setting = instance.get(SettingConfig.class);
         if ((!setting.log().transfer()) && (!setting.log().withdraw()) && (!setting.log().sales())) return false;
 
         Calendar now = Calendar.getInstance(TimeZone.getDefault());
@@ -54,7 +57,7 @@ public final class Log {
     public void log(Player player, OfflinePlayer partner, Action action, String key, int amount, double price) {
         if (!this.initLogFile()) return;
 
-        String text, time = timeFormat.format(cal.getTime()), itemName = setting.getNameFormatted(key, true);
+        String text, time = timeFormat.format(cal.getTime()), itemName = instance.get(SettingConfig.class).getNameFormatted(key, true);
         switch (action) {
             case SELL:
                 text = String.format("[%s] %s sold x%d %s for: %.2f", time, player.getName(), amount, itemName, price);

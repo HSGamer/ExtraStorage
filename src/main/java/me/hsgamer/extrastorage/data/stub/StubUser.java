@@ -4,7 +4,7 @@ import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.Partner;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.data.user.UserImpl;
-import me.hsgamer.extrastorage.data.user.UserManager;
+import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.topper.data.core.DataEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

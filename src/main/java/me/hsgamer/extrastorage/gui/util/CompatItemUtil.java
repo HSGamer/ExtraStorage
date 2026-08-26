@@ -39,7 +39,6 @@ public final class CompatItemUtil {
         try {
             setCustomModelData.invoke(meta, data);
         } catch (Throwable ignored) {
-            // IGNORED
         }
     }
 
@@ -50,7 +49,6 @@ public final class CompatItemUtil {
             Object namespacedKey = constructNamespacedKey.invoke(model);
             setItemModel.invoke(meta, namespacedKey);
         } catch (Throwable ignored) {
-            // IGNORED
         }
     }
 }

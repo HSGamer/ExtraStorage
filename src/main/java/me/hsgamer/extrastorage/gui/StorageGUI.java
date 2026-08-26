@@ -7,7 +7,8 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.SettingConfig;
+import me.hsgamer.extrastorage.config.MessageConfig;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
@@ -15,6 +16,7 @@ import me.hsgamer.extrastorage.gui.config.StorageGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
+import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -31,8 +33,8 @@ import java.util.stream.Stream;
 
 public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, StorageGUI.StorageData> {
 
-    public StorageGUI() {
-        super("gui/storage.yml", StorageGuiConfig.class, SortType.class);
+    public StorageGUI(ExtraStorage plugin) {
+        super(plugin, "gui/storage.yml", StorageGuiConfig.class, SortType.class);
     }
 
     public StorageData getSessionData(UUID uuid) {
@@ -70,8 +72,8 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                     if (!p.hasPermission(Constants.PLAYER_TOGGLE_PERMISSION) || !isAdminOrSelf) return;
                     boolean status = !s.storage.getStatus();
                     s.storage.setStatus(status);
-                    p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().storageUsageToggled())
-                            .replaceAll(Utils.getRegex("status"), Utils.formatMessage(status ? ExtraStorage.getInstance().getMessage().status().enabled() : ExtraStorage.getInstance().getMessage().status().disabled())));
+                    p.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().storageUsageToggled())
+                            .replaceAll(Utils.getRegex("status"), Utils.formatMessage(status ? ExtraStorage.getInstance().get(MessageConfig.class).status().enabled() : ExtraStorage.getInstance().get(MessageConfig.class).status().disabled())));
                     updateInventory(uuid);
                 });
 
@@ -97,7 +99,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
     }
 
     private List<Button> getRepresentItems(StorageData session, Map<String, Object> section) {
-        SettingConfig setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         Stream<Item> itemStream = session.storage.getItems().values().stream().filter(item -> item != null && item.isLoaded());
         itemStream = sortRepresentItems(itemStream, session.sort, SortType.UNFILTER, sort -> {
@@ -118,7 +120,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                     ItemStack iStack = displayModifier.construct(
                             item,
                             s -> s
-                                    .replaceAll(Utils.getRegex("status"), Utils.formatMessage(item.isFiltered() ? ExtraStorage.getInstance().getMessage().status().filtered() : ExtraStorage.getInstance().getMessage().status().unfiltered()))
+                                    .replaceAll(Utils.getRegex("status"), Utils.formatMessage(item.isFiltered() ? ExtraStorage.getInstance().get(MessageConfig.class).status().filtered() : ExtraStorage.getInstance().get(MessageConfig.class).status().unfiltered()))
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(item.getQuantity()))
                     );
 
@@ -132,15 +134,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                             final ClickType click = event.getClick();
                             if (click == ClickType.SHIFT_RIGHT) {
                                 if (session.storage.isMaxSpace()) {
-                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().storageIsFull()));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().storageIsFull()));
                                     return;
                                 }
                                 if (!item.isFiltered()) {
-                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemNotFiltered()));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemNotFiltered()));
                                     return;
                                 }
                                 if (setting.getNormalizedBlacklist().contains(key) || (setting.limitWhitelist() && !setting.getNormalizedWhitelist().contains(key))) {
-                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemBlacklisted()));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemBlacklisted()));
                                     return;
                                 }
 
@@ -174,15 +176,15 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                     break;
                                 }
                                 if (count == 0) {
-                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                    player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                     return;
                                 }
 
                                 if (setting.log().transfer()) {
-                                    ExtraStorage.getInstance().getLog().log(player, session.partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
+                                    ExtraStorage.getInstance().get(Log.class).log(player, session.partner.getOfflinePlayer(), Log.Action.TRANSFER, key, count, -1);
                                 }
 
-                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().movedItemsToStorage())
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().movedItemsToStorage())
                                         .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(count))
                                         .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 if (!session.partner.isOnline()) session.partner.save();
@@ -193,7 +195,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
 
                             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
                             if (current <= 0) {
-                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().notEnoughItem()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                 return;
                             }
 
@@ -210,7 +212,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
 
                             int free = ItemUtil.getFreeSpace(player, vanillaItem);
                             if (free == -1) {
-                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().inventoryIsFull()));
+                                player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().inventoryIsFull()));
                                 return;
                             }
                             vanillaItem.setAmount(free);
@@ -219,12 +221,12 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                             session.storage.subtract(item.getKey(), free);
 
                             if (setting.log().withdraw()) {
-                                ExtraStorage.getInstance().getLog().log(player, session.partner.getOfflinePlayer(), Log.Action.WITHDRAW, item.getKey(), free, -1);
+                                ExtraStorage.getInstance().get(Log.class).log(player, session.partner.getOfflinePlayer(), Log.Action.WITHDRAW, item.getKey(), free, -1);
                             }
 
                             if (!session.partner.isOnline()) session.partner.save();
 
-                            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().withdrewItem())
+                            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().withdrewItem())
                                     .replaceAll(Utils.getRegex("quantity"), Digital.formatThousands(free))
                                     .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
@@ -257,7 +259,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
         }
 
         public User getUser() {
-            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
+            return ExtraStorage.getInstance().get(UserManager.class).getUser(uuid);
         }
 
         void setPartner(User partner) {

@@ -3,9 +3,10 @@ package me.hsgamer.extrastorage.gui.config;
 import io.github.projectunified.craftconfig.annotation.Comment;
 import io.github.projectunified.craftconfig.annotation.ConfigNode;
 import io.github.projectunified.craftconfig.annotation.ConfigPath;
-import me.hsgamer.extrastorage.configs.converters.MapConverter;
-import me.hsgamer.extrastorage.configs.converters.MapMapConverter;
+import me.hsgamer.extrastorage.config.converters.MapConverter;
+import me.hsgamer.extrastorage.config.converters.MapMapConverter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
     default Map<String, Object> representItem() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Name", "");
-        map.put("Lore", java.util.Arrays.asList(
+        map.put("Lore", Arrays.asList(
                 "",
                 "&c* By removing this item, it",
                 "&cwill no longer be picked up",
@@ -27,7 +28,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
                 "",
                 "&8[&6Click&8] &7Remove this item."
         ));
-        map.put("Slots", java.util.Arrays.asList("11-17", "20-26", "29-35"));
+        map.put("Slots", Arrays.asList("11-17", "20-26", "29-35"));
         return map;
     }
 
@@ -46,7 +47,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
         Map<String, Object> border = new LinkedHashMap<>();
         border.put("Material", "BLACK_STAINED_GLASS_PANE");
         border.put("Name", " ");
-        border.put("Slots", java.util.Arrays.asList("0-10", "18", "19", "27", "28", "36", "37", "45-49", "51-54"));
+        border.put("Slots", Arrays.asList("0-10", "18", "19", "27", "28", "36", "37", "45-49", "51-54"));
         items.put("border", border);
         Map<String, Object> divider = new LinkedHashMap<>();
         divider.put("Material", "GRAY_STAINED_GLASS_PANE");
@@ -86,7 +87,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
             map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
-            map.put("Lore", java.util.Arrays.asList(
+            map.put("Lore", Arrays.asList(
                     "",
                     "&2→ &aSort by name",
                     "",
@@ -103,7 +104,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "ARROW");
             map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ");
-            map.put("Lore", java.util.Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
+            map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
             map.put("Slots", Collections.singletonList("49"));
             return map;
         }
@@ -114,7 +115,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "ARROW");
             map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ");
-            map.put("Lore", java.util.Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
+            map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
             map.put("Slots", Collections.singletonList("51"));
             return map;
         }

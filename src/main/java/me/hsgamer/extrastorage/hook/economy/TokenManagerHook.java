@@ -1,0 +1,37 @@
+package me.hsgamer.extrastorage.hook.economy;
+
+import me.hsgamer.extrastorage.util.Digital;
+import me.realized.tokenmanager.api.TokenManager;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+public final class TokenManagerHook extends WorthEconomyHook {
+
+    private final TokenManager api;
+
+    public TokenManagerHook() {
+        Plugin tmPlugin = Bukkit.getServer().getPluginManager().getPlugin("TokenManager");
+        api = (tmPlugin != null) ? (TokenManager) tmPlugin : null;
+
+        if (this.isHooked()) {
+            instance.getLogger().info("Using TokenManager as economy provider.");
+        } else
+            instance.getLogger().severe("Could not find dependency: TokenManager. Please install it then try again!");
+    }
+
+    @Override
+    public boolean isHooked() {
+        return (api != null);
+    }
+
+    @Override
+    protected String formatPrice(double price) {
+        return Digital.formatThousands((long) price);
+    }
+
+    @Override
+    protected boolean deposit(Player player, double price) {
+        return api.addTokens(player, (long) price);
+    }
+}

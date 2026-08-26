@@ -7,12 +7,14 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.configs.SettingConfig;
+import me.hsgamer.extrastorage.config.MessageConfig;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.WhitelistGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
+import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
@@ -27,8 +29,8 @@ import java.util.stream.Collectors;
 
 public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiConfig, WhitelistGUI.WhitelistData> {
 
-    public WhitelistGUI() {
-        super("gui/whitelist.yml", WhitelistGuiConfig.class, SortType.class);
+    public WhitelistGUI(ExtraStorage plugin) {
+        super(plugin, "gui/whitelist.yml", WhitelistGuiConfig.class, SortType.class);
     }
 
     public void openFor(Player player) {
@@ -49,27 +51,27 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
 
         final String validKey = ItemUtil.toMaterialKey(item);
         if (validKey.equals(Constants.INVALID)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().invalidItem()));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().invalidItem()));
             return;
         }
-        SettingConfig setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
         if (setting.getNormalizedBlacklist().contains(validKey)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemBlacklisted()));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemBlacklisted()));
             return;
         }
         if (setting.getNormalizedWhitelist().contains(validKey)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemAlreadyWhitelisted()));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemAlreadyWhitelisted()));
             return;
         }
 
         setting.addToWhitelist(validKey);
-        for (User user : ExtraStorage.getInstance().getUserManager().getUsers()) {
+        for (User user : ExtraStorage.getInstance().get(UserManager.class).getUsers()) {
             Storage storage = user.getStorage();
             Optional<Item> optional = storage.getItem(validKey);
             if (!optional.isPresent()) storage.addNewItem(validKey);
         }
 
-        player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemAddedToWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
+        player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().itemAddedToWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(validKey, true)));
 
         updateInventory(player.getUniqueId());
     }
@@ -98,7 +100,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
     }
 
     private List<Button> getRepresentItems(WhitelistData session, Map<String, Object> section) {
-        SettingConfig setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
         GUIItemModifier displayModifier = GUIItemModifier.getDisplayItemModifier(section, true);
         List<String> whitelist = new ArrayList<>(setting.getNormalizedWhitelist());
 
@@ -125,12 +127,12 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             setting.removeFromWhitelist(key);
 
-                            for (User user : ExtraStorage.getInstance().getUserManager().getUsers()) {
+                            for (User user : ExtraStorage.getInstance().get(UserManager.class).getUsers()) {
                                 Storage storage = user.getStorage();
                                 Optional<Item> optional = storage.getItem(key);
                                 if (optional.isPresent()) storage.unfilter(key);
                             }
-                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
+                            session.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().itemRemovedFromWhitelist()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
 
                             updateInventory(uuid);
                         });

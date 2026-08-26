@@ -1,11 +1,13 @@
 package me.hsgamer.extrastorage.gui.item;
 
+
 import io.github.projectunified.craftitem.core.ItemModifier;
 import io.github.projectunified.craftitem.spigot.core.SpigotItem;
 import io.github.projectunified.craftitem.spigot.core.SpigotItemModifier;
 import io.github.projectunified.craftitem.spigot.modifier.LoreModifier;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.inventory.ItemStack;
 
@@ -64,7 +66,7 @@ public interface GUIItemModifier {
         modify(spigotItem, translator);
         spigotItem.editMeta(meta -> {
             if (!meta.hasDisplayName()) {
-                meta.setDisplayName(ExtraStorage.getInstance().getSetting().getNameFormatted(key, true));
+                meta.setDisplayName(ExtraStorage.getInstance().get(SettingConfig.class).getNameFormatted(key, true));
             }
         });
         return spigotItem.getItemStack();
@@ -76,7 +78,7 @@ public interface GUIItemModifier {
         modify(spigotItem, translator);
         spigotItem.editMeta(meta -> {
             if (!meta.hasDisplayName()) {
-                meta.setDisplayName(ExtraStorage.getInstance().getSetting().getNameFormatted(item.getKey(), true));
+                meta.setDisplayName(ExtraStorage.getInstance().get(SettingConfig.class).getNameFormatted(item.getKey(), true));
             }
         });
         return spigotItem.getItemStack();

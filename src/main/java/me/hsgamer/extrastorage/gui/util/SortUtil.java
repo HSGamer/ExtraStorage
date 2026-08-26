@@ -3,7 +3,7 @@ package me.hsgamer.extrastorage.gui.util;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.user.Partner;
-import me.hsgamer.extrastorage.configs.SettingConfig;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.OfflinePlayer;
 
 import java.util.Comparator;
@@ -17,7 +17,7 @@ public final class SortUtil {
     }
 
     public static int compareItemByName(Item obj1, Item obj2) {
-        SettingConfig setting = ExtraStorage.getInstance().getSetting();
+        SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
         String name1 = setting.getNameFormatted(obj1.getKey(), false);
         String name2 = setting.getNameFormatted(obj2.getKey(), false);
         return name1.compareTo(name2);

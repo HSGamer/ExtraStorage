@@ -39,7 +39,6 @@ public class ItemUtil {
                             return item;
                         }
                     } catch (Exception e) {
-                        // IGNORED
                     }
 
                     Material material = null;
@@ -117,13 +116,11 @@ public class ItemUtil {
             String possibleType = split[0];
             String possibleId = split[1];
 
-            // Return the type if it's a Material
             Material material = Material.matchMaterial(possibleType);
             if (material != null) {
                 return material.name();
             }
 
-            // Always normalize and put the type in uppercase
             String normalizedType = provider.normalize(possibleType).toUpperCase(Locale.ROOT);
             return normalizedType + ":" + possibleId;
         });

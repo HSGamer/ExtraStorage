@@ -7,12 +7,15 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
+import me.hsgamer.extrastorage.config.MessageConfig;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.FilterGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
 import me.hsgamer.extrastorage.gui.util.GuiUtil;
 import me.hsgamer.extrastorage.gui.util.SortUtil;
+import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -28,8 +31,8 @@ import java.util.stream.Stream;
 
 public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, FilterGUI.FilterData> {
 
-    public FilterGUI() {
-        super("gui/filter.yml", FilterGuiConfig.class, SortType.class);
+    public FilterGUI(ExtraStorage plugin) {
+        super(plugin, "gui/filter.yml", FilterGuiConfig.class, SortType.class);
     }
 
     public void openFor(Player player) {
@@ -51,13 +54,13 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
 
         final String validKey = ItemUtil.toMaterialKey(clickedItem);
         if (validKey.equals(Constants.INVALID)) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().invalidItem()));
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().invalidItem()));
             return;
         }
         if (data.storage.canStore(validKey)) return;
 
-        if (ExtraStorage.getInstance().getSetting().getNormalizedBlacklist().contains(validKey) || (ExtraStorage.getInstance().getSetting().limitWhitelist() && !ExtraStorage.getInstance().getSetting().getNormalizedWhitelist().contains(validKey))) {
-            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().fail().itemBlacklisted()));
+        if (ExtraStorage.getInstance().get(SettingConfig.class).getNormalizedBlacklist().contains(validKey) || (ExtraStorage.getInstance().get(SettingConfig.class).limitWhitelist() && !ExtraStorage.getInstance().get(SettingConfig.class).getNormalizedWhitelist().contains(validKey))) {
+            player.sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).fail().itemBlacklisted()));
             return;
         }
 
@@ -90,13 +93,13 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
                     if (d.storage.getFilteredItems().isEmpty() || !event.isShiftClick()) return;
                     if (!d.confirm) {
                         d.confirm = true;
-                        d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().warn().confirmCleanup()));
+                        d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).warn().confirmCleanup()));
                         return;
                     }
                     for (String key : d.storage.getFilteredItems().keySet()) {
                         d.storage.unfilter(key);
                     }
-                    d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().getMessage().success().filterCleanedUp()));
+                    d.getPlayer().sendMessage(Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).success().filterCleanedUp()));
                     updateInventory(uuid);
                 });
 
@@ -164,7 +167,7 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
 
         private FilterData(UUID uuid) {
             this.uuid = uuid;
-            User user = ExtraStorage.getInstance().getUserManager().getUser(uuid);
+            User user = ExtraStorage.getInstance().get(UserManager.class).getUser(uuid);
             this.storage = user.getStorage();
             this.sort = BaseGUI.getDefaultSort(config.settings(), SortType.class);
         }
@@ -174,7 +177,7 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
         }
 
         public User getUser() {
-            return ExtraStorage.getInstance().getUserManager().getUser(uuid);
+            return ExtraStorage.getInstance().get(UserManager.class).getUser(uuid);
         }
     }
 }

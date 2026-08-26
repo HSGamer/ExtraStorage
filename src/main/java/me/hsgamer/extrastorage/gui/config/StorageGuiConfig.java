@@ -3,8 +3,8 @@ package me.hsgamer.extrastorage.gui.config;
 import io.github.projectunified.craftconfig.annotation.Comment;
 import io.github.projectunified.craftconfig.annotation.ConfigNode;
 import io.github.projectunified.craftconfig.annotation.ConfigPath;
-import me.hsgamer.extrastorage.configs.converters.MapConverter;
-import me.hsgamer.extrastorage.configs.converters.MapMapConverter;
+import me.hsgamer.extrastorage.config.converters.MapConverter;
+import me.hsgamer.extrastorage.config.converters.MapMapConverter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +24,7 @@ public interface StorageGuiConfig extends GuiConfig {
     default Map<String, Object> representItem() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Name", "");
-        map.put("Lore", java.util.Arrays.asList(
+        map.put("Lore", Arrays.asList(
                 "",
                 "&7+ Status: &r{status}",
                 "",
@@ -35,7 +35,7 @@ public interface StorageGuiConfig extends GuiConfig {
                 "&8[&6Shift Left&8] &7Withdraw all.",
                 "&8[&6Shift Right&8] &7Add all to storage."
         ));
-        map.put("Slots", java.util.Arrays.asList("11-17", "20-26", "29-35"));
+        map.put("Slots", Arrays.asList("11-17", "20-26", "29-35"));
         return map;
     }
 
@@ -50,7 +50,7 @@ public interface StorageGuiConfig extends GuiConfig {
         Map<String, Object> border = new LinkedHashMap<>();
         border.put("Material", "BLACK_STAINED_GLASS_PANE");
         border.put("Name", " ");
-        border.put("Slots", java.util.Arrays.asList("0-10", "18", "19", "27", "28", "36", "37", "45", "46-48", "52-54"));
+        border.put("Slots", Arrays.asList("0-10", "18", "19", "27", "28", "36", "37", "45", "46-48", "52-54"));
         items.put("border", border);
         Map<String, Object> divider = new LinkedHashMap<>();
         divider.put("Material", "GRAY_STAINED_GLASS_PANE");
@@ -124,7 +124,7 @@ public interface StorageGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
             map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
-            map.put("Lore", java.util.Arrays.asList(
+            map.put("Lore", Arrays.asList(
                     "",
                     "&2→ &aBy material",
                     "&8 ● &7By name",
@@ -145,7 +145,7 @@ public interface StorageGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
             map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
-            map.put("Lore", java.util.Arrays.asList(
+            map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
                     "&2→ &aBy name",
@@ -166,7 +166,7 @@ public interface StorageGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
             map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
-            map.put("Lore", java.util.Arrays.asList(
+            map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
                     "&8 ● &7By name",
@@ -187,7 +187,7 @@ public interface StorageGuiConfig extends GuiConfig {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
             map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
-            map.put("Lore", java.util.Arrays.asList(
+            map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
                     "&8 ● &7By name",

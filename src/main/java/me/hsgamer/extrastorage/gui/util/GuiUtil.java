@@ -2,6 +2,10 @@ package me.hsgamer.extrastorage.gui.util;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.data.Constants;
+import me.hsgamer.extrastorage.gui.FilterGUI;
+import me.hsgamer.extrastorage.gui.PartnerGUI;
+import me.hsgamer.extrastorage.gui.SellGUI;
+import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import org.bukkit.entity.Player;
 
@@ -14,13 +18,13 @@ public final class GuiUtil {
 
     static {
         GUI_SEQUENCE.add(new GuiEntry(Constants.PLAYER_OPEN_PERMISSION,
-                p -> ExtraStorage.getInstance().getStorageGUI().openFor(p, null)));
+                p -> ExtraStorage.getInstance().get(StorageGUI.class).openFor(p, null)));
         GUI_SEQUENCE.add(new GuiEntry(Constants.PLAYER_SELL_PERMISSION,
-                p -> ExtraStorage.getInstance().getSellGUI().openFor(p)));
+                p -> ExtraStorage.getInstance().get(SellGUI.class).openFor(p)));
         GUI_SEQUENCE.add(new GuiEntry(Constants.PLAYER_PARTNER_PERMISSION,
-                p -> ExtraStorage.getInstance().getPartnerGUI().openFor(p)));
+                p -> ExtraStorage.getInstance().get(PartnerGUI.class).openFor(p)));
         GUI_SEQUENCE.add(new GuiEntry(Constants.PLAYER_FILTER_PERMISSION,
-                p -> ExtraStorage.getInstance().getFilterGUI().openFor(p)));
+                p -> ExtraStorage.getInstance().get(FilterGUI.class).openFor(p)));
     }
 
     private GuiUtil() {
@@ -43,10 +47,10 @@ public final class GuiUtil {
     }
 
     private static int findIndex(BaseGUI<?, ?, ?> current) {
-        if (current == ExtraStorage.getInstance().getStorageGUI()) return 0;
-        if (current == ExtraStorage.getInstance().getSellGUI()) return 1;
-        if (current == ExtraStorage.getInstance().getPartnerGUI()) return 2;
-        if (current == ExtraStorage.getInstance().getFilterGUI()) return 3;
+        if (current == ExtraStorage.getInstance().get(StorageGUI.class)) return 0;
+        if (current == ExtraStorage.getInstance().get(SellGUI.class)) return 1;
+        if (current == ExtraStorage.getInstance().get(PartnerGUI.class)) return 2;
+        if (current == ExtraStorage.getInstance().get(FilterGUI.class)) return 3;
         return -1;
     }
 
