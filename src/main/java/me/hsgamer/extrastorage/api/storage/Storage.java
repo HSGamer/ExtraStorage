@@ -4,6 +4,9 @@ import me.hsgamer.extrastorage.api.item.Item;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public interface Storage {
 
@@ -94,6 +97,46 @@ public interface Storage {
     boolean canStore(Object key);
 
     /**
+     * Consume as much of the stack as fits into the storage, store it and notify.
+     * <p>
+     * The stack is split against the current free space:
+     * <ul>
+     *     <li>the whole stack fits → {@code onFullStore} is run and the full {@code amount} is stored;</li>
+     *     <li>only part of the stack fits → {@code onResidual} receives the leftover amount that stays
+     *     in the world, and the storable part is stored;</li>
+     *     <li>the storage is full → {@code 0} is returned, nothing is stored and neither handler runs.</li>
+     * </ul>
+     * The stored amount is added via {@link #add(Object, long)} and {@code onAdded} is notified
+     * with the item in the storage and the stored amount.
+     *
+     * @param key         the item key. Can be an ItemStack or a string as MATERIAL:DATA
+     * @param amount      the total amount of the stack
+     * @param onResidual  receives the amount that stays in the world when only part of the stack fits
+     * @param onFullStore run when the whole stack fits into the storage
+     * @param onAdded     receives the item in the storage and the stored amount, after the add
+     * @return the amount stored, or 0 when the storage is full (nothing is stored, neither handler runs)
+     */
+    default int consumeStack(Object key, int amount, IntConsumer onResidual, Runnable onFullStore, BiConsumer<Item, Integer> onAdded) {
+        long freeSpace = this.getFreeSpace();
+        int store;
+        if (freeSpace == -1) {
+            store = amount;
+        } else if (freeSpace < 1) {
+            return 0;
+        } else {
+            store = (int) Math.min(freeSpace, amount);
+        }
+
+        if (store < amount) {
+            onResidual.accept(amount - store);
+        } else {
+            onFullStore.run();
+        }
+        add(key, store, added -> onAdded.accept(added, store));
+        return store;
+    }
+
+    /**
      * Get all items are not in the filter
      *
      * @return the Map contains all items are not in the filter
@@ -158,6 +201,19 @@ public interface Storage {
      * @see Storage#reset(Object)
      */
     void add(Object key, long quantity);
+
+    /**
+     * Add the item quantity, then notify after the addition.
+     *
+     * @param key      the item key. Can be an ItemStack or a string as MATERIAL:DATA
+     * @param quantity the quantity to be added
+     * @param onAdded  consumer invoked after the add, with the item in the storage
+     * @see Storage#add(Object, long)
+     */
+    default void add(Object key, long quantity, Consumer<Item> onAdded) {
+        add(key, quantity);
+        getItem(key).ifPresent(onAdded);
+    }
 
     /**
      * Subtract the item quantity. For unfiltered items, if the quantity is less than 1 after subtracted,

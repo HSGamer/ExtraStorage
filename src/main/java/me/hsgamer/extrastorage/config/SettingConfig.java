@@ -64,12 +64,6 @@ public interface SettingConfig extends Reloadable {
         return 100000;
     }
 
-    @Comment(value = {"Blocking the player from mining the block if their storage is full?", "* This option only work if 'MaxSpace' is greater than 0."})
-    @ConfigPath(value = "BlockedMining", priority = 75)
-    default boolean blockedMining() {
-        return true;
-    }
-
     @Comment("Enabling this option will automatically store items in the player's storage after mining blocks.")
     @ConfigPath(value = "AutoStoreItem", priority = 80)
     default boolean autoStoreItem() {

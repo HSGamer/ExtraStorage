@@ -11,6 +11,7 @@ import me.hsgamer.extrastorage.api.storage.Storage;
 import me.hsgamer.extrastorage.api.user.User;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
+import me.hsgamer.extrastorage.manager.CacheManager;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.hscore.bukkit.utils.VersionUtils;
@@ -139,35 +140,27 @@ public class PickupListener implements Listener, ListenerComponent {
         if (pickupHandler.hasProblem()) return;
 
         Item entity = event.getItem();
-        if (instance.get(SettingConfig.class).blacklistWorlds().contains(entity.getWorld().getName())) return;
+        if (instance.get(CacheManager.class).isBlacklistedWorld(entity.getWorld())) return;
         ItemStack item = entity.getItemStack().clone();
 
         User user = instance.get(UserManager.class).getUser(player);
         if (!user.hasPermission(Constants.STORAGE_PICKUP_PERMISSION)) return;
 
         String validKey = ItemUtil.toMaterialKey(item);
-        if (instance.get(SettingConfig.class).getNormalizedBlacklist().contains(validKey) || (instance.get(SettingConfig.class).limitWhitelist() && !instance.get(SettingConfig.class).getNormalizedWhitelist().contains(validKey)))
+        if (instance.get(CacheManager.class).getBlacklist().contains(validKey) || (instance.get(SettingConfig.class).limitWhitelist() && !instance.get(CacheManager.class).getWhitelist().contains(validKey)))
             return;
 
         Storage storage = user.getStorage();
-        if (storage.isMaxSpace() || (!storage.canStore(item))) return;
+        if (!storage.canStore(item)) return;
 
         int amount = pickupHandler.getAmount(event, entity, item);
-        int result = amount;
-
-        long freeSpace = storage.getFreeSpace();
-        long maxTake = Math.min(amount, freeSpace == -1 ? Integer.MAX_VALUE : Math.min(freeSpace, Integer.MAX_VALUE));
-        amount = (int) maxTake;
-        if ((freeSpace != -1) && (freeSpace < amount)) {
-            result = (int) freeSpace;
-            int residual = amount - result;
-
-            pickupHandler.applyAmount(entity, item, residual);
-        } else {
-            event.setCancelled(true);
-            entity.remove();
-        }
-        ListenerUtil.addToStorage(player, storage, item, result);
+        storage.consumeStack(item, amount,
+                residual -> pickupHandler.applyAmount(entity, item, residual),
+                () -> {
+                    event.setCancelled(true);
+                    entity.remove();
+                },
+                ListenerUtil.getStoredNotifier(player, item));
     }
 
     private interface PickupHandler {

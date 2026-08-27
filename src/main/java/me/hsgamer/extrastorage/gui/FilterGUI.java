@@ -20,7 +20,6 @@ import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -49,7 +48,7 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
         if (data == null) return;
 
         final ItemStack clickedItem = event.getCurrentItem();
-        if ((clickedItem == null) || (clickedItem.getType() == Material.AIR)) return;
+        if (ItemUtil.isAir(clickedItem)) return;
 
         final String validKey = ItemUtil.toMaterialKey(clickedItem);
         if (validKey.equals(Constants.INVALID)) {

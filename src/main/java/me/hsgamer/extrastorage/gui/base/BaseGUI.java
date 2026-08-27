@@ -23,11 +23,11 @@ import me.hsgamer.extrastorage.gui.item.GUIItem;
 import me.hsgamer.extrastorage.manager.ActionManager;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.Digital;
+import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.SoundUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import me.hsgamer.hscore.common.CollectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -280,7 +280,7 @@ public abstract class BaseGUI<S extends Enum<S>, C extends GuiConfig, D> impleme
             if (p == null) return false;
             User u = plugin.get(UserManager.class).getUser(p);
             ItemStack item = guiItem.getItem(u, s -> s);
-            if (item == null || item.getType() == Material.AIR) return false;
+            if (ItemUtil.isAir(item)) return false;
             actionItem.setItem(item);
             if (actionConsumer != null) {
                 actionItem.setAction(InventoryClickEvent.class, event -> actionConsumer.accept(uuid));

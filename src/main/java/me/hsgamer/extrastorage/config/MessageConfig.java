@@ -358,12 +358,6 @@ public interface MessageConfig extends Reloadable {
         @ConfigPath(value = "Stored", priority = 10)
         StoredConfig stored();
 
-        @Comment("This message will be sent when the player's storage is full: Sent using ActionBar, not using Title. Leave it blank to disable this feature.")
-        @ConfigPath(value = "StorageIsFull", priority = 20)
-        default String storageIsFull() {
-            return "&cYour storage is full!";
-        }
-
         @ConfigNode
         interface StoredConfig {
             @Comment("Using ActionBar to send: Leave it blank to disable this feature.")

@@ -58,6 +58,7 @@ public final class ExtraStorage extends BasePlugin {
 
                 // Hooks
                 new HookManager(this),
+                new CacheManager(this),
 
                 // GUIs
                 new StorageGUI(this),

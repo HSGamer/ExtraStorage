@@ -18,7 +18,6 @@ import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -46,7 +45,7 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
         if (data == null) return;
 
         final ItemStack item = event.getCurrentItem();
-        if ((item == null) || (item.getType() == Material.AIR)) return;
+        if (ItemUtil.isAir(item)) return;
 
         final String validKey = ItemUtil.toMaterialKey(item);
         if (validKey.equals(Constants.INVALID)) {

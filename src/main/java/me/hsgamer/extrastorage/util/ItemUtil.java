@@ -8,6 +8,7 @@ import io.github.projectunified.uniitem.api.Item;
 import io.github.projectunified.uniitem.api.ItemKey;
 import me.hsgamer.extrastorage.Debug;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -140,10 +141,29 @@ public class ItemUtil {
         }
     }
 
+    /**
+     * Check if the item stack is null or air.
+     *
+     * @param stack the item stack
+     * @return true if the stack is null or air, otherwise false
+     */
+    public static boolean isAir(ItemStack stack) {
+        return (stack == null) || (stack.getType() == Material.AIR);
+    }
+
+    /**
+     * Get the free space of the player's inventory for the item.
+     *
+     * @param player the player
+     * @param item   the item stack
+     * @return the amount of the item that can fit into the inventory, capped at the stack amount,
+     * or -1 if the inventory has no room for the item
+     */
     public static int getFreeSpace(Player player, ItemStack item) {
         int empty = 0;
         for (ItemStack stack : player.getInventory().getStorageContents()) {
-            if ((stack == null) || (stack.getType() == Material.AIR)) {
+            if (empty >= item.getAmount()) break;
+            if (isAir(stack)) {
                 empty += item.getMaxStackSize();
                 continue;
             }
@@ -152,6 +172,21 @@ public class ItemUtil {
         }
         if (empty > 0) return Math.min(empty, item.getAmount());
         return -1;
+    }
+
+    /**
+     * Check if the stack should be stored into the storage instead of the player's inventory.
+     * <p>
+     * When {@code onlyStoreWhenInvFull} is disabled, the stack can always be stored.
+     * Otherwise, it can only be stored when the inventory cannot hold the whole stack.
+     *
+     * @param player the player
+     * @param item   the item stack
+     * @return true if the stack should be stored into the storage, otherwise false
+     */
+    public static boolean canStore(Player player, ItemStack item) {
+        if (!ExtraStorage.getInstance().get(SettingConfig.class).onlyStoreWhenInvFull()) return true;
+        return getFreeSpace(player, item) < item.getAmount();
     }
 
     public static Item getItem(String key) {

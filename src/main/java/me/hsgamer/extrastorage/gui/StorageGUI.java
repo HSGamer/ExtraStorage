@@ -21,7 +21,6 @@ import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -128,7 +127,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                         actionItem.setAction(InventoryClickEvent.class, event -> {
                             Player player = session.getPlayer();
                             ItemStack clicked = event.getCurrentItem();
-                            if ((clicked == null) || (clicked.getType() == Material.AIR)) return;
+                            if (ItemUtil.isAir(clicked)) return;
 
                             final ClickType click = event.getClick();
                             if (click == ClickType.SHIFT_RIGHT) {
@@ -148,7 +147,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                 int count = 0;
                                 ItemStack[] items = player.getInventory().getStorageContents();
                                 for (ItemStack is : items) {
-                                    if ((is == null) || (is.getType() == Material.AIR)) continue;
+                                    if (ItemUtil.isAir(is)) continue;
 
                                     Optional<Item> optional = session.storage.getItem(is);
                                     if (!optional.isPresent()) continue;
@@ -159,20 +158,13 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                     if (!key.equalsIgnoreCase(ItemUtil.toMaterialKey(is))) continue;
 
                                     int amount = is.getAmount();
-                                    long freeSpace = session.storage.getFreeSpace();
-                                    if ((freeSpace == -1) || ((freeSpace - amount) >= 0)) {
-                                        count += amount;
-                                        session.storage.add(item.getKey(), amount);
-                                        player.getInventory().removeItem(is);
-                                        continue;
-                                    }
-                                    amount = (int) freeSpace;
-                                    count += amount;
-                                    session.storage.add(key, amount);
-
-                                    if (is.getAmount() > amount) is.setAmount(is.getAmount() - amount);
-                                    else player.getInventory().removeItem(is);
-                                    break;
+                                    int store = session.storage.consumeStack(key, amount,
+                                            is::setAmount,
+                                            () -> player.getInventory().removeItem(is),
+                                            (added, addedAmount) -> {
+                                            });
+                                    count += store;
+                                    if (store < amount) break;
                                 }
                                 if (count == 0) {
                                     player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
