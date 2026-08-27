@@ -160,7 +160,7 @@ public class PickupListener implements Listener, ListenerComponent {
                     event.setCancelled(true);
                     entity.remove();
                 },
-                ListenerUtil.getStoredNotifier(player, item));
+                ListenerUtil.getStoredNotifier(player));
     }
 
     private interface PickupHandler {

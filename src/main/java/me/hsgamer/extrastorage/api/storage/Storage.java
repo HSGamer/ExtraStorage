@@ -1,12 +1,15 @@
 package me.hsgamer.extrastorage.api.storage;
 
 import me.hsgamer.extrastorage.api.item.Item;
+import me.hsgamer.extrastorage.util.ItemUtil;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
+import java.util.function.*;
 
 public interface Storage {
 
@@ -117,7 +120,25 @@ public interface Storage {
      * @return the amount stored, or 0 when the storage is full (nothing is stored, neither handler runs)
      */
     default int consumeStack(Object key, int amount, IntConsumer onResidual, Runnable onFullStore, BiConsumer<Item, Integer> onAdded) {
-        long freeSpace = this.getFreeSpace();
+        return consumeStack(key, amount, this.getFreeSpace(), onResidual, onFullStore, onAdded);
+    }
+
+    /**
+     * Consume as much of the stack as fits into the given free space, store it and notify.
+     * <p>
+     * Same as {@link #consumeStack(Object, int, IntConsumer, Runnable, BiConsumer)} but with a precomputed
+     * free space, so multiple stacks can be consumed against a single {@link #getFreeSpace()} call.
+     * The caller is responsible for tracking the remaining free space.
+     *
+     * @param key         the item key. Can be an ItemStack or a string as MATERIAL:DATA
+     * @param amount      the total amount of the stack
+     * @param freeSpace   the free space of the storage, or -1 if unlimited
+     * @param onResidual  receives the amount that stays in the world when only part of the stack fits
+     * @param onFullStore run when the whole stack fits into the storage
+     * @param onAdded     receives the item in the storage and the stored amount, after the add; may be {@code null}
+     * @return the amount stored, or 0 when the storage is full (nothing is stored, neither handler runs)
+     */
+    default int consumeStack(Object key, int amount, long freeSpace, IntConsumer onResidual, Runnable onFullStore, BiConsumer<Item, Integer> onAdded) {
         int store;
         if (freeSpace == -1) {
             store = amount;
@@ -132,8 +153,83 @@ public interface Storage {
         } else {
             onFullStore.run();
         }
-        add(key, store, added -> onAdded.accept(added, store));
+        add(key, store);
+        if (onAdded != null) {
+            getItem(key).ifPresent(added -> onAdded.accept(added, store));
+        }
         return store;
+    }
+
+    /**
+     * Consume the given items into the storage, storing each whole stack or the part that fits.
+     * <p>
+     * The free space is computed once and tracked across the items.
+     * Fully stored items are removed from the collection, so it must support element removal.
+     * Stops at the first item that does not fully fit, leaving the residual in that item's stack.
+     *
+     * @param collection  the items to consume; fully stored items are removed from the collection
+     * @param stackGetter gets the item stack of each element; may be {@code null} if the elements are item stacks
+     * @param filter      the stacks to consume; stacks that fail the filter are skipped
+     * @param onFullStore receives each element that is fully stored, so the caller can remove it elsewhere;
+     *                    may be {@code null} if no external removal is needed
+     * @param onAdded     receives the item in the storage and the stored amount, after each add
+     * @param <T>         the element type
+     * @return the total amount stored
+     */
+    default <T> int consumeStack(Collection<T> collection, Function<T, ItemStack> stackGetter, Predicate<ItemStack> filter, Consumer<T> onFullStore, BiConsumer<Item, Integer> onAdded) {
+        int count = 0;
+        long freeSpace = this.getFreeSpace();
+        Iterator<T> iterator = collection.iterator();
+        while (iterator.hasNext()) {
+            T element = iterator.next();
+            ItemStack stack = stackGetter != null ? stackGetter.apply(element) : (ItemStack) element;
+            if (ItemUtil.isAir(stack)) continue;
+            if (!filter.test(stack)) continue;
+
+            Optional<Item> optional = getItem(stack);
+            if (!optional.isPresent()) continue;
+            if (!optional.get().isLoaded()) continue;
+
+            int amount = stack.getAmount();
+            int store = consumeStack(stack, amount, freeSpace, stack::setAmount, () -> {
+                if (onFullStore != null) onFullStore.accept(element);
+                iterator.remove();
+            }, onAdded);
+            count += store;
+            if (freeSpace != -1) freeSpace -= store;
+            if (store < amount) break;
+        }
+        return count;
+    }
+
+    /**
+     * Consume the given item stacks into the storage, storing each whole stack or the part that fits.
+     * <p>
+     * Fully stored stacks are removed from the iterator and {@code onFullStore} is called for each,
+     * so the caller can remove them elsewhere.
+     *
+     * @param stacks      the item stacks to consume; fully stored stacks are removed from the iterator
+     * @param filter      the stacks to consume; stacks that fail the filter are skipped
+     * @param onFullStore receives each stack that is fully stored into the storage
+     * @param onAdded     receives the item in the storage and the stored amount, after each add
+     * @return the total amount stored
+     */
+    default int consumeStack(Collection<ItemStack> stacks, Predicate<ItemStack> filter, Consumer<ItemStack> onFullStore, BiConsumer<Item, Integer> onAdded) {
+        return consumeStack(stacks, null, filter, onFullStore, onAdded);
+    }
+
+    /**
+     * Consume the given dropped item entities into the storage, storing each whole stack or the part that fits.
+     * <p>
+     * Fully stored entities are removed from the world and from the iterator.
+     *
+     * @param entities the dropped item entities to consume; fully stored entities are removed from the iterator
+     * @param filter   the entities to consume; entities that fail the filter are skipped
+     * @param onAdded  receives the item in the storage and the stored amount, after each add
+     * @return the total amount stored
+     */
+    default int consumeStack(Collection<org.bukkit.entity.Item> entities, Predicate<ItemStack> filter, BiConsumer<Item, Integer> onAdded) {
+        return consumeStack(entities, org.bukkit.entity.Item::getItemStack, filter, org.bukkit.entity.Item::remove, onAdded);
     }
 
     /**
@@ -201,19 +297,6 @@ public interface Storage {
      * @see Storage#reset(Object)
      */
     void add(Object key, long quantity);
-
-    /**
-     * Add the item quantity, then notify after the addition.
-     *
-     * @param key      the item key. Can be an ItemStack or a string as MATERIAL:DATA
-     * @param quantity the quantity to be added
-     * @param onAdded  consumer invoked after the add, with the item in the storage
-     * @see Storage#add(Object, long)
-     */
-    default void add(Object key, long quantity, Consumer<Item> onAdded) {
-        add(key, quantity);
-        getItem(key).ifPresent(onAdded);
-    }
 
     /**
      * Subtract the item quantity. For unfiltered items, if the quantity is less than 1 after subtracted,

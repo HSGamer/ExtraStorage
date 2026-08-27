@@ -8,10 +8,7 @@ import me.hsgamer.extrastorage.config.MessageConfig;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.*;
-import me.hsgamer.extrastorage.listener.InventoryUIListener;
-import me.hsgamer.extrastorage.listener.ItemListener;
-import me.hsgamer.extrastorage.listener.PickupListener;
-import me.hsgamer.extrastorage.listener.PlayerListener;
+import me.hsgamer.extrastorage.listener.*;
 import me.hsgamer.extrastorage.manager.*;
 import me.hsgamer.hscore.license.common.LicenseStatus;
 import me.hsgamer.hscore.license.polymart.PolymartLicenseChecker;
@@ -70,7 +67,7 @@ public final class ExtraStorage extends BasePlugin {
                 // Listeners
                 new InventoryUIListener(this),
                 new PlayerListener(this),
-                new ItemListener(this),
+                DropListener.isAvailable() ? new DropListener(this) : new ItemListener(this),
                 new PickupListener(this),
 
                 // Commands

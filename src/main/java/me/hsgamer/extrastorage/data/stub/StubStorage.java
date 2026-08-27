@@ -122,11 +122,8 @@ public class StubStorage implements Storage {
     @Override
     public Optional<Item> getItem(Object key) {
         String validKey = ItemUtil.toMaterialKey(key);
-        return user.entry.getValue().items.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(validKey))
-                .findFirst()
-                .map(entry -> new StubItem(this, entry.getKey()));
+        ItemImpl item = user.entry.getValue().items.get(validKey);
+        return item != null ? Optional.of(new StubItem(this, validKey)) : Optional.empty();
     }
 
     @Override

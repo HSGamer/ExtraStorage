@@ -83,6 +83,6 @@ public class ItemListener implements ListenerComponent {
         storage.consumeStack(item, amount,
                 item::setAmount,
                 () -> event.setCancelled(true),
-                ListenerUtil.getStoredNotifier(user.getPlayer(), item));
+                ListenerUtil.getStoredNotifier(user.getPlayer()));
     }
 }

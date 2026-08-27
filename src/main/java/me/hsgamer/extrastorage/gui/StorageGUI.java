@@ -144,28 +144,11 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                     return;
                                 }
 
-                                int count = 0;
-                                ItemStack[] items = player.getInventory().getStorageContents();
-                                for (ItemStack is : items) {
-                                    if (ItemUtil.isAir(is)) continue;
-
-                                    Optional<Item> optional = session.storage.getItem(is);
-                                    if (!optional.isPresent()) continue;
-                                    Item i = optional.get();
-                                    if (!i.isLoaded()) continue;
-
-                                    if (item.getType() != i.getType()) continue;
-                                    if (!key.equalsIgnoreCase(ItemUtil.toMaterialKey(is))) continue;
-
-                                    int amount = is.getAmount();
-                                    int store = session.storage.consumeStack(key, amount,
-                                            is::setAmount,
-                                            () -> player.getInventory().removeItem(is),
-                                            (added, addedAmount) -> {
-                                            });
-                                    count += store;
-                                    if (store < amount) break;
-                                }
+                                int count = session.storage.consumeStack(
+                                        new ArrayList<>(Arrays.asList(player.getInventory().getStorageContents())),
+                                        is -> key.equalsIgnoreCase(ItemUtil.toMaterialKey(is)),
+                                        player.getInventory()::removeItem,
+                                        null);
                                 if (count == 0) {
                                     player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                     return;

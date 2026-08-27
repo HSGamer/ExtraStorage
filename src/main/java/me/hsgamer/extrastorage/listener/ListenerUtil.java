@@ -10,12 +10,11 @@ import me.hsgamer.extrastorage.util.ActionBar;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.function.BiConsumer;
 
 interface ListenerUtil {
-    static BiConsumer<Item, Integer> getStoredNotifier(Player player, ItemStack item) {
+    static BiConsumer<Item, Integer> getStoredNotifier(Player player) {
         return (added, amount) -> {
             SettingConfig setting = ExtraStorage.getInstance().get(SettingConfig.class);
             ExtraStorage.getInstance().get(CacheManager.class).getPickupSoundPlayer().accept(player);
@@ -25,7 +24,7 @@ interface ListenerUtil {
                 ActionBar.send(player, actionBarMsg
                         .replaceAll(Utils.getRegex("current"), Digital.formatThousands(added.getQuantity()))
                         .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
-                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(item, true)));
+                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(added.getKey(), true)));
             }
         };
     }
