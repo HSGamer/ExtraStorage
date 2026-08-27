@@ -58,6 +58,9 @@ permissions:
           exstorage.command.player.withdraw:
             default: op
             description: 'Allows the player to withdraw items by using the command.'
+          exstorage.command.player.deposit:
+            default: op
+            description: 'Allows the player to deposit items by using the command.'
       exstorage.command.admin.*:
         default: false
         description: 'Allows the player to use all admin commands.'

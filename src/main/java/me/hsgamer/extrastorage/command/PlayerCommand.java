@@ -29,9 +29,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Command(value = "extrastorage", aliases = {"exstorage", "storage", "es", "kho"}, description = "Commands for players")
@@ -102,6 +100,9 @@ public class PlayerCommand {
         if (sender.isOp() || sender.hasPermission(Constants.PLAYER_WITHDRAW_PERMISSION)) {
             sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).help().player().withdraw()).replaceAll(LABEL_REGEX, "extrastorage"));
         }
+        if (sender.isOp() || sender.hasPermission(Constants.PLAYER_DEPOSIT_PERMISSION)) {
+            sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).help().player().deposit()).replaceAll(LABEL_REGEX, "extrastorage"));
+        }
         sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).help().footer()).replaceAll(VERSION_REGEX, instance.getDescription().getVersion()));
     }
 
@@ -128,6 +129,15 @@ public class PlayerCommand {
                 .values()
                 .stream()
                 .filter(item -> item.getQuantity() > 0)
+                .map(Item::getKey)
+                .collect(Collectors.toList());
+    }
+
+    List<String> suggestPlayerMaterials(@Resolve User user) {
+        return user.getStorage()
+                .getItems()
+                .values()
+                .stream()
                 .map(Item::getKey)
                 .collect(Collectors.toList());
     }
@@ -236,6 +246,49 @@ public class PlayerCommand {
 
         player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().withdrewItem())
                 .replaceAll(QUANTITY_REGEX, Digital.formatThousands(free))
+                .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true)));
+    }
+
+    @Command("deposit")
+    @Permission(Constants.PLAYER_DEPOSIT_PERMISSION)
+    public void deposit(User user, @Suggest("suggestPlayerMaterials") String materialKey, @Default String amountStr) {
+        Player player = user.getPlayer();
+        Storage storage = user.getStorage();
+
+        ItemStack template = ItemUtil.getItem(materialKey).bukkitItem();
+        if (ItemUtil.isAir(template)) {
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().invalidItem()));
+        }
+
+        if (!storage.canStore(template)) {
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().itemNotInStorage()).replaceAll(PLAYER_REGEX, player.getName()));
+        }
+
+        long maxAmount = -1;
+        if (!amountStr.isEmpty()) {
+            try {
+                maxAmount = Long.parseLong(amountStr);
+            } catch (NumberFormatException ignored) {
+                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notNumber()).replaceAll(VALUE_REGEX, amountStr));
+            }
+            if (maxAmount < 1) {
+                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notNumber()).replaceAll(VALUE_REGEX, amountStr));
+            }
+        }
+
+        int stored = storage.consumeStack(
+                new ArrayList<>(Arrays.asList(player.getInventory().getStorageContents())),
+                template::isSimilar,
+                player.getInventory()::removeItem,
+                null,
+                maxAmount);
+
+        if (stored < 1) {
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notEnoughItemInInventory()).replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true)));
+        }
+
+        player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().depositedItem())
+                .replaceAll(QUANTITY_REGEX, Digital.formatThousands(stored))
                 .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true)));
     }
 

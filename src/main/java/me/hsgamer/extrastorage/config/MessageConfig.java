@@ -119,6 +119,11 @@ public interface MessageConfig extends Reloadable {
             default String withdraw() {
                 return "&8 > &c/{label} withdraw <material-key> [amount] &f: &7Withdraw your items.";
             }
+
+            @ConfigPath(value = "deposit", priority = 55)
+            default String deposit() {
+                return "&8 > &c/{label} deposit <material-key> [amount] &f: &7Deposit your items.";
+            }
         }
 
         @ConfigNode
@@ -205,6 +210,11 @@ public interface MessageConfig extends Reloadable {
         @ConfigPath(value = "withdrew-item", priority = 50)
         default String withdrewItem() {
             return "{prefix}&aYou have withdrawn &ex{quantity} {item} &afrom the storage.";
+        }
+
+        @ConfigPath(value = "deposited-item", priority = 55)
+        default String depositedItem() {
+            return "{prefix}&aYou have deposited &ex{quantity} {item} &ato the storage.";
         }
 
         @ConfigPath(value = "moved-items-to-storage", priority = 60)

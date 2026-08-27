@@ -60,6 +60,7 @@ public class DropListener implements ListenerComponent {
                             && storage.canStore(stack)
                             && ItemUtil.canStore(player, stack);
                 },
-                ListenerUtil.getStoredNotifier(player));
+                ListenerUtil.getStoredNotifier(player),
+                -1);
     }
 }

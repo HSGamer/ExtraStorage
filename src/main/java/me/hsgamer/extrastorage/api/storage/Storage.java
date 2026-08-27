@@ -173,9 +173,10 @@ public interface Storage {
      *                    may be {@code null} if no external removal is needed
      * @param onAdded     receives the item in the storage and the stored amount, after each add
      * @param <T>         the element type
+     * @param maxAmount   the maximum total amount to store, or negative for unlimited
      * @return the total amount stored
      */
-    default <T> int consumeStack(Collection<T> collection, Function<T, ItemStack> stackGetter, Predicate<ItemStack> filter, Consumer<T> onFullStore, BiConsumer<Item, Integer> onAdded) {
+    default <T> int consumeStack(Collection<T> collection, Function<T, ItemStack> stackGetter, Predicate<ItemStack> filter, Consumer<T> onFullStore, BiConsumer<Item, Integer> onAdded, long maxAmount) {
         int count = 0;
         long freeSpace = this.getFreeSpace();
         Iterator<T> iterator = collection.iterator();
@@ -190,6 +191,11 @@ public interface Storage {
             if (!optional.get().isLoaded()) continue;
 
             int amount = stack.getAmount();
+            if (maxAmount >= 0) {
+                long remaining = maxAmount - count;
+                if (remaining <= 0) break;
+                freeSpace = freeSpace == -1 ? remaining : Math.min(freeSpace, remaining);
+            }
             int store = consumeStack(stack, amount, freeSpace, stack::setAmount, () -> {
                 if (onFullStore != null) onFullStore.accept(element);
                 iterator.remove();
@@ -211,10 +217,11 @@ public interface Storage {
      * @param filter      the stacks to consume; stacks that fail the filter are skipped
      * @param onFullStore receives each stack that is fully stored into the storage
      * @param onAdded     receives the item in the storage and the stored amount, after each add
+     * @param maxAmount   the maximum total amount to store, or negative for unlimited
      * @return the total amount stored
      */
-    default int consumeStack(Collection<ItemStack> stacks, Predicate<ItemStack> filter, Consumer<ItemStack> onFullStore, BiConsumer<Item, Integer> onAdded) {
-        return consumeStack(stacks, null, filter, onFullStore, onAdded);
+    default int consumeStack(Collection<ItemStack> stacks, Predicate<ItemStack> filter, Consumer<ItemStack> onFullStore, BiConsumer<Item, Integer> onAdded, long maxAmount) {
+        return consumeStack(stacks, null, filter, onFullStore, onAdded, maxAmount);
     }
 
     /**
@@ -222,13 +229,14 @@ public interface Storage {
      * <p>
      * Fully stored entities are removed from the world and from the iterator.
      *
-     * @param entities the dropped item entities to consume; fully stored entities are removed from the iterator
-     * @param filter   the entities to consume; entities that fail the filter are skipped
-     * @param onAdded  receives the item in the storage and the stored amount, after each add
+     * @param entities  the dropped item entities to consume; fully stored entities are removed from the iterator
+     * @param filter    the entities to consume; entities that fail the filter are skipped
+     * @param onAdded   receives the item in the storage and the stored amount, after each add
+     * @param maxAmount the maximum total amount to store, or negative for unlimited
      * @return the total amount stored
      */
-    default int consumeStack(Collection<org.bukkit.entity.Item> entities, Predicate<ItemStack> filter, BiConsumer<Item, Integer> onAdded) {
-        return consumeStack(entities, org.bukkit.entity.Item::getItemStack, filter, org.bukkit.entity.Item::remove, onAdded);
+    default int consumeStack(Collection<org.bukkit.entity.Item> entities, Predicate<ItemStack> filter, BiConsumer<Item, Integer> onAdded, long maxAmount) {
+        return consumeStack(entities, org.bukkit.entity.Item::getItemStack, filter, org.bukkit.entity.Item::remove, onAdded, maxAmount);
     }
 
     /**

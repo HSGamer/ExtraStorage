@@ -148,7 +148,8 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                         new ArrayList<>(Arrays.asList(player.getInventory().getStorageContents())),
                                         is -> key.equalsIgnoreCase(ItemUtil.toMaterialKey(is)),
                                         player.getInventory()::removeItem,
-                                        null);
+                                        null,
+                                        -1);
                                 if (count == 0) {
                                     player.sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().notEnoughItemInInventory()).replaceAll(Utils.getRegex("item"), setting.getNameFormatted(key, true)));
                                     return;
