@@ -2,7 +2,6 @@ package me.hsgamer.extrastorage.api.storage;
 
 import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.util.ItemUtil;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
