@@ -102,7 +102,7 @@ public interface MessageConfig extends Reloadable {
 
             @ConfigPath(value = "filter", priority = 30)
             default String filter() {
-                return "&8 > &c/{label} filter &f: &7Open your filter.";
+                return "&8 > &c/{label} filter [item] &f: &7Open your filter or toggle the filter of an item.";
             }
 
             @ConfigPath(value = "partner", priority = 40)
@@ -205,6 +205,11 @@ public interface MessageConfig extends Reloadable {
         @ConfigPath(value = "filter-cleaned-up", priority = 40)
         default String filterCleanedUp() {
             return "{prefix}&7You just cleaned up your filter.";
+        }
+
+        @ConfigPath(value = "filter-toggled", priority = 45)
+        default String filterToggled() {
+            return "{prefix}&7You just changed the filter status of &e{item} &7to &r{status}&7.";
         }
 
         @ConfigPath(value = "withdrew-item", priority = 50)

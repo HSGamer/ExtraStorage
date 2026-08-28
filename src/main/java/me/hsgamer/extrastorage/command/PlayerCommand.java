@@ -119,8 +119,43 @@ public class PlayerCommand {
 
     @Command("filter")
     @Permission(Constants.PLAYER_FILTER_PERMISSION)
-    public void filter(Player sender) {
-        instance.get(FilterGUI.class).openFor(sender);
+    public void filter(User user, @Default @Suggest("suggestFilterMaterials") String materialKey) {
+        Player player = user.getPlayer();
+
+        if (materialKey.isEmpty()) {
+            instance.get(FilterGUI.class).openFor(player);
+            return;
+        }
+
+        Storage storage = user.getStorage();
+        String validKey = ItemUtil.toMaterialKey(materialKey);
+        if (!ItemUtil.getItem(validKey).isValid()) {
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().invalidItem()));
+        }
+
+        Optional<Item> optional = storage.getItem(validKey);
+        boolean filtered = optional.map(item -> !item.isFiltered()).orElse(true);
+        if (filtered) {
+            SettingConfig setting = instance.get(SettingConfig.class);
+            if (setting.getNormalizedBlacklist().contains(validKey) || (setting.limitWhitelist() && !setting.getNormalizedWhitelist().contains(validKey))) {
+                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().itemBlacklisted()));
+            }
+            if (optional.isPresent()) {
+                optional.get().setFiltered(true);
+            } else {
+                storage.addNewItem(validKey);
+            }
+        } else {
+            storage.unfilter(validKey);
+        }
+
+        player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().filterToggled())
+                .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(validKey, true))
+                .replaceAll(STATUS_REGEX, Utils.formatMessage(filtered ? instance.get(MessageConfig.class).status().filtered() : instance.get(MessageConfig.class).status().unfiltered())));
+    }
+
+    Collection<String> suggestFilterMaterials(@Resolve User user) {
+        return user.getStorage().getItems().keySet();
     }
 
     List<String> suggestUserMaterials(@Resolve User user) {
