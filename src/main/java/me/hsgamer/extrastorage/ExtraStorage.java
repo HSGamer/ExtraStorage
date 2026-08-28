@@ -67,7 +67,7 @@ public final class ExtraStorage extends BasePlugin {
                 // Listeners
                 new InventoryUIListener(this),
                 new PlayerListener(this),
-                DropListener.isAvailable() ? new DropListener(this) : new ItemListener(this),
+                new DropListener(this),
                 new PickupListener(this),
 
                 // Commands

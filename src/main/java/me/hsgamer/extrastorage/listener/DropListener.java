@@ -24,15 +24,6 @@ public class DropListener implements ListenerComponent {
         this.instance = instance;
     }
 
-    public static boolean isAvailable() {
-        try {
-            Class.forName("org.bukkit.event.block.BlockDropItemEvent");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     @Override
     public JavaPlugin getPlugin() {
         return instance;
