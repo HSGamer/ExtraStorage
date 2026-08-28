@@ -4,6 +4,7 @@ import io.github.projectunified.craftcommand.annotation.Command;
 import io.github.projectunified.craftcommand.annotation.Default;
 import io.github.projectunified.craftcommand.annotation.Suggest;
 import io.github.projectunified.craftcommand.bukkit.annotation.Permission;
+import io.github.projectunified.craftcommand.exception.CommandException;
 import io.github.projectunified.minelib.scheduler.async.AsyncScheduler;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.component.Reloadable;
@@ -21,14 +22,10 @@ import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Command(value = "esadmin", description = "Commands for administrators")
@@ -160,8 +157,9 @@ public class AdminCommand {
         notifyOnline(user, Utils.formatMessage(instance.get(MessageConfig.class).success().spaceIncreased()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
     }
 
-    Collection<String> suggestMaterials(Player sender) {
-        User user = instance.get(UserManager.class).getUser(sender);
+    Collection<String> suggestMaterials(CommandSender sender) {
+        if (!(sender instanceof Player)) return Collections.emptyList();
+        User user = instance.get(UserManager.class).getUser((Player) sender);
         return user.getStorage().getItems().keySet();
     }
 
@@ -350,8 +348,8 @@ public class AdminCommand {
                 .replaceAll(PLAYER_REGEX, sender.getName()));
     }
 
-    Collection<String> suggestMaterialsForReset(Player player) {
-        List<String> suggestions = new ArrayList<>(suggestMaterials(player));
+    Collection<String> suggestMaterialsForReset(CommandSender sender) {
+        List<String> suggestions = new ArrayList<>(suggestMaterials(sender));
         suggestions.add("*");
         return suggestions;
     }
@@ -421,7 +419,7 @@ public class AdminCommand {
 
     private User resolvePlayerUser(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            throw new io.github.projectunified.craftcommand.exception.CommandException(instance.get(CommandManager.class).getCommandManager().formatMessage("invalid-sender", "Only %s can execute this command.", "Player"));
+            throw new CommandException(instance.get(CommandManager.class).getCommandManager().formatMessage("invalid-sender", "Only %s can execute this command.", "Player"));
         }
         return manager.getUser((Player) sender);
     }
