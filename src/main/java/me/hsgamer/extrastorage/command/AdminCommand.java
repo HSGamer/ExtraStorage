@@ -15,6 +15,7 @@ import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.gui.WhitelistGUI;
+import me.hsgamer.extrastorage.manager.CommandManager;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
@@ -91,13 +92,13 @@ public class AdminCommand {
 
     @Command("space")
     @Permission(Constants.ADMIN_SPACE_PERMISSION)
-    public void space(Player sender, long amount, @Default String target) {
+    public void space(CommandSender sender, long amount, @Default String target) {
         if (setting.maxSpace() == -1) {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().maxSpaceNotUsed()));
         }
 
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             user.getStorage().setSpace(amount);
             sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().spaceChanged()).replaceAll(SPACE_REGEX, Digital.formatThousands(amount)));
             return;
@@ -121,13 +122,13 @@ public class AdminCommand {
 
     @Command("addspace")
     @Permission(Constants.ADMIN_SPACE_PERMISSION)
-    public void addSpace(Player sender, long amount, @Default String target) {
+    public void addSpace(CommandSender sender, long amount, @Default String target) {
         if (setting.maxSpace() == -1) {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().maxSpaceNotUsed()));
         }
 
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
             if (checkIntLimit(storage.getSpace(), amount)) {
                 throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().spaceExceeded()));
@@ -166,12 +167,12 @@ public class AdminCommand {
 
     @Command("add")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
-    public void add(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+    public void add(CommandSender sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
 
-            Item item = requireItem(storage, materialKey, sender);
+            requireItem(storage, materialKey, user.getOfflinePlayer());
             long freeSpace = clampFreeSpace(storage, amount);
             storage.add(materialKey, freeSpace);
             sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().add().self())
@@ -184,7 +185,7 @@ public class AdminCommand {
         OfflinePlayer player = user.getOfflinePlayer();
         Storage storage = user.getStorage();
 
-        Item item = requireItem(storage, materialKey, player);
+        requireItem(storage, materialKey, player);
         long freeSpace = clampFreeSpace(storage, amount);
         storage.add(materialKey, freeSpace);
         sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().add().sender())
@@ -199,9 +200,9 @@ public class AdminCommand {
 
     @Command("addrnd")
     @Permission(Constants.ADMIN_ADD_PERMISSION)
-    public void addRnd(Player sender, @Suggest("suggestMaterials") String materialKey, @Default String target) {
+    public void addRnd(CommandSender sender, @Suggest("suggestMaterials") String materialKey, @Default String target) {
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
 
             if (materialKey.equals("*")) {
@@ -216,7 +217,7 @@ public class AdminCommand {
                 return;
             }
 
-            requireItem(storage, materialKey, sender);
+            requireItem(storage, materialKey, user.getOfflinePlayer());
             long amount = Digital.random(1000, 100000);
             long freeSpace = clampFreeSpace(storage, amount);
             storage.add(materialKey, freeSpace);
@@ -263,12 +264,12 @@ public class AdminCommand {
 
     @Command("subtract")
     @Permission(Constants.ADMIN_SUBTRACT_PERMISSION)
-    public void subtract(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+    public void subtract(CommandSender sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
 
-            Item item = requireItem(storage, materialKey, sender);
+            Item item = requireItem(storage, materialKey, user.getOfflinePlayer());
             int current = (int) Math.min(item.getQuantity(), Integer.MAX_VALUE);
             if (current < 1) {
                 throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notEnoughItem()).replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
@@ -304,12 +305,12 @@ public class AdminCommand {
 
     @Command("set")
     @Permission(Constants.ADMIN_SET_PERMISSION)
-    public void set(Player sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
+    public void set(CommandSender sender, @Suggest("suggestMaterials") String materialKey, long amount, @Default String target) {
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
 
-            Item item = requireItem(storage, materialKey, sender);
+            Item item = requireItem(storage, materialKey, user.getOfflinePlayer());
             long space = storage.getSpace();
             if (space != -1) {
                 long usedSpace = storage.getUsedSpace() - item.getQuantity();
@@ -357,11 +358,11 @@ public class AdminCommand {
 
     @Command("reset")
     @Permission(Constants.ADMIN_RESET_PERMISSION)
-    public void reset(Player sender, @Suggest("suggestMaterialsForReset") String materialKey, @Default String target) {
+    public void reset(CommandSender sender, @Suggest("suggestMaterialsForReset") String materialKey, @Default String target) {
         boolean isAll = ALL_PATTERN.matcher(materialKey).matches();
 
         if (target.isEmpty()) {
-            User user = manager.getUser(sender);
+            User user = resolvePlayerUser(sender);
             Storage storage = user.getStorage();
 
             if (isAll) {
@@ -370,7 +371,7 @@ public class AdminCommand {
                 return;
             }
 
-            requireItem(storage, materialKey, sender);
+            requireItem(storage, materialKey, user.getOfflinePlayer());
             storage.reset(materialKey);
             sender.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().reset().self()).replaceAll(ITEM_REGEX, setting.getNameFormatted(materialKey, true)));
             return;
@@ -416,6 +417,13 @@ public class AdminCommand {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotFound()));
         }
         return manager.getUser(player);
+    }
+
+    private User resolvePlayerUser(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            throw new io.github.projectunified.craftcommand.exception.CommandException(instance.get(CommandManager.class).getCommandManager().formatMessage("invalid-sender", "Only %s can execute this command.", "Player"));
+        }
+        return manager.getUser((Player) sender);
     }
 
     private Item requireItem(Storage storage, String materialKey, OfflinePlayer player) {

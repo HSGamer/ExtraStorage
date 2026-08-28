@@ -44,4 +44,8 @@ public class CommandManager implements Loadable {
             commandManager.unregisterAll();
         }
     }
+
+    public BukkitCommandManager getCommandManager() {
+        return commandManager;
+    }
 }
