@@ -1,4 +1,4 @@
-package me.hsgamer.extrastorage.gui.util;
+package me.hsgamer.extrastorage.util;
 
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.data.Constants;

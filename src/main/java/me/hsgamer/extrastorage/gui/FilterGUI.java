@@ -13,12 +13,8 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.FilterGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
-import me.hsgamer.extrastorage.gui.util.GuiUtil;
-import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.manager.UserManager;
-import me.hsgamer.extrastorage.util.Digital;
-import me.hsgamer.extrastorage.util.ItemUtil;
-import me.hsgamer.extrastorage.util.Utils;
+import me.hsgamer.extrastorage.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -127,12 +123,20 @@ public class FilterGUI extends BaseGUI<FilterGUI.SortType, FilterGuiConfig, Filt
                 .filter(item -> item != null && item.isLoaded());
         itemStream = sortRepresentItems(itemStream, session.sort, null, sort -> {
             switch (sort) {
-                case MATERIAL:
-                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByMaterial, SortUtil::compareItemByQuantity);
-                case NAME:
-                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByName, SortUtil::compareItemByQuantity);
-                case QUANTITY:
-                    return SortUtil.compose(session.orderSort, SortUtil::compareItemByQuantity);
+                case MATERIAL: {
+                    Comparator<Item> comparator = SortUtil::compareItemByMaterial;
+                    comparator = comparator.thenComparing(SortUtil::compareItemByQuantity);
+                    return session.orderSort ? comparator : comparator.reversed();
+                }
+                case NAME: {
+                    Comparator<Item> comparator = SortUtil::compareItemByName;
+                    comparator = comparator.thenComparing(SortUtil::compareItemByQuantity);
+                    return session.orderSort ? comparator : comparator.reversed();
+                }
+                case QUANTITY: {
+                    Comparator<Item> comparator = SortUtil::compareItemByQuantity;
+                    return session.orderSort ? comparator : comparator.reversed();
+                }
                 default:
                     return null;
             }

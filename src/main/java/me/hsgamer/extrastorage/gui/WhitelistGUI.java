@@ -13,7 +13,6 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.WhitelistGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItemModifier;
-import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -105,11 +104,11 @@ public class WhitelistGUI extends BaseGUI<WhitelistGUI.SortType, WhitelistGuiCon
         Comparator<String> comparator;
         switch (session.sort) {
             case NAME_REVERSE:
-                comparator = SortUtil.compose(session.orderSort, Comparator.<String>reverseOrder());
+                comparator = session.orderSort ? Comparator.reverseOrder() : Comparator.naturalOrder();
                 break;
             case NAME_NATURAL:
             default:
-                comparator = SortUtil.compose(session.orderSort, Comparator.<String>naturalOrder());
+                comparator = session.orderSort ? Comparator.naturalOrder() : Comparator.reverseOrder();
                 break;
         }
         whitelist.sort(comparator);

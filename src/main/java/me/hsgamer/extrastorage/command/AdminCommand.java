@@ -480,7 +480,12 @@ public class AdminCommand {
     }
 
     private boolean checkIntLimit(long value, long increValue) {
-        return (Long.MAX_VALUE - increValue) < value;
+        try {
+            Math.addExact(value, increValue);
+            return false;
+        } catch (ArithmeticException e) {
+            return true;
+        }
     }
 
 }

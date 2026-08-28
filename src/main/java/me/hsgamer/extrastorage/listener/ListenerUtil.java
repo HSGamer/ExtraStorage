@@ -6,9 +6,10 @@ import me.hsgamer.extrastorage.api.item.Item;
 import me.hsgamer.extrastorage.config.MessageConfig;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.manager.CacheManager;
-import me.hsgamer.extrastorage.util.ActionBar;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
 import java.util.function.BiConsumer;
@@ -21,10 +22,10 @@ interface ListenerUtil {
 
             String actionBarMsg = Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).warn().stored().actionBar());
             if (!Strings.isNullOrEmpty(actionBarMsg)) {
-                ActionBar.send(player, actionBarMsg
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMsg
                         .replaceAll(Utils.getRegex("current"), Digital.formatThousands(added.getQuantity()))
                         .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
-                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(added.getKey(), true)));
+                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(added.getKey(), true))));
             }
         };
     }

@@ -12,29 +12,23 @@ import java.util.regex.Pattern;
 public final class Utils {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})"),
-            STRIP_COLOR_PATTERN = Pattern.compile("(?i)&|§[0-9A-FK-ORX]"),
             CAPITALIZE_PATTERN = Pattern.compile("\\b(.)(.*?)\\b");
 
     private Utils() {
     }
 
-    public static String capitalizeAll(String input) {
-        if ((input == null) || input.isEmpty()) return input;
+    public static String formatName(String key) {
+        String input = key.replace('_', ' ').toLowerCase(Locale.ENGLISH);
+        if (input.isEmpty()) return input;
 
         Matcher matcher = CAPITALIZE_PATTERN.matcher(input);
         if (!matcher.find()) return input;
         matcher.reset();
         StringBuilder result = new StringBuilder();
         while (matcher.find()) {
-            String firstChar = matcher.group(1).toUpperCase();
-            String rest = matcher.group(2);
-            result.append(firstChar).append(rest);
+            result.append(matcher.group(1).toUpperCase()).append(matcher.group(2));
         }
         return result.toString();
-    }
-
-    public static String formatName(String key) {
-        return capitalizeAll(key.replace('_', ' ').toLowerCase(Locale.ENGLISH));
     }
 
     public static String getRegex(String... inputs) {
@@ -52,7 +46,7 @@ public final class Utils {
 
     public static String stripColor(String input) {
         if (input == null) return null;
-        return STRIP_COLOR_PATTERN.matcher(input).replaceAll("");
+        return ChatColor.stripColor(colorize(input));
     }
 
     public static String colorize(String input) {

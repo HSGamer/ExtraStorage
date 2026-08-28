@@ -10,9 +10,9 @@ import me.hsgamer.extrastorage.config.MessageConfig;
 import me.hsgamer.extrastorage.gui.base.BaseGUI;
 import me.hsgamer.extrastorage.gui.config.PartnerGuiConfig;
 import me.hsgamer.extrastorage.gui.item.GUIItem;
-import me.hsgamer.extrastorage.gui.util.GuiUtil;
-import me.hsgamer.extrastorage.gui.util.SortUtil;
 import me.hsgamer.extrastorage.manager.UserManager;
+import me.hsgamer.extrastorage.util.GuiUtil;
+import me.hsgamer.extrastorage.util.SortUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -99,10 +99,12 @@ public class PartnerGUI extends BaseGUI<PartnerGUI.SortType, PartnerGuiConfig, P
         Comparator<Partner> comparator = null;
         switch (session.sort) {
             case NAME:
-                comparator = SortUtil.compose(session.orderSort, SortUtil::comparePartnerByName);
+                comparator = SortUtil::comparePartnerByName;
+                if (!session.orderSort) comparator = comparator.reversed();
                 break;
             case TIME:
-                comparator = SortUtil.compose(session.orderSort, SortUtil::comparePartnerByTimestamp);
+                comparator = SortUtil::comparePartnerByTimestamp;
+                if (!session.orderSort) comparator = comparator.reversed();
                 break;
             default:
                 break;

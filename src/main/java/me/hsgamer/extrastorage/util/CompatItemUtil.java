@@ -1,4 +1,4 @@
-package me.hsgamer.extrastorage.gui.util;
+package me.hsgamer.extrastorage.util;
 
 import org.bukkit.inventory.meta.ItemMeta;
 

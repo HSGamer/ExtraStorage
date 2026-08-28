@@ -11,7 +11,7 @@ import io.github.projectunified.craftux.common.ActionItem;
 import io.github.projectunified.uniitem.api.Item;
 import io.github.projectunified.uniitem.headdatabase.HeadDatabaseItem;
 import me.hsgamer.extrastorage.api.user.User;
-import me.hsgamer.extrastorage.gui.util.CompatItemUtil;
+import me.hsgamer.extrastorage.util.CompatItemUtil;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.Bukkit;
