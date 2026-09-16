@@ -9,9 +9,25 @@ import me.hsgamer.extrastorage.hook.placeholder.ESPlaceholder;
 import me.hsgamer.extrastorage.util.SoundUtil;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class HookManager implements Loadable, Reloadable {
+    private static final Map<String, Function<ExtraStorage, EconomyProvider>> ECONOMY_PROVIDERS = new LinkedHashMap<>();
+
+    static {
+        ECONOMY_PROVIDERS.put("SHOPGUIPLUS", ShopGuiPlusHook::new);
+        ECONOMY_PROVIDERS.put("ECONOMYSHOPGUI", EconomyShopGuiHook::new);
+        ECONOMY_PROVIDERS.put("PLAYERPOINTS", PlayerPointsHook::new);
+        ECONOMY_PROVIDERS.put("TOKENMANAGER", TokenManagerHook::new);
+        ECONOMY_PROVIDERS.put("ULTRAECONOMY", UltraEconomyHook::new);
+        ECONOMY_PROVIDERS.put("COINSENGINE", ExcellentEconomyHook::new);
+        ECONOMY_PROVIDERS.put("EXCELLENTECONOMY", ExcellentEconomyHook::new);
+        ECONOMY_PROVIDERS.put("VAULT", VaultHook::new);
+    }
+
     private final ExtraStorage plugin;
     private EconomyProvider economyProvider;
     private Consumer<Player> pickupSoundPlayer;
@@ -51,37 +67,12 @@ public class HookManager implements Loadable, Reloadable {
 
     private EconomyProvider resolveEconomyProvider(SettingConfig setting) {
         String provider = setting.economy().provider().toUpperCase();
-        EconomyProvider hook;
-        switch (provider) {
-            case "SHOPGUIPLUS":
-                hook = new ShopGuiPlusHook(plugin);
-                break;
-            case "ECONOMYSHOPGUI":
-                hook = new EconomyShopGuiHook(plugin);
-                break;
-            case "PLAYERPOINTS":
-                hook = new PlayerPointsHook(plugin);
-                break;
-            case "TOKENMANAGER":
-                hook = new TokenManagerHook(plugin);
-                break;
-            case "ULTRAECONOMY":
-                hook = new UltraEconomyHook(plugin);
-                break;
-            case "COINSENGINE":
-            case "EXCELLENTECONOMY":
-                hook = new ExcellentEconomyHook(plugin);
-                break;
-            case "VAULT":
-                hook = new VaultHook(plugin);
-                break;
-            default:
-                hook = new NoneEconomyHook(plugin);
-                break;
-        }
+        EconomyProvider hook = ECONOMY_PROVIDERS.getOrDefault(provider, NoneEconomyHook::new).apply(plugin);
         if (!hook.isHooked()) {
-            hook = new NoneEconomyHook(plugin);
+            plugin.getLogger().warning("Economy provider '" + provider + "' not available. Selling is disabled.");
+            return new NoneEconomyHook(plugin);
         }
+        plugin.getLogger().info("Using " + provider + " as economy provider.");
         return hook;
     }
 

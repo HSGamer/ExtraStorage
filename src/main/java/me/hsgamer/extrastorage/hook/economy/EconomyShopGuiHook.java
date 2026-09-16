@@ -4,31 +4,25 @@ import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.hsgamer.extrastorage.ExtraStorage;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 public final class EconomyShopGuiHook extends AbstractEconomyHook {
 
     private final Economy econ;
-    private final boolean isPaid;
+    private final boolean paid;
+    private final boolean hooked;
 
     public EconomyShopGuiHook(ExtraStorage plugin) {
         super(plugin);
-        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-        econ = (rsp != null) ? rsp.getProvider() : null;
-        isPaid = instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium");
-
-        if (this.isHooked()) {
-            instance.getLogger().info("Using EconomyShopGUI (" + (isPaid ? "paid" : "free") + " version) as economy provider.");
-        } else
-            instance.getLogger().severe("Could not find dependency: EconomyShopGUI (free or paid version). Please install it then try again!");
+        econ = findVaultEconomy();
+        paid = instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium");
+        hooked = (instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI") || paid) && econ != null;
     }
 
     @Override
     public boolean isHooked() {
-        return (instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI") || instance.getServer().getPluginManager().isPluginEnabled("EconomyShopGUI-Premium"));
+        return hooked;
     }
 
     @Override
@@ -54,13 +48,17 @@ public final class EconomyShopGuiHook extends AbstractEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
-        if (isPaid) {
+    protected void onBeforeSell(Player player, ItemStack item, int amount, double price) {
+        if (paid) {
             ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
             if (shopItem != null) {
                 EconomyShopGUIHook.sellItem(shopItem, amount);
             }
         }
+    }
+
+    @Override
+    protected boolean deposit(Player player, double price) {
         return econ.depositPlayer(player, price).transactionSuccess();
     }
 }

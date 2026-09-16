@@ -4,16 +4,13 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Consumer;
-
 public class NoneEconomyHook implements EconomyProvider {
     public NoneEconomyHook(ExtraStorage plugin) {
-        plugin.getLogger().info("Using no economy provider.");
     }
 
     @Override
     public boolean isHooked() {
-        return true;
+        return false;
     }
 
     @Override
@@ -27,7 +24,7 @@ public class NoneEconomyHook implements EconomyProvider {
     }
 
     @Override
-    public void sellItem(Player player, ItemStack item, int amount, Consumer<Result> result) {
-        result.accept(new Result(-1, -1, false));
+    public Result sellItem(Player player, ItemStack item, int amount) {
+        return new Result(-1, -1, false);
     }
 }

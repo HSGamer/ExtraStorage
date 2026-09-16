@@ -10,33 +10,21 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 public final class ShopGuiPlusHook extends AbstractEconomyHook {
 
-    private boolean setup = false;
-    private Economy econ;
+    private final Economy econ;
+    private final boolean hooked;
 
     public ShopGuiPlusHook(ExtraStorage plugin) {
         super(plugin);
-        if (this.isHooked()) {
-            instance.getLogger().info("Using ShopGUIPlus as economy provider.");
-        } else {
-            instance.getLogger().severe("Could not find dependency: ShopGUIPlus. Please install it then try again!");
-        }
+        econ = findVaultEconomy();
+        hooked = Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null && econ != null;
     }
 
     @Override
     public boolean isHooked() {
-        if (Bukkit.getPluginManager().getPlugin("ShopGUIPlus") == null) {
-            return false;
-        }
-        if (!setup) {
-            RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
-            econ = (rsp != null) ? rsp.getProvider() : null;
-            setup = true;
-        }
-        return econ != null;
+        return hooked;
     }
 
     @Override
@@ -70,7 +58,7 @@ public final class ShopGuiPlusHook extends AbstractEconomyHook {
     }
 
     @Override
-    protected boolean deposit(Player player, ItemStack item, int amount, double price) {
+    protected boolean deposit(Player player, double price) {
         return econ.depositPlayer(player, price).transactionSuccess();
     }
 }

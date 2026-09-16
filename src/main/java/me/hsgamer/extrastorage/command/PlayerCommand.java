@@ -18,6 +18,7 @@ import me.hsgamer.extrastorage.gui.FilterGUI;
 import me.hsgamer.extrastorage.gui.PartnerGUI;
 import me.hsgamer.extrastorage.gui.SellGUI;
 import me.hsgamer.extrastorage.gui.StorageGUI;
+import me.hsgamer.extrastorage.hook.economy.EconomyProvider;
 import me.hsgamer.extrastorage.manager.HookManager;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.Digital;
@@ -200,17 +201,15 @@ public class PlayerCommand {
         }
 
         if (amountStr.isEmpty()) {
-            instance.get(HookManager.class).getEconomyProvider()
-                    .sellItem(player, item.getItem(), quantity, result -> {
-                        if (!result.isSuccess()) {
-                            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().cannotBeSold()));
-                        }
-                        storage.subtract(materialKey, quantity);
-                        player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().itemSold())
-                                .replaceAll(AMOUNT_REGEX, Digital.formatThousands(quantity))
-                                .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true))
-                                .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
-                    });
+            EconomyProvider.Result result = instance.get(HookManager.class).getEconomyProvider().sellItem(player, item.getItem(), quantity);
+            if (!result.isSuccess()) {
+                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().cannotBeSold()));
+            }
+            storage.subtract(materialKey, quantity);
+            player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().itemSold())
+                    .replaceAll(AMOUNT_REGEX, Digital.formatThousands(quantity))
+                    .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true))
+                    .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
             return;
         }
 
@@ -221,17 +220,15 @@ public class PlayerCommand {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notNumber()).replaceAll(VALUE_REGEX, amountStr));
         }
 
-        instance.get(HookManager.class).getEconomyProvider()
-                .sellItem(player, item.getItem(), amount, result -> {
-                    if (!result.isSuccess()) {
-                        throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().cannotBeSold()));
-                    }
-                    storage.subtract(materialKey, amount);
-                    player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().itemSold())
-                            .replaceAll(AMOUNT_REGEX, Digital.formatThousands(amount))
-                            .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true))
-                            .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
-                });
+        EconomyProvider.Result result = instance.get(HookManager.class).getEconomyProvider().sellItem(player, item.getItem(), amount);
+        if (!result.isSuccess()) {
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().cannotBeSold()));
+        }
+        storage.subtract(materialKey, amount);
+        player.sendMessage(Utils.formatMessage(instance.get(MessageConfig.class).success().itemSold())
+                .replaceAll(AMOUNT_REGEX, Digital.formatThousands(amount))
+                .replaceAll(ITEM_REGEX, instance.get(SettingConfig.class).getNameFormatted(materialKey, true))
+                .replaceAll(PRICE_REGEX, Digital.formatDouble("###,###.##", result.getPrice())));
     }
 
     @Command("withdraw")

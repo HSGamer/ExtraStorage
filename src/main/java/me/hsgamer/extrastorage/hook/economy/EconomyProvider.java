@@ -3,27 +3,15 @@ package me.hsgamer.extrastorage.hook.economy;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Consumer;
-
 public interface EconomyProvider {
 
-    String NOT_SUPPORTED_MSG = "This feature has not been supported yet!";
+    boolean isHooked();
 
-    default boolean isHooked() {
-        throw new IllegalArgumentException(NOT_SUPPORTED_MSG);
-    }
+    int getAmount(ItemStack item);
 
-    default int getAmount(ItemStack item) {
-        throw new IllegalArgumentException(NOT_SUPPORTED_MSG);
-    }
+    String getPrice(Player player, ItemStack item, int amount);
 
-    default String getPrice(Player player, ItemStack item, int amount) {
-        throw new IllegalArgumentException(NOT_SUPPORTED_MSG);
-    }
-
-    default void sellItem(Player player, ItemStack item, int amount, Consumer<Result> result) {
-        throw new IllegalArgumentException(NOT_SUPPORTED_MSG);
-    }
+    Result sellItem(Player player, ItemStack item, int amount);
 
     class Result {
 

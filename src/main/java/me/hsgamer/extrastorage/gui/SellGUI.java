@@ -147,18 +147,16 @@ public class SellGUI extends BaseGUI<SellGUI.SortType, SellGuiConfig, SellGUI.Se
                                 sellAmount = Digital.getBetween(1, current, iStack.getMaxStackSize());
                             else return;
 
-                            plugin.get(HookManager.class).getEconomyProvider()
-                                    .sellItem(session.getPlayer(), item.getItem(), sellAmount, rs -> {
-                                        if (!rs.isSuccess()) {
-                                            session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().cannotBeSold()));
-                                            return;
-                                        }
-                                        session.getUser().getStorage().subtract(item.getKey(), rs.getAmount());
-                                        session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().itemSold())
-                                                .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(rs.getAmount()))
-                                                .replaceAll(Utils.getRegex("item"), plugin.get(SettingConfig.class).getNameFormatted(item.getKey(), true))
-                                                .replaceAll(Utils.getRegex("price"), Digital.formatDouble("###,###.##", rs.getPrice())));
-                                    });
+                            EconomyProvider.Result rs = econ.sellItem(session.getPlayer(), item.getItem(), sellAmount);
+                            if (!rs.isSuccess()) {
+                                session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).fail().cannotBeSold()));
+                                return;
+                            }
+                            session.getUser().getStorage().subtract(item.getKey(), rs.getAmount());
+                            session.getPlayer().sendMessage(Utils.formatMessage(plugin.get(MessageConfig.class).success().itemSold())
+                                    .replaceAll(Utils.getRegex("amount"), Digital.formatThousands(rs.getAmount()))
+                                    .replaceAll(Utils.getRegex("item"), plugin.get(SettingConfig.class).getNameFormatted(item.getKey(), true))
+                                    .replaceAll(Utils.getRegex("price"), Digital.formatDouble("###,###.##", rs.getPrice())));
 
                             updateInventory(uuid);
                         });

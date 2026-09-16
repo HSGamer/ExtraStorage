@@ -5,28 +5,53 @@ import me.TechsCode.UltraEconomy.UltraEconomyAPI;
 import me.TechsCode.UltraEconomy.objects.Account;
 import me.TechsCode.UltraEconomy.objects.Currency;
 import me.hsgamer.extrastorage.ExtraStorage;
+import me.hsgamer.extrastorage.api.item.Worth;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
-public final class UltraEconomyHook extends WorthEconomyHook {
+public final class UltraEconomyHook extends AbstractEconomyHook {
 
     private final UltraEconomyAPI api;
+    private final Currency currency;
+    private final boolean hooked;
 
     public UltraEconomyHook(ExtraStorage plugin) {
         super(plugin);
-        this.api = UltraEconomy.getAPI();
-
-        if (this.isHooked()) {
-            instance.getLogger().info("Using UltraEconomy as economy provider.");
-        } else
-            instance.getLogger().severe("Could not find dependency: UltraEconomy. Please install it then try again!");
+        UltraEconomyAPI api = UltraEconomy.getAPI();
+        Currency currency = null;
+        if (api != null) {
+            String cur = plugin.get(SettingConfig.class).economy().currency();
+            if (!cur.isEmpty()) {
+                currency = api.getCurrencies().name(cur).orElse(null);
+            } else if (!api.getCurrencies().isEmpty()) {
+                currency = api.getCurrencies().get(0);
+            }
+        }
+        this.api = api;
+        this.currency = currency;
+        this.hooked = api != null && currency != null;
     }
 
     @Override
     public boolean isHooked() {
-        return (api != null);
+        return hooked;
+    }
+
+    @Override
+    public int getAmount(ItemStack item) {
+        if (!isHooked()) return 0;
+        Worth worth = lookupWorth(item);
+        return worth != null ? worth.getQuantity() : 0;
+    }
+
+    @Override
+    protected double getRawPrice(Player player, ItemStack item, int amount) {
+        Worth worth = lookupWorth(item);
+        if (worth == null) return -1;
+        return worth.getPrice() / worth.getQuantity() * amount;
     }
 
     @Override
@@ -35,16 +60,6 @@ public final class UltraEconomyHook extends WorthEconomyHook {
         if (!optional.isPresent()) {
             return false;
         }
-
-        String cur = instance.get(SettingConfig.class).economy().currency();
-        Currency currency;
-        if (!cur.isEmpty()) {
-            Optional<Currency> curOptional = api.getCurrencies().name(cur);
-            if (!curOptional.isPresent()) {
-                return false;
-            }
-            currency = curOptional.get();
-        } else currency = api.getCurrencies().get(0);
 
         Account account = optional.get();
         account.getBalance(currency).addHand((float) price);
