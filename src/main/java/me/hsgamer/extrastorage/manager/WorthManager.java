@@ -39,8 +39,9 @@ public final class WorthManager implements Reloadable {
             if (cache.containsKey(key)) continue;
 
             ConfigNode value = entry.getValue();
-            int quantity = value.node("Quantity").get(int.class, -1);
-            double price = value.node("Price").get(double.class, 0.0);
+            int quantity = value.node("Quantity").get(Integer.class, -1);
+            double price = value.node("Price").get(Double.class, 0.0);
+
             if ((quantity < 1) || (price <= 0.0)) continue;
 
             cache.put(key, new ESWorth(key, quantity, price));
