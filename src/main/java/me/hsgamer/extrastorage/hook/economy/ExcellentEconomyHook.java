@@ -13,36 +13,43 @@ import su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency;
 import java.util.Optional;
 
 public final class ExcellentEconomyHook extends AbstractEconomyHook {
-    private final ExcellentEconomyAPI api;
-    private final ExcellentCurrency currency;
-    private final boolean hooked;
+    private ExcellentEconomyAPI api;
+    private ExcellentCurrency currency;
+    private boolean hooked;
+    private boolean setup;
 
     public ExcellentEconomyHook(ExtraStorage plugin) {
         super(plugin);
-        RegisteredServiceProvider<ExcellentEconomyAPI> rsp = Bukkit.getServer().getServicesManager().getRegistration(ExcellentEconomyAPI.class);
-        ExcellentEconomyAPI api = (rsp != null) ? rsp.getProvider() : null;
-        ExcellentCurrency currency = null;
-        if (api != null) {
-            String cur = plugin.get(SettingConfig.class).economy().currency();
-            boolean hasCurrencySpecified = !cur.isEmpty();
-            currency = hasCurrencySpecified ? api.getCurrency(cur) : null;
-            if (currency == null) {
-                if (hasCurrencySpecified) {
-                    plugin.getLogger().warning("The currency with ID '" + cur + "' could not be found! Using primary currency as default!");
-                }
-                Optional<ExcellentCurrency> optional = api.currencyRegistry().findPrimary();
-                if (optional.isPresent()) {
-                    currency = optional.get();
-                }
-            }
-        }
-        this.api = api;
-        this.currency = currency;
-        this.hooked = api != null && currency != null;
     }
 
     @Override
     public boolean isHooked() {
+        if (!setup) {
+            ExcellentEconomyAPI api = null;
+            ExcellentCurrency currency = null;
+            if (Bukkit.getPluginManager().getPlugin("ExcellentEconomy") != null) {
+                RegisteredServiceProvider<ExcellentEconomyAPI> rsp = Bukkit.getServer().getServicesManager().getRegistration(ExcellentEconomyAPI.class);
+                api = (rsp != null) ? rsp.getProvider() : null;
+                if (api != null) {
+                    String cur = instance.get(SettingConfig.class).economy().currency();
+                    boolean hasCurrencySpecified = !cur.isEmpty();
+                    currency = hasCurrencySpecified ? api.getCurrency(cur) : null;
+                    if (currency == null) {
+                        if (hasCurrencySpecified) {
+                            instance.getLogger().warning("The currency with ID '" + cur + "' could not be found! Using primary currency as default!");
+                        }
+                        Optional<ExcellentCurrency> optional = api.currencyRegistry().findPrimary();
+                        if (optional.isPresent()) {
+                            currency = optional.get();
+                        }
+                    }
+                }
+            }
+            this.api = api;
+            this.currency = currency;
+            this.hooked = api != null && currency != null;
+            setup = true;
+        }
         return hooked;
     }
 

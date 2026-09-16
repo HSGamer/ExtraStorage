@@ -12,18 +12,22 @@ import org.bukkit.plugin.Plugin;
 
 public final class PlayerPointsHook extends AbstractEconomyHook {
 
-    private final PlayerPointsAPI api;
-    private final boolean hooked;
+    private PlayerPointsAPI api;
+    private boolean hooked;
+    private boolean setup;
 
     public PlayerPointsHook(ExtraStorage plugin) {
         super(plugin);
-        Plugin ppPlugin = Bukkit.getServer().getPluginManager().getPlugin("PlayerPoints");
-        api = (ppPlugin != null) ? ((PlayerPoints) ppPlugin).getAPI() : null;
-        hooked = api != null;
     }
 
     @Override
     public boolean isHooked() {
+        if (!setup) {
+            Plugin ppPlugin = Bukkit.getServer().getPluginManager().getPlugin("PlayerPoints");
+            api = (ppPlugin != null) ? ((PlayerPoints) ppPlugin).getAPI() : null;
+            hooked = api != null;
+            setup = true;
+        }
         return hooked;
     }
 

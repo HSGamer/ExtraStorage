@@ -13,17 +13,24 @@ import org.bukkit.inventory.ItemStack;
 
 public final class ShopGuiPlusHook extends AbstractEconomyHook {
 
-    private final Economy econ;
-    private final boolean hooked;
+    private Economy econ;
+    private boolean hooked;
+    private boolean setup;
 
     public ShopGuiPlusHook(ExtraStorage plugin) {
         super(plugin);
-        econ = findVaultEconomy();
-        hooked = Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null && econ != null;
     }
 
     @Override
     public boolean isHooked() {
+        if (!setup) {
+            boolean shopPresent = Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null;
+            if (shopPresent && Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                econ = findVaultEconomy();
+            }
+            hooked = shopPresent && econ != null;
+            setup = true;
+        }
         return hooked;
     }
 

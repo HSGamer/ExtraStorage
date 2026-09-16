@@ -11,18 +11,22 @@ import org.bukkit.plugin.Plugin;
 
 public final class TokenManagerHook extends AbstractEconomyHook {
 
-    private final TokenManager api;
-    private final boolean hooked;
+    private TokenManager api;
+    private boolean hooked;
+    private boolean setup;
 
     public TokenManagerHook(ExtraStorage plugin) {
         super(plugin);
-        Plugin tmPlugin = Bukkit.getServer().getPluginManager().getPlugin("TokenManager");
-        api = (tmPlugin != null) ? (TokenManager) tmPlugin : null;
-        hooked = api != null;
     }
 
     @Override
     public boolean isHooked() {
+        if (!setup) {
+            Plugin tmPlugin = Bukkit.getServer().getPluginManager().getPlugin("TokenManager");
+            api = (tmPlugin != null) ? (TokenManager) tmPlugin : null;
+            hooked = api != null;
+            setup = true;
+        }
         return hooked;
     }
 

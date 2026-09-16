@@ -7,6 +7,7 @@ import me.TechsCode.UltraEconomy.objects.Currency;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Worth;
 import me.hsgamer.extrastorage.config.SettingConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,29 +15,36 @@ import java.util.Optional;
 
 public final class UltraEconomyHook extends AbstractEconomyHook {
 
-    private final UltraEconomyAPI api;
-    private final Currency currency;
-    private final boolean hooked;
+    private UltraEconomyAPI api;
+    private Currency currency;
+    private boolean hooked;
+    private boolean setup;
 
     public UltraEconomyHook(ExtraStorage plugin) {
         super(plugin);
-        UltraEconomyAPI api = UltraEconomy.getAPI();
-        Currency currency = null;
-        if (api != null) {
-            String cur = plugin.get(SettingConfig.class).economy().currency();
-            if (!cur.isEmpty()) {
-                currency = api.getCurrencies().name(cur).orElse(null);
-            } else if (!api.getCurrencies().isEmpty()) {
-                currency = api.getCurrencies().get(0);
-            }
-        }
-        this.api = api;
-        this.currency = currency;
-        this.hooked = api != null && currency != null;
     }
 
     @Override
     public boolean isHooked() {
+        if (!setup) {
+            UltraEconomyAPI api = null;
+            Currency currency = null;
+            if (Bukkit.getPluginManager().getPlugin("UltraEconomy") != null) {
+                api = UltraEconomy.getAPI();
+                if (api != null) {
+                    String cur = instance.get(SettingConfig.class).economy().currency();
+                    if (!cur.isEmpty()) {
+                        currency = api.getCurrencies().name(cur).orElse(null);
+                    } else if (!api.getCurrencies().isEmpty()) {
+                        currency = api.getCurrencies().get(0);
+                    }
+                }
+            }
+            this.api = api;
+            this.currency = currency;
+            this.hooked = api != null && currency != null;
+            setup = true;
+        }
         return hooked;
     }
 
