@@ -1,2 +1,3 @@
 - **Update UniItem**
   - Mainly to fix the issue with recent updates of CraftEngine
+  - It also updated the hook for other item plugins, to make sure they work on their latest updates
