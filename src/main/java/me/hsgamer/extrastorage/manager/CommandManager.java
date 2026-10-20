@@ -25,6 +25,19 @@ public class CommandManager implements Loadable {
     public void enable() {
         commandManager = new BukkitCommandManager(plugin) {
             @Override
+            public String formatMessage(String key, String defaultValue, Object... args) {
+                if (key.equals("player-not-found")) {
+                    return plugin.get(MessageConfig.class).fail().playerNotFound();
+                }
+                return super.formatMessage(key, defaultValue, args);
+            }
+
+            @Override
+            protected void sendMessage(CommandSender sender, String message) {
+                sender.sendMessage(Utils.formatMessage(message));
+            }
+
+            @Override
             public void handleException(CommandSender sender, Exception exception) {
                 Debug.log("Error when executing the command", exception);
                 super.handleException(sender, exception);

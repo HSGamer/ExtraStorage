@@ -53,26 +53,21 @@ public class PlayerCommand {
 
     @Default
     @Permission(Constants.PLAYER_OPEN_PERMISSION)
-    public void execute(User user, @Default String target) {
+    public void execute(User user, @Default OfflinePlayer target) {
         Player player = user.getPlayer();
 
-        if (target.isEmpty()) {
+        if (target == null) {
             instance.get(StorageGUI.class).openFor(player, null);
             return;
         }
 
-        OfflinePlayer targetPlayer = Bukkit.getServer().getOfflinePlayer(target);
-        if (!targetPlayer.hasPlayedBefore()) {
-            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotFound()));
-        }
-        User targetUser = instance.get(UserManager.class).getUser(targetPlayer);
-
-        if (target.equals(player.getName())) {
+        if (Objects.equals(target.getUniqueId(), player.getUniqueId())) {
             throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notYourself()));
         }
 
+        User targetUser = instance.get(UserManager.class).getUser(target);
         if (!targetUser.isPartner(player.getUniqueId())) {
-            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotPartner()).replaceAll(PLAYER_REGEX, target));
+            throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotPartner()).replaceAll(PLAYER_REGEX, targetUser.getName()));
         }
 
         instance.get(StorageGUI.class).openFor(player, targetUser);
@@ -333,14 +328,10 @@ public class PlayerCommand {
         }
 
         @Command("add")
-        public void add(User user, String targetName) {
+        public void add(User user, OfflinePlayer target) {
             Player player = user.getPlayer();
 
-            OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
-            if (!target.hasPlayedBefore()) {
-                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotFound()));
-            }
-            if (targetName.equals(player.getName())) {
+            if (Objects.equals(target.getUniqueId(), player.getUniqueId())) {
                 throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notYourself()));
             }
             if (user.isPartner(target.getUniqueId())) {
@@ -357,14 +348,10 @@ public class PlayerCommand {
         }
 
         @Command("remove")
-        public void remove(User user, String targetName) {
+        public void remove(User user, OfflinePlayer target) {
             Player player = user.getPlayer();
 
-            OfflinePlayer target = Bukkit.getServer().getOfflinePlayer(targetName);
-            if (!target.hasPlayedBefore()) {
-                throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().playerNotFound()));
-            }
-            if (targetName.equals(player.getName())) {
+            if (Objects.equals(target.getUniqueId(), player.getUniqueId())) {
                 throw new CommandException(Utils.formatMessage(instance.get(MessageConfig.class).fail().notYourself()));
             }
             if (!user.isPartner(target.getUniqueId())) {
