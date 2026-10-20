@@ -11,6 +11,7 @@ import me.hsgamer.extrastorage.config.MessageConfig;
 import me.hsgamer.extrastorage.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandManager implements Loadable {
@@ -23,10 +24,13 @@ public class CommandManager implements Loadable {
 
     @Override
     public void enable() {
-        commandManager = new BukkitCommandManager(plugin, (sender, e) -> {
-            Debug.log("Error when executing the command", e);
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-        });
+        commandManager = new BukkitCommandManager(plugin) {
+            @Override
+            public void handleException(CommandSender sender, Exception exception) {
+                Debug.log("Error when executing the command", exception);
+                super.handleException(sender, exception);
+            }
+        };
         commandManager.registerSenderResolver(User.class, sender -> {
             if (sender instanceof Player) {
                 return plugin.get(UserManager.class).getUser((Player) sender);
