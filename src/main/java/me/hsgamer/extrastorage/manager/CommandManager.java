@@ -9,7 +9,6 @@ import me.hsgamer.extrastorage.command.AdminCommand;
 import me.hsgamer.extrastorage.command.PlayerCommand;
 import me.hsgamer.extrastorage.config.MessageConfig;
 import me.hsgamer.extrastorage.util.Utils;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
