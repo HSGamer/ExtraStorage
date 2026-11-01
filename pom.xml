@@ -414,6 +414,12 @@
 			<groupId>me.hsgamer</groupId>
 			<artifactId>hscore-gson</artifactId>
 			<version>${core.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
