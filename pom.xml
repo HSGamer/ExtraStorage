@@ -34,7 +34,7 @@
 		<rosestacker.version>1.5.42</rosestacker.version>
 		<uniitem.version>2.7.2</uniitem.version>
 		<craftitem.version>1.6.2</craftitem.version>
-		<craftux.version>1.6.3</craftux.version>
+		<craftux.version>1.7.0</craftux.version>
 		<maptemplate.version>1.0.2</maptemplate.version>
 	</properties>
 
