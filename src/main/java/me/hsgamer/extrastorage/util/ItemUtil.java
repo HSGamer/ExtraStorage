@@ -175,7 +175,7 @@ public class ItemUtil {
      */
     public static int getFreeSpace(Player player, ItemStack item) {
         int empty = 0;
-        for (ItemStack stack : player.getInventory().getContents()) {
+        for (ItemStack stack : CompatItemUtil.getStorageContents(player.getInventory())) {
             if (empty >= item.getAmount()) break;
             if (isAir(stack)) {
                 empty += item.getMaxStackSize();

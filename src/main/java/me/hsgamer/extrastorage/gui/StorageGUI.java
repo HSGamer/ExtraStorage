@@ -149,7 +149,7 @@ public class StorageGUI extends BaseGUI<StorageGUI.SortType, StorageGuiConfig, S
                                 }
 
                                 int count = session.storage.consumeStack(
-                                        new ArrayList<>(Arrays.asList(player.getInventory().getStorageContents())),
+                                        new ArrayList<>(Arrays.asList(CompatItemUtil.getStorageContents(player.getInventory()))),
                                         is -> key.equalsIgnoreCase(ItemUtil.toMaterialKey(is)),
                                         player.getInventory()::removeItem,
                                         null,

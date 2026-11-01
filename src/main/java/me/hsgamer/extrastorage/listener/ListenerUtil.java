@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.listener;
 
+import com.cryptomorin.xseries.messages.ActionBar;
 import com.google.common.base.Strings;
 import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.api.item.Item;
@@ -8,8 +9,6 @@ import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.manager.CacheManager;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.Utils;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
 import java.util.function.BiConsumer;
@@ -22,10 +21,10 @@ interface ListenerUtil {
 
             String actionBarMsg = Utils.formatMessage(ExtraStorage.getInstance().get(MessageConfig.class).warn().stored().actionBar());
             if (!Strings.isNullOrEmpty(actionBarMsg)) {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMsg
+                ActionBar.sendActionBar(player, actionBarMsg
                         .replaceAll(Utils.getRegex("current"), Digital.formatThousands(added.getQuantity()))
                         .replaceAll(Utils.getRegex("quantity", "amount"), String.valueOf(amount))
-                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(added.getKey(), true))));
+                        .replaceAll(Utils.getRegex("item"), setting.getNameFormatted(added.getKey(), true)));
             }
         };
     }

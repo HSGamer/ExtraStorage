@@ -196,7 +196,11 @@ public interface SettingConfig extends Reloadable {
 
         Item item = ItemUtil.getItem(validKey);
 
-        if (item instanceof ItemUtil.VanillaItem) {
+        if (item instanceof ItemUtil.XVanillaItem) {
+            String itemName = ((ItemUtil.XVanillaItem) item).getName();
+            String formatName = Utils.formatName(Objects.requireNonNull(itemName));
+            return colorize ? Utils.colorize("&f" + formatName) : formatName;
+        } else if (item instanceof ItemUtil.VanillaItem) {
             String formatName = Utils.formatName(validKey);
             return colorize ? Utils.colorize("&f" + formatName) : formatName;
         } else {

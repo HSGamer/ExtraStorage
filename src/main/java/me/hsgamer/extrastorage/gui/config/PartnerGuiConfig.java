@@ -96,7 +96,7 @@ public interface PartnerGuiConfig extends GuiConfig {
         default Map<String, Object> about() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "PAPER");
-            map.put("Name", "#dcdde1ʏᴏᴜʀ ᴘᴀʀᴛɴᴇʀs ʟɪsᴛ");
+            map.put("Name", "&7ʏᴏᴜʀ ᴘᴀʀᴛɴᴇʀs ʟɪsᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&7+ Total partners: &a{total_partners}",
@@ -118,9 +118,9 @@ public interface PartnerGuiConfig extends GuiConfig {
                     "&2→ &aPartner''s name",
                     "&8 ● &7Timestamp",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
-                    "&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
+                    "&8[&6s.ᴄʟɪᴄᴋ&8] &7ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -137,9 +137,9 @@ public interface PartnerGuiConfig extends GuiConfig {
                     "&8 ● &7Partner''s name",
                     "&2→ &aTimestamp",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
-                    "&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
+                    "&8[&6s.ᴄʟɪᴄᴋ&8] &7ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -150,7 +150,7 @@ public interface PartnerGuiConfig extends GuiConfig {
         default Map<String, Object> switchGui() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "CHEST_MINECART");
-            map.put("Name", "#dcdde1sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ");
+            map.put("Name", "&7sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&2→ &aPartners",
@@ -158,8 +158,8 @@ public interface PartnerGuiConfig extends GuiConfig {
                     "&8 ● &7Storage",
                     "&8 ● &7Selling",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ sᴛᴏʀᴀɢᴇ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ sᴛᴏʀᴀɢᴇ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ"
             ));
             map.put("Slot", 49);
             return map;

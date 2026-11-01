@@ -86,7 +86,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
         default Map<String, Object> sortByName() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
-            map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
+            map.put("Name", "&7sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&2→ &aSort by name",
@@ -103,7 +103,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
         default Map<String, Object> previousPage() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "ARROW");
-            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ");
+            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠɪᴏᴜs ᴘᴀɢᴇ");
             map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
             map.put("Slots", Collections.singletonList("49"));
             return map;
@@ -114,7 +114,7 @@ public interface WhitelistGuiConfig extends GuiConfig {
         default Map<String, Object> nextPage() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "ARROW");
-            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ᴘᴀɢᴇ");
+            map.put("Name", "&8[&6ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ᴘᴀɢᴇ");
             map.put("Lore", Collections.singletonList("&7ᴄᴜʀʀᴇɴᴛ ᴘᴀɢᴇ: &f{page}&7/&c{max_pages}"));
             map.put("Slots", Collections.singletonList("51"));
             return map;

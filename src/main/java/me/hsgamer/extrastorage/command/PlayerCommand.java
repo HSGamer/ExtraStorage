@@ -21,6 +21,7 @@ import me.hsgamer.extrastorage.gui.StorageGUI;
 import me.hsgamer.extrastorage.hook.economy.EconomyProvider;
 import me.hsgamer.extrastorage.manager.HookManager;
 import me.hsgamer.extrastorage.manager.UserManager;
+import me.hsgamer.extrastorage.util.CompatItemUtil;
 import me.hsgamer.extrastorage.util.Digital;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.extrastorage.util.Utils;
@@ -303,7 +304,7 @@ public class PlayerCommand {
         }
 
         int stored = storage.consumeStack(
-                new ArrayList<>(Arrays.asList(player.getInventory().getStorageContents())),
+                new ArrayList<>(Arrays.asList(CompatItemUtil.getStorageContents(player.getInventory()))),
                 template::isSimilar,
                 player.getInventory()::removeItem,
                 null,

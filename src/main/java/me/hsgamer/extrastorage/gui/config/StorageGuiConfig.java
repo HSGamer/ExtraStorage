@@ -99,7 +99,7 @@ public interface StorageGuiConfig extends GuiConfig {
             map.put("Data", 0);
             map.put("Texture", "%player%");
             map.put("CustomModelData", 0);
-            map.put("Name", "#dcdde1ᴘʟᴀʏᴇʀ sᴛᴏʀᴀɢᴇ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ");
+            map.put("Name", "&7ᴘʟᴀʏᴇʀ sᴛᴏʀᴀɢᴇ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&7+ Owner: &b{player}",
@@ -112,7 +112,7 @@ public interface StorageGuiConfig extends GuiConfig {
                     "",
                     "&7+ Free space: &f{free_space} &7/ &c{free_percent}",
                     "",
-                    "&8[&6ᴄʟɪᴄᴋ&8] #dcdde1Change storage status."
+                    "&8[&6ᴄʟɪᴄᴋ&8] &7Change storage status."
             ));
             map.put("Slot", 50);
             return map;
@@ -123,7 +123,7 @@ public interface StorageGuiConfig extends GuiConfig {
         default Map<String, Object> sortByMaterial() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
-            map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
+            map.put("Name", "&7sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&2→ &aBy material",
@@ -131,9 +131,9 @@ public interface StorageGuiConfig extends GuiConfig {
                     "&8 ● &7By quantity",
                     "&8 ● &7By unfiltered",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
-                    "&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
+                    "&8[&6s.ᴄʟɪᴄᴋ&8] &7ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -144,7 +144,7 @@ public interface StorageGuiConfig extends GuiConfig {
         default Map<String, Object> sortByName() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
-            map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
+            map.put("Name", "&7sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
@@ -152,9 +152,9 @@ public interface StorageGuiConfig extends GuiConfig {
                     "&8 ● &7By quantity",
                     "&8 ● &7By unfiltered",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
-                    "&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
+                    "&8[&6s.ᴄʟɪᴄᴋ&8] &7ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -165,7 +165,7 @@ public interface StorageGuiConfig extends GuiConfig {
         default Map<String, Object> sortByQuantity() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
-            map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
+            map.put("Name", "&7sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
@@ -173,9 +173,9 @@ public interface StorageGuiConfig extends GuiConfig {
                     "&2→ &aBy quantity",
                     "&8 ● &7By unfiltered",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
-                    "&8[&6s.ᴄʟɪᴄᴋ&8] #dcdde1ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ",
+                    "&8[&6s.ᴄʟɪᴄᴋ&8] &7ʀᴇᴠᴇʀsᴇ ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -186,7 +186,7 @@ public interface StorageGuiConfig extends GuiConfig {
         default Map<String, Object> sortByUnfilter() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "BOOK");
-            map.put("Name", "#dcdde1sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
+            map.put("Name", "&7sᴏʀᴛ sᴛᴏʀᴀɢᴇ ᴄᴏɴᴛᴇɴᴛ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7By material",
@@ -194,8 +194,8 @@ public interface StorageGuiConfig extends GuiConfig {
                     "&8 ● &7By quantity",
                     "&2→ &aBy unfiltered",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ ꜰɪʟᴛᴇʀ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. ꜰɪʟᴛᴇʀ"
             ));
             map.put("Slot", 51);
             return map;
@@ -206,7 +206,7 @@ public interface StorageGuiConfig extends GuiConfig {
         default Map<String, Object> switchGui() {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("Material", "CHEST_MINECART");
-            map.put("Name", "#dcdde1sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ");
+            map.put("Name", "&7sᴡɪᴛᴄʜ ᴛᴏ ᴏᴛʜᴇʀ sᴛᴏʀᴀɢᴇ");
             map.put("Lore", Arrays.asList(
                     "",
                     "&8 ● &7Partners",
@@ -214,8 +214,8 @@ public interface StorageGuiConfig extends GuiConfig {
                     "&2→ &aStorage",
                     "&8 ● &7Selling",
                     "",
-                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] #dcdde1ɴᴇxᴛ sᴛᴏʀᴀɢᴇ",
-                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] #dcdde1ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ"
+                    "&8[&6ʟ.ᴄʟɪᴄᴋ&8] &7ɴᴇxᴛ sᴛᴏʀᴀɢᴇ",
+                    "&8[&6ʀ.ᴄʟɪᴄᴋ&8] &7ᴘʀᴇᴠ. sᴛᴏʀᴀɢᴇ"
             ));
             map.put("Slot", 49);
             return map;
