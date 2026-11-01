@@ -1,7 +1,7 @@
 name: ExtraStorage
 version: '${project.version}'
 main: me.hsgamer.extrastorage.ExtraStorage
-api-version: 1.16
+api-version: 1.13
 folia-supported: true
 authors: [ HSGamer, HyronicTeam ]
 softdepend:
