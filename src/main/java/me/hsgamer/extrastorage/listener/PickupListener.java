@@ -162,13 +162,11 @@ public class PickupListener implements Listener, ListenerComponent {
         if (!storage.canStore(item)) return;
 
         int amount = pickupHandler.getAmount(entity, item, event.getRemaining());
-        storage.consumeStack(item, amount,
+        int stored = storage.consumeStack(item, amount,
                 residual -> pickupHandler.applyAmount(entity, item, residual),
-                () -> {
-                    event.setCancelled(true);
-                    entity.remove();
-                },
+                entity::remove,
                 ListenerUtil.getStoredNotifier(player));
+        if (stored > 0) event.setCancelled(true);
     }
 
     private interface PickupEvent {
