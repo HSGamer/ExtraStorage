@@ -38,7 +38,7 @@ jobs:
         env:
           PROJECT: ExtraStorage
           DESCRIPTION: ${{ steps.changelog.outputs.changelog }}
-          GAME_VERSIONS: "1.16..latest"
+          GAME_VERSIONS: "1.8..latest"
 
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           MODRINTH_PROJECT: 4gAxJhPV
