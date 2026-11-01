@@ -50,23 +50,10 @@ public class ItemUtil {
                     }
 
                     String[] split = key.split(":", 2);
-                    if (split.length == 2) {
-                        String possibleType = split[0];
-
-                        Material material = Material.matchMaterial(possibleType);
-                        if (material != null) {
-                            try {
-                                short durability = Short.parseShort(split[1]);
-                                return new VanillaItem(material, durability);
-                            } catch (NumberFormatException e) {
-                                return new VanillaItem(material, null);
-                            }
-                        }
-                    } else {
-                        Material material = Material.matchMaterial(key);
-                        if (material != null) {
-                            return new VanillaItem(material, null);
-                        }
+                    String materialName = split.length == 2 ? split[0] : key;
+                    Material material = Material.matchMaterial(materialName);
+                    if (material != null) {
+                        return new VanillaItem(material);
                     }
 
                     return Item.INVALID;
@@ -212,16 +199,15 @@ public class ItemUtil {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static Item getItem(ItemStack item) {
         if (item.hasItemMeta()) return provider.wrap(item);
         try {
             XMaterial material = XMaterial.matchXMaterial(item);
             return new XVanillaItem(material);
         } catch (Exception e) {
-            // IGNORED - Modded Material from Hybrid servers detected or New materials XSeries hasn't recognized
+            // IGNORED - New materials XSeries hasn't recognized
         }
-        return new VanillaItem(item.getType(), item.getDurability());
+        return new VanillaItem(item.getType());
     }
 
     public static ItemType getItemType(Item item) {
@@ -237,21 +223,13 @@ public class ItemUtil {
 
     public static final class VanillaItem implements Item {
         private final @Nullable Material material;
-        private final @Nullable Short durability;
 
-        public VanillaItem(@Nullable Material material, @Nullable Short durability) {
+        public VanillaItem(@Nullable Material material) {
             this.material = material;
-            this.durability = durability;
         }
 
         public String getName() {
-            if (material == null) {
-                return null;
-            }
-            if (durability != null && durability >= 0) {
-                return material.name() + ":" + durability;
-            }
-            return material.name();
+            return material != null ? material.name() : null;
         }
 
         @Override
