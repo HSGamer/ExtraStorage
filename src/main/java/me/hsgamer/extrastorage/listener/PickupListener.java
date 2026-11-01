@@ -31,6 +31,7 @@ public class PickupListener implements Listener, ListenerComponent {
     private static final boolean ENTITY_PICKUP_ITEM_EVENT_AVAILABLE = isEntityPickupItemEventAvailable();
     private final ExtraStorage instance;
     private PickupHandler pickupHandler;
+
     public PickupListener(ExtraStorage instance) {
         this.instance = instance;
     }
@@ -229,6 +230,7 @@ public class PickupListener implements Listener, ListenerComponent {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static final class PlayerPickupEvent implements PickupEvent {
         private final PlayerPickupItemEvent event;
 
