@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.util;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -40,26 +42,32 @@ public class ItemUtil {
                             return item;
                         }
                     } catch (Exception e) {
+                        // IGNORED
                     }
 
-                    Material material = null;
+                    Optional<XMaterial> optionalXMaterial = XMaterial.matchXMaterial(key);
+                    if (optionalXMaterial.isPresent()) {
+                        return new XVanillaItem(optionalXMaterial.get());
+                    }
 
                     String[] split = key.split(":", 2);
                     if (split.length == 2) {
                         String possibleType = split[0];
 
-                        Material possibleMaterial = Material.matchMaterial(possibleType);
-                        if (possibleMaterial != null) {
-                            material = possibleMaterial;
+                        Material material = Material.matchMaterial(possibleType);
+                        if (material != null) {
+                            try {
+                                short durability = Short.parseShort(split[1]);
+                                return new VanillaItem(material, durability);
+                            } catch (NumberFormatException e) {
+                                return new VanillaItem(material, null);
+                            }
                         }
-                    }
-
-                    if (material == null) {
-                        material = Material.matchMaterial(key);
-                    }
-
-                    if (material != null) {
-                        return new VanillaItem(material);
+                    } else {
+                        Material material = Material.matchMaterial(key);
+                        if (material != null) {
+                            return new VanillaItem(material, null);
+                        }
                     }
 
                     return Item.INVALID;
@@ -77,7 +85,9 @@ public class ItemUtil {
             if (itemKey == null) {
                 keyStr = Constants.INVALID;
             } else {
-                if (validItem instanceof VanillaItem && itemKey.type().equals(NamespacedKey.MINECRAFT)) {
+                if (validItem instanceof XVanillaItem) {
+                    keyStr = ((XVanillaItem) validItem).getName();
+                } else if (validItem instanceof VanillaItem && itemKey.type().equals(NamespacedKey.MINECRAFT)) {
                     keyStr = ((VanillaItem) validItem).getName();
                 } else {
                     keyStr = itemKey.type().toUpperCase(Locale.ROOT) + ":" + itemKey.id();
@@ -112,6 +122,11 @@ public class ItemUtil {
             String[] split = k.split(":", 2);
             if (split.length == 1) {
                 return k;
+            }
+
+            Optional<XMaterial> optionalXMaterial = XMaterial.matchXMaterial(k);
+            if (optionalXMaterial.isPresent()) {
+                return optionalXMaterial.get().name();
             }
 
             String possibleType = split[0];
@@ -161,7 +176,7 @@ public class ItemUtil {
      */
     public static int getFreeSpace(Player player, ItemStack item) {
         int empty = 0;
-        for (ItemStack stack : player.getInventory().getStorageContents()) {
+        for (ItemStack stack : player.getInventory().getContents()) {
             if (empty >= item.getAmount()) break;
             if (isAir(stack)) {
                 empty += item.getMaxStackSize();
@@ -198,15 +213,23 @@ public class ItemUtil {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static Item getItem(ItemStack item) {
-        return item.hasItemMeta() ? provider.wrap(item) : new VanillaItem(item.getType());
+        if (item.hasItemMeta()) return provider.wrap(item);
+        try {
+            XMaterial material = XMaterial.matchXMaterial(item);
+            return new XVanillaItem(material);
+        } catch (Exception e) {
+            // IGNORED - Modded Material from Hybrid servers detected or New materials XSeries hasn't recognized
+        }
+        return new VanillaItem(item.getType(), item.getDurability());
     }
 
     public static ItemType getItemType(Item item) {
         if (!item.isValid()) {
             return ItemType.NONE;
         }
-        return item instanceof VanillaItem ? ItemType.VANILLA : ItemType.CUSTOM;
+        return item instanceof VanillaItem || item instanceof XVanillaItem ? ItemType.VANILLA : ItemType.CUSTOM;
     }
 
     public enum ItemType {
@@ -215,13 +238,21 @@ public class ItemUtil {
 
     public static final class VanillaItem implements Item {
         private final @Nullable Material material;
+        private final @Nullable Short durability;
 
-        public VanillaItem(@Nullable Material material) {
+        public VanillaItem(@Nullable Material material, @Nullable Short durability) {
             this.material = material;
+            this.durability = durability;
         }
 
         public String getName() {
-            return material != null ? material.name() : null;
+            if (material == null) {
+                return null;
+            }
+            if (durability != null && durability >= 0) {
+                return material.name() + ":" + durability;
+            }
+            return material.name();
         }
 
         @Override
@@ -231,9 +262,9 @@ public class ItemUtil {
 
         @Override
         public @Nullable ItemKey key() {
-            if (material == null) return null;
-            NamespacedKey key = material.getKey();
-            return new ItemKey(key.getNamespace(), key.getKey());
+            String name = getName();
+            if (name == null) return null;
+            return new ItemKey("minecraft", name);
         }
 
         @Override
@@ -251,6 +282,46 @@ public class ItemUtil {
         public boolean isSimilar(@NotNull ItemStack itemStack) {
             if (material == null) return false;
             return !itemStack.hasItemMeta() && Objects.equals(material, itemStack.getType());
+        }
+    }
+
+    public static final class XVanillaItem implements Item {
+        private final @Nullable XMaterial material;
+
+        public XVanillaItem(@Nullable XMaterial material) {
+            this.material = material;
+        }
+
+        public String getName() {
+            return material != null ? material.name() : null;
+        }
+
+        @Override
+        public boolean isValid() {
+            return material != null;
+        }
+
+        @Override
+        public @Nullable ItemKey key() {
+            if (material == null) return null;
+            return new ItemKey("xminecraft", material.name().toLowerCase(Locale.ROOT));
+        }
+
+        @Override
+        public @Nullable ItemStack bukkitItem() {
+            if (material == null) return null;
+            return material.parseItem();
+        }
+
+        @Override
+        public @Nullable ItemStack bukkitItem(@NotNull Player player) {
+            return bukkitItem();
+        }
+
+        @Override
+        public boolean isSimilar(@NotNull ItemStack item) {
+            if (material == null) return false;
+            return !item.hasItemMeta() && material.isSimilar(item);
         }
     }
 }

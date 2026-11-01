@@ -129,6 +129,10 @@
 									<pattern>io.github.projectunified.craftconfig</pattern>
 									<shadedPattern>me.hsgamer.extrastorage.lib.craftconfig</shadedPattern>
 								</relocation>
+								<relocation>
+									<pattern>com.cryptomorin.xseries</pattern>
+									<shadedPattern>me.hsgamer.extrastorage.lib.xseries</shadedPattern>
+								</relocation>
 							</relocations>
 							<!-- Disable PaperMC's PluginRemapper -->
 							<transformers>
@@ -264,6 +268,13 @@
 		<dependency>
 			<groupId>io.github.projectunified</groupId>
 			<artifactId>craftcommand-bukkit-runtime</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.github.cryptomorin</groupId>
+			<artifactId>XSeries</artifactId>
+			<version>14.0.0</version>
 		</dependency>
 
 		<dependency>

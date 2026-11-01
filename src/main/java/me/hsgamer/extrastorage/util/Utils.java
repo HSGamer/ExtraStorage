@@ -9,9 +9,11 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.md_5.bungee.api.ChatColor.COLOR_CHAR;
+
 public final class Utils {
 
-    private static final Pattern HEX_PATTERN = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})"),
+    private static final Pattern HEX_PATTERN = Pattern.compile("(?<!\\\\)#([a-fA-F0-9]{6})"),
             CAPITALIZE_PATTERN = Pattern.compile("\\b(.)(.*?)\\b");
 
     private Utils() {
@@ -51,11 +53,17 @@ public final class Utils {
 
     public static String colorize(String input) {
         Matcher matcher = HEX_PATTERN.matcher(input);
+        StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            String color = matcher.group(0);
-            input = input.replace(color, "" + ChatColor.of(color));
+            String hex = matcher.group(1);
+            StringBuilder replacement = new StringBuilder(COLOR_CHAR + "x");
+            for (int i = 0; i < hex.length(); i++) {
+                replacement.append(COLOR_CHAR).append(Character.toLowerCase(hex.charAt(i)));
+            }
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
         }
-        return ChatColor.translateAlternateColorCodes('&', input);
+        matcher.appendTail(buffer);
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
     public static String formatMessage(String raw) {

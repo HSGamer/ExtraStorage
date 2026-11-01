@@ -1,5 +1,6 @@
 package me.hsgamer.extrastorage.gui.item;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.google.common.base.Strings;
 import io.github.projectunified.craftitem.core.ItemModifier;
 import io.github.projectunified.craftitem.spigot.core.SpigotItem;
@@ -19,10 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -52,7 +50,7 @@ public interface GUIItem {
         } else if (!Strings.isNullOrEmpty(texture)) {
             if (texture.matches(Utils.getRegex("viewer", "player"))) {
                 spigotItemSupplier = user -> {
-                    SpigotItem spigotItem = new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                    SpigotItem spigotItem = new SpigotItem(Objects.requireNonNull(XMaterial.PLAYER_HEAD.parseItem()));
                     if (user != null) {
                         String userTexture = user.getTexture();
                         SkullModifier skullModifier = new SkullModifier(userTexture.isEmpty() || user.isOnline() ? user.getUUID().toString() : userTexture);
@@ -64,30 +62,42 @@ public interface GUIItem {
                 Matcher matcher = HDB_PATTERN.matcher(texture);
                 if (matcher.find()) {
                     if (!Bukkit.getServer().getPluginManager().isPluginEnabled("HeadDatabase")) {
-                        spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                        spigotItemSupplier = user -> new SpigotItem(Objects.requireNonNull(XMaterial.PLAYER_HEAD.parseItem()));
                     } else {
                         String ID = matcher.group("value");
                         HeadDatabaseItem headDatabaseItem = new HeadDatabaseItem(ID);
                         spigotItemSupplier = user -> {
                             ItemStack item = headDatabaseItem.bukkitItem();
                             if (item == null) {
-                                item = new ItemStack(Material.PLAYER_HEAD);
+                                item = Objects.requireNonNull(XMaterial.PLAYER_HEAD.parseItem());
                             }
                             return new SpigotItem(item);
                         };
                     }
                 } else {
-                    spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.PLAYER_HEAD));
+                    spigotItemSupplier = user -> new SpigotItem(Objects.requireNonNull(XMaterial.PLAYER_HEAD.parseItem()));
                     itemModifiers.add(new SkullModifier(texture));
                 }
             }
         } else {
             String materialName = (String) itemConfig.getOrDefault("Material", "STONE");
-            Material material = Material.matchMaterial(materialName);
-            if (material == null) {
-                spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
+            Optional<XMaterial> optionalXMaterial = XMaterial.matchXMaterial(materialName);
+            if (optionalXMaterial.isPresent()) {
+                spigotItemSupplier = user -> {
+                    XMaterial xMaterial = optionalXMaterial.get();
+                    ItemStack itemStack = xMaterial.parseItem();
+                    if (itemStack == null) {
+                        itemStack = new ItemStack(Material.STONE);
+                    }
+                    return new SpigotItem(itemStack);
+                };
             } else {
-                spigotItemSupplier = user -> new SpigotItem(new ItemStack(material));
+                Material material = Material.matchMaterial(materialName);
+                if (material == null) {
+                    spigotItemSupplier = user -> new SpigotItem(new ItemStack(Material.STONE));
+                } else {
+                    spigotItemSupplier = user -> new SpigotItem(new ItemStack(material));
+                }
             }
         }
 
