@@ -10,6 +10,7 @@ import me.hsgamer.extrastorage.data.log.Log;
 import me.hsgamer.extrastorage.gui.*;
 import me.hsgamer.extrastorage.listener.DropListener;
 import me.hsgamer.extrastorage.listener.InventoryUIListener;
+import me.hsgamer.extrastorage.listener.ItemListener;
 import me.hsgamer.extrastorage.listener.PickupListener;
 import me.hsgamer.extrastorage.listener.PlayerListener;
 import me.hsgamer.extrastorage.manager.*;
@@ -70,7 +71,7 @@ public final class ExtraStorage extends BasePlugin {
                 // Listeners
                 new InventoryUIListener(this),
                 new PlayerListener(this),
-                new DropListener(this),
+                DropListener.isAvailable() ? new DropListener(this) : new ItemListener(this),
                 new PickupListener(this),
 
                 // Commands
