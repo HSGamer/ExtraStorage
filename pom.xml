@@ -375,11 +375,6 @@
 		</dependency>
 		<dependency>
 			<groupId>me.hsgamer</groupId>
-			<artifactId>hscore-bukkit-utils</artifactId>
-			<version>${core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>me.hsgamer</groupId>
 			<artifactId>hscore-license-polymart</artifactId>
 			<version>${core.version}</version>
 			<exclusions>

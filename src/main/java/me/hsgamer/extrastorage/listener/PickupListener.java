@@ -14,7 +14,6 @@ import me.hsgamer.extrastorage.data.Constants;
 import me.hsgamer.extrastorage.manager.CacheManager;
 import me.hsgamer.extrastorage.manager.UserManager;
 import me.hsgamer.extrastorage.util.ItemUtil;
-import me.hsgamer.hscore.bukkit.utils.VersionUtils;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -220,8 +219,7 @@ public class PickupListener implements Listener, ListenerComponent {
 
         @Override
         public int getRemaining() {
-            // getRemaining was added to EntityPickupItemEvent in 1.17
-            return VersionUtils.isAtLeast(17) ? event.getRemaining() : 0;
+            return event.getRemaining();
         }
 
         @Override
