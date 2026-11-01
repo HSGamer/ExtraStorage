@@ -1,7 +1,7 @@
 package me.hsgamer.extrastorage.data.user;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import me.hsgamer.hscore.gson.GsonUtils;
 import me.hsgamer.extrastorage.util.ItemUtil;
 import me.hsgamer.topper.storage.sql.converter.BooleanSqlValueConverter;
 import me.hsgamer.topper.storage.sql.converter.ComplexSqlValueConverter;
@@ -47,7 +47,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
+                            JsonObject jsonObject = GsonUtils.parse(string).getAsJsonObject();
                             Map<UUID, Long> partners = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 UUID uuid = UUID.fromString(entry.getKey());
@@ -68,7 +68,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
+                            JsonObject jsonObject = GsonUtils.parse(string).getAsJsonObject();
                             Map<String, ItemImpl> items = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 String key = ItemUtil.normalizeMaterialKey(entry.getKey());
@@ -89,7 +89,7 @@ public class UserImpl {
                             return jsonObject.toString();
                         },
                         (user, string) -> {
-                            JsonObject jsonObject = JsonParser.parseString(string).getAsJsonObject();
+                            JsonObject jsonObject = GsonUtils.parse(string).getAsJsonObject();
                             Map<String, ItemImpl> items = new HashMap<>();
                             jsonObject.entrySet().forEach(entry -> {
                                 String key = ItemUtil.normalizeMaterialKey(entry.getKey());
