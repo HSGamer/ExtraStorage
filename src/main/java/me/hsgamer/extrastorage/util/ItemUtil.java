@@ -12,7 +12,6 @@ import me.hsgamer.extrastorage.ExtraStorage;
 import me.hsgamer.extrastorage.config.SettingConfig;
 import me.hsgamer.extrastorage.data.Constants;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +86,7 @@ public class ItemUtil {
             } else {
                 if (validItem instanceof XVanillaItem) {
                     keyStr = ((XVanillaItem) validItem).getName();
-                } else if (validItem instanceof VanillaItem && itemKey.type().equals(NamespacedKey.MINECRAFT)) {
+                } else if (validItem instanceof VanillaItem) {
                     keyStr = ((VanillaItem) validItem).getName();
                 } else {
                     keyStr = itemKey.type().toUpperCase(Locale.ROOT) + ":" + itemKey.id();
